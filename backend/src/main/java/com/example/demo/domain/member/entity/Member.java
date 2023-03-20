@@ -4,6 +4,10 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.util.HashSet;
+import java.util.Set;
+
+import com.example.demo.domain.security.entity.Authentication;
 
 @Entity
 @NoArgsConstructor
@@ -22,11 +26,12 @@ public class Member {
     @Column(nullable = false)
     private String nickname;
 
-    //@OneToMany 조인 컬럼 작성 필요
+    @OneToMany(mappedBy = "member", fetch = FetchType.LAZY)
+    private Set<Authentication> authentications = new HashSet<>();
 
     public Member(String email, String nickname) {
         this.email = email;
         this.nickname = nickname;
-
     }
+
 }
