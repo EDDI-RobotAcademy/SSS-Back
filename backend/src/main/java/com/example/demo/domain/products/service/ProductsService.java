@@ -1,9 +1,9 @@
 package com.example.demo.domain.products.service;
 
-import com.example.demo.domain.products.entity.Product;
+import com.example.demo.domain.products.service.response.ProductList;
 
 import java.util.List;
 
 public interface ProductsService {
-    List<Product> list();
+    List<ProductList> list();
 }
