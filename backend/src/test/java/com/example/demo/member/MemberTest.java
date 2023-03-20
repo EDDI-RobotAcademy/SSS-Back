@@ -19,4 +19,14 @@ public class MemberTest {
                 "test@sss.com", "test", "s3"
         )));
     }
+
+    @Test
+    public void 이메일_중복_확인() {
+        assertTrue(memberService.emailValidation("testtest@sss.com"));
+    }
+
+    @Test
+    public void 닉네임_중복_확인() {
+        assertTrue(memberService.nicknameValidation("sss3"));
+    }
 }
