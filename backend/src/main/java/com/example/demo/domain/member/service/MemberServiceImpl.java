@@ -2,6 +2,9 @@ package com.example.demo.domain.member.service;
 
 import com.example.demo.domain.member.repository.MemberRepository;
 import com.example.demo.domain.member.service.request.MemberSignUpRequest;
+import com.example.demo.domain.security.entity.Authentication;
+import com.example.demo.domain.security.entity.BasicAuthentication;
+import com.example.demo.domain.security.repository.AuthenticationRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import com.example.demo.domain.member.entity.Member;
@@ -40,7 +43,13 @@ public class MemberServiceImpl implements MemberService {
         final Member member = memberSignUpRequest.toMember();
         memberRepository.save(member);
 
-        //authentication 가져오기 작업
+        final BasicAuthentication authentication = new BasicAuthentication(
+                member,
+                Authentication.BASIC_AUTH,
+                memberSignUpRequest.getPassword()
+        );
+
+        authenticationRepository.save(authentication);
 
         return true;
     }
