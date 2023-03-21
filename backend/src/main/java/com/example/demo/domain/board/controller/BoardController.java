@@ -18,14 +18,6 @@ public class BoardController {
 
     final private BoardService boardService;
 
-    /*
-    @PostMapping("/register")
-    public void boardRegister (@RequestBody BoardRequest boardRequest) {
-        log.info("boardRegister()");
-
-        boardService.register(boardRequest);
-    }
-     */
     @PostMapping("/register")
     public Board boardRegister (@RequestBody BoardRequest boardRequest) {
         log.info("boardRegister()");
