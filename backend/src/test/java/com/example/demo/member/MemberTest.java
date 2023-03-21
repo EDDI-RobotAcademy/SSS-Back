@@ -16,7 +16,7 @@ public class MemberTest {
     @Test
     public void 회원가입_확인() {
         assertTrue(memberService.signUp(new MemberSignUpRequest(
-                "test@sss.com", "test", "s3"
+                "test2@sss.com", "test", "s5"
         )));
     }
 
@@ -28,5 +28,10 @@ public class MemberTest {
     @Test
     public void 닉네임_중복_확인() {
         assertTrue(memberService.nicknameValidation("sss3"));
+    }
+
+    @Test
+    public void 회원탈퇴_확인() {
+        memberService.deleteMember(3L);
     }
 }
