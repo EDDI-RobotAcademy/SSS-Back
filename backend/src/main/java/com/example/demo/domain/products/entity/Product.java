@@ -1,16 +1,19 @@
 package com.example.demo.domain.products.entity;
 
 import lombok.Data;
-import org.springframework.data.annotation.Id;
+import lombok.NoArgsConstructor;
 
+import javax.persistence.Id;
 import javax.persistence.*;
 
 @Data
 @Entity
+@NoArgsConstructor
 public class Product {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long productId;
+
 
     @Column(length = 120, nullable = false)
     private String title;
