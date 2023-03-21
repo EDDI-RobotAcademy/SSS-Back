@@ -53,4 +53,9 @@ public class MemberServiceImpl implements MemberService {
 
         return true;
     }
+
+    //회원탈퇴
+    public void deleteMember(Long id) {
+        memberRepository.deleteById(id);
+    }
 }

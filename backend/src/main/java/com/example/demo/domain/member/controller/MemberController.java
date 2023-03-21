@@ -35,4 +35,9 @@ public class MemberController {
 
         return memberService.signUp(form.toMemberSignUpRequest());
     }
+
+    @DeleteMapping("/delete-member/{id}")
+    public void deleteMember(@PathVariable Long id) {
+        memberService.deleteMember(id);
+    }
 }
