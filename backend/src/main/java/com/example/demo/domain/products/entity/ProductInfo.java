@@ -12,17 +12,8 @@ import javax.persistence.*;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ProductInfo {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
 
     private String thumbnailPath;
-
-
-    public ProductInfo(String thumbnailPath) {
-        this.thumbnailPath = thumbnailPath;
-    }
-
 
 
 }
