@@ -11,7 +11,7 @@ import java.util.Map;
 
 @Slf4j
 @RestController
-@RequestMapping
+@RequestMapping("/member")
 @RequiredArgsConstructor
 @CrossOrigin(origins = "http://localhost:8080", allowedHeaders = "*")
 public class MemberController {
