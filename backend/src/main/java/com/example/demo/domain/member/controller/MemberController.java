@@ -1,10 +1,13 @@
 package com.example.demo.domain.member.controller;
 
+import com.example.demo.domain.member.controller.form.MemberSignInForm;
 import com.example.demo.domain.member.controller.form.MemberSignUpForm;
 import com.example.demo.domain.member.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
 
 @Slf4j
 @RestController
@@ -34,6 +37,13 @@ public class MemberController {
         log.info("signUp(): " + form);
 
         return memberService.signUp(form.toMemberSignUpRequest());
+    }
+
+    @PostMapping("/sign-in")
+    public Map<String, String> signIn(@RequestBody MemberSignInForm form) {
+        log.info("signIn(): " + form);
+
+        return memberService.signIn(form.toMemberSignInRequest());
     }
 
     @DeleteMapping("/delete-member/{id}")
