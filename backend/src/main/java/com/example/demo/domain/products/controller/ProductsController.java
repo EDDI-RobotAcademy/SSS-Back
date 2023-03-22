@@ -1,12 +1,9 @@
 package com.example.demo.domain.products.controller;
 
 import com.example.demo.domain.products.service.ProductsService;
-import com.example.demo.domain.products.entity.Product;
+import com.example.demo.domain.products.service.response.ProductList;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -24,7 +21,9 @@ public class ProductsController {
 
 
     @GetMapping(path = "/list")
-    public List<Product> productsList() {
+    public List<ProductList> productsList() {
         return productsService.list();
     }
+
+
 }

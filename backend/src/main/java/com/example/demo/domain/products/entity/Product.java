@@ -1,0 +1,28 @@
+package com.example.demo.domain.products.entity;
+
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import javax.persistence.Id;
+import javax.persistence.*;
+
+@Data
+@Entity
+@NoArgsConstructor
+public class Product {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long productId;
+
+
+    @Column(length = 120, nullable = false)
+    private String title;
+
+    @Column(nullable = false)
+    private Long price;
+
+    @Embedded
+    private ProductInfo productInfo;
+
+
+}
