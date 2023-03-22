@@ -1,12 +1,9 @@
 package com.example.demo.domain.selfSalad.Controller;
 
-import com.example.demo.domain.selfSalad.Controller.dto.IngredientList;
+import com.example.demo.domain.selfSalad.entity.Ingredient;
 import com.example.demo.domain.selfSalad.service.SelfSaladService;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -22,10 +19,12 @@ public class SelfSaladController {
     }
 
     @GetMapping("/list")
-    public List<IngredientList> ingredientList () {
+    public List<Ingredient> ingredientList () {
         log.info("boardList()");
 
         return selfSaladService.list();
     }
+
+
 
 }
