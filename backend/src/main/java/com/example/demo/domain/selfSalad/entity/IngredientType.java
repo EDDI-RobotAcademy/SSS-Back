@@ -5,6 +5,10 @@ import lombok.RequiredArgsConstructor;
 
 import javax.persistence.Embeddable;
 
+import java.util.List;
+
+import static com.fasterxml.jackson.databind.type.LogicalType.Collection;
+
 @Getter
 @RequiredArgsConstructor
 @Embeddable
@@ -19,9 +23,10 @@ public enum IngredientType {
 
      *
      */
-    TYPE1("채소"), TYPE2("육류"), TYPE3("토핑");
+    VEGETABLE("채소"), MEAT("육류"), TOPPING("토핑");
 
     final private String type;
 
     public static IngredientType ofType(String type){return null; }
+
 }

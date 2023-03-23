@@ -18,4 +18,7 @@ public class ImageResource {
     @Column(nullable = false)
     private String imagePath;
 
+    public ImageResource(String imagePath) {
+        this.imagePath = imagePath;
+    }
 }

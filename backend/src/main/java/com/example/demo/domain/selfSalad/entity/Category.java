@@ -28,5 +28,8 @@ public class Category {
     // Ingredient.class 의 Category 변수명을 mappedBy에 쓰기
     private List<Ingredient> ingredients = new ArrayList<>();
 
+    public Category(IngredientType ingredientType) {
+        this.ingredientType = ingredientType;
+    }
 }
 

@@ -1,6 +1,7 @@
 package com.example.demo.domain.selfSalad.entity;
 
 import com.example.demo.domain.selfSalad.entity.convert.MeasureTypeConverter;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -9,6 +10,7 @@ import javax.persistence.*;
 @Entity
 @NoArgsConstructor
 @Data
+@AllArgsConstructor
 public class Amount {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -37,6 +39,9 @@ public class Amount {
     @Lob
     private Integer min;
 
+    @Column
+    private Integer optionCount;
+
     /**
      * 측정타입 (g/개) enum을 @Convert 후 @Embedded 시킨다.
      */
@@ -46,6 +51,11 @@ public class Amount {
     private MeasureType measureType;
 
 
-
-
+    public Amount(Integer max, Integer min, Integer unit, MeasureType measureType) {
+        this.max = max;
+        this.min = min;
+        this.unit = unit;
+        this.measureType = measureType;
+        this.optionCount = max/unit;
+    }
 }
