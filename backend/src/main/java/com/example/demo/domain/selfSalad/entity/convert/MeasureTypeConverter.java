@@ -1,4 +1,4 @@
-package com.example.demo.domain.selfSalad.entity.utility;
+package com.example.demo.domain.selfSalad.entity.convert;
 
 import com.example.demo.domain.selfSalad.entity.MeasureType;
 
