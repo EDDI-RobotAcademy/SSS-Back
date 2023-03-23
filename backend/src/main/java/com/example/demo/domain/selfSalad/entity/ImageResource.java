@@ -4,13 +4,18 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.Embeddable;
+import javax.persistence.*;
 
 @Getter
-@Embeddable
 @NoArgsConstructor
 @AllArgsConstructor
+@Entity
 public class ImageResource {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long imageId;
+
+    @Column(nullable = false)
     private String imagePath;
 
 }

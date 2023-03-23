@@ -1,5 +1,7 @@
 package com.example.demo.domain.selfSalad.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -8,6 +10,7 @@ import javax.persistence.*;
 @Entity
 @NoArgsConstructor
 @Data
+@AllArgsConstructor
 public class Ingredient {
     /**
      * 재료분류(육류) > 재료(닭고기)
@@ -22,17 +25,19 @@ public class Ingredient {
      */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long ingredientId;
+    private Long id;
+
+    @ManyToOne(fetch = FetchType.EAGER, targetEntity = Category.class)
+    @JoinColumn(name="category_id")
+    private Category category;
+
     private String name;
 
-    @Embedded
+    @OneToOne(targetEntity = ImageResource.class)
     private ImageResource imageResource;
 
-    @Embedded
-    private IngredientConvert ingredientConvert;
-
-    @Embedded
-    private AmountSelection amountSelection;
+    @OneToOne(targetEntity = Amount.class)
+    private Amount amount;
 
 
 }

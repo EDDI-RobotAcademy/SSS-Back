@@ -1,12 +1,12 @@
-package com.example.demo.domain.selfSalad.entity.utility;
+package com.example.demo.domain.selfSalad.entity.convert;
 
 import com.example.demo.domain.selfSalad.entity.IngredientType;
 
 import javax.persistence.AttributeConverter;
-import javax.persistence.Converter;
 
-@Converter
+//@Converter
 public class IngredientTypeConverter implements AttributeConverter<IngredientType, String> {
+
     /**
      * Entity의 Enum값 <-> DB : 양 방향으로 데이터를 가져올 때 변환하는 방법
      * AttributeConverter 인터페이스 + @Converter
@@ -17,6 +17,7 @@ public class IngredientTypeConverter implements AttributeConverter<IngredientTyp
      *
      * @Converter : 엔티티에는 type1, 데이터베이스에는 "과일" 저장
      */
+
     @Override
     public String convertToDatabaseColumn(IngredientType attribute) {
         if(attribute == null){
@@ -33,4 +34,6 @@ public class IngredientTypeConverter implements AttributeConverter<IngredientTyp
 
         return IngredientType.ofType(dbData);
     }
+
+
 }
