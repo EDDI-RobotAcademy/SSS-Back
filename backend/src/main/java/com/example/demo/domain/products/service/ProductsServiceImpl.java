@@ -3,20 +3,21 @@ package com.example.demo.domain.products.service;
 import com.example.demo.domain.products.entity.Product;
 import com.example.demo.domain.products.repository.ProductsRepository;
 import com.example.demo.domain.products.service.response.ProductList;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@RequiredArgsConstructor
 @Slf4j
 @Service
-
 public class ProductsServiceImpl implements ProductsService {
-    @Autowired
-    ProductsRepository productsRepository;
+
+    final private ProductsRepository productsRepository;
+
     @Override
     public List<ProductList> list() {
         List<Product> productList = productsRepository.findAll(Sort.by(Sort.Direction.DESC, "productId"));

@@ -1,19 +1,39 @@
 package com.example.demo.domain.products.entity;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.*;
+import java.util.Date;
+
 @Getter
-@Setter
-@Embeddable
 @NoArgsConstructor
-@AllArgsConstructor
+@Entity
 public class ProductInfo {
 
-    private String thumbnailPath;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long productInfoId;
 
+    @Lob
+    private String content;
+
+    @Column(nullable = false)
+    private int viewCnt = 0;
+
+    @Column(nullable = false)
+    private int goodCnt = 0;
+
+    @CreationTimestamp
+    private Date regDate;
+
+    @UpdateTimestamp
+    private Date updDate;
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "product_id")
+    private Product product;
 
 }
