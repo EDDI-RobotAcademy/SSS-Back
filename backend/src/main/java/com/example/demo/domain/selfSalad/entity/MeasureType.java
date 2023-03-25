@@ -2,28 +2,21 @@ package com.example.demo.domain.selfSalad.entity;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-
-import javax.persistence.Embeddable;
+import java.util.Arrays;
 
 @Getter
 @RequiredArgsConstructor
-@Embeddable
 public enum MeasureType {
-    /**
-     * Entity의 Enum값 <-> DB : 양 방향으로 데이터를 가져올 때 변환하는 방법
-     * AttributeConverter 인터페이스 + @Converter
 
-     * AttributeConverter 인터페이스
-     - convertToDatabaseColumn : enum > db데이터
-     - convertToEntityAttribute : db데이터 > enum
-
-     */
     MEASURE1("g"), MEASURE2("개");
 
     final private String measure;
 
-    public static MeasureType ofType(String measure) {
-        return null;
+    public static MeasureType valueOfMeasureName(String measure) {
+        return Arrays.stream(values())
+                .filter(value -> value.measure.equals(measure))
+                .findAny()
+                .orElse(null);
     }
 
 }
