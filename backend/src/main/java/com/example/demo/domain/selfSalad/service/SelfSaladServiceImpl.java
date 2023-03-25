@@ -2,8 +2,8 @@ package com.example.demo.domain.selfSalad.service;
 
 import com.example.demo.domain.selfSalad.Controller.request.IngredientInfoRequest;
 import com.example.demo.domain.selfSalad.entity.*;
-import com.example.demo.domain.selfSalad.entity.convert.IngredientTypeConverter;
-import com.example.demo.domain.selfSalad.entity.convert.MeasureTypeConverter;
+//import com.example.demo.domain.selfSalad.entity.convert.IngredientTypeConverter;
+//import com.example.demo.domain.selfSalad.entity.convert.MeasureTypeConverter;
 import com.example.demo.domain.selfSalad.repository.SelfSaladRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -63,22 +63,23 @@ public class SelfSaladServiceImpl implements SelfSaladService {
         }
 
         // 3. 재료 분류 : IngredientType
-        IngredientTypeConverter typeConverter = new IngredientTypeConverter();
-        IngredientType ingredientType =  typeConverter.convertToEntityAttribute( ingredientInfoRequest.getType() );
-        log.info("requestIngredientType - number: " + ingredientType.getType());
+        log.info("requestIngredientType : " + ingredientInfoRequest.getCategory());
+        String selectedType = ingredientInfoRequest.getCategory();
 
-        Category category = new Category( ingredientType );
+        Category category = new Category( IngredientType.valueOfTypeName(selectedType));
         ingredient.setCategory(category);
 
 
         // 4-1. 측정단위 : MeasureType
-        MeasureTypeConverter measureConverter = new MeasureTypeConverter();
-        MeasureType measureType =  measureConverter.convertToEntityAttribute( ingredientInfoRequest.getMeasure() );
-        log.info("requestMeasureType - number: " + measureType.getMeasure());
+        log.info("requestMeasureType : " + ingredientInfoRequest.getMeasure());
+        String selectedMeasure = ingredientInfoRequest.getMeasure();
+
+        Amount measure = new Amount( MeasureType.valueOfMeasureName(selectedMeasure));
 
         // 4-2. 최대, 최소, 단위, 측정 단위 : Amount
         Amount amount = new Amount( ingredientInfoRequest.getMax(), ingredientInfoRequest.getMin(),
-                    ingredientInfoRequest.getUnit(), measureType);
+                    ingredientInfoRequest.getUnit(), measure.getMeasureType());
+
         ingredient.setAmount(amount);
 
         selfSaladRepository.save(ingredient);

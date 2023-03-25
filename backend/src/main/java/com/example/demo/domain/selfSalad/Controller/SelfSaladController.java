@@ -23,7 +23,7 @@ public class SelfSaladController {
 
     @GetMapping("/list")
     public List<Ingredient> ingredientList () {
-        log.info("boardList()");
+        log.info("ingredientList()");
 
         return selfSaladService.list();
     }
