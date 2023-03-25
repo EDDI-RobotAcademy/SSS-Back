@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 
 @Slf4j
 @RestController
@@ -25,6 +26,19 @@ public class SideProductsController {
         return sideProductsService.register(sideProductRequest);
     }
 
+    @GetMapping("/list")
+    public List<SideProduct> sideProductList(){
+        log.info("sideProductList()");
+
+
+        return sideProductsService.list();
+    }
+    @GetMapping("/read/{productId}")
+    public SideProduct sideProductRead(@PathVariable("productId") Long productId){
+        log.info("sideProductRead()");
+
+        return sideProductsService.read(productId);
+    }
 
 
 
