@@ -28,18 +28,15 @@ public class Ingredient {
 
     @ManyToOne(fetch = FetchType.LAZY, targetEntity = Category.class ,cascade = CascadeType.ALL)
     @JoinColumn(name="category_id")
-    @Column(nullable = false)
     private Category category;
 
     @Column(nullable = false)
     private String name;
 
     @OneToOne(targetEntity = ImageResource.class ,cascade = CascadeType.ALL)
-    @Column(nullable = false)
     private ImageResource imageResource;
 
     @OneToOne(targetEntity = Amount.class ,cascade = CascadeType.ALL)
-    @Column(nullable = false)
     private Amount amount;
 
 
