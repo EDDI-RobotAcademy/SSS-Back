@@ -1,4 +1,4 @@
-package com.example.demo.domain.sideProducts.controller.request;
+package com.example.demo.domain.sideProducts.dto.request;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

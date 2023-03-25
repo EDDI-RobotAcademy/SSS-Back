@@ -1,6 +1,6 @@
 package com.example.demo.domain.sideProducts.controller;
 
-import com.example.demo.domain.sideProducts.controller.request.SideProductRequest;
+import com.example.demo.domain.sideProducts.dto.request.SideProductRequest;
 import com.example.demo.domain.sideProducts.entity.SideProduct;
 import com.example.demo.domain.sideProducts.service.SideProductsService;
 import lombok.RequiredArgsConstructor;
