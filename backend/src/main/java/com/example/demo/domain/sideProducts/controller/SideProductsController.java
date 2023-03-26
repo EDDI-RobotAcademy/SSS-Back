@@ -49,5 +49,14 @@ public class SideProductsController {
         sideProductsService.remove(productId);
     }
 
+    // 수정
+    @PutMapping("/modify/{productId}")
+    public SideProductResponse sideProductModify(@PathVariable("productId")Long productId,
+                                                 @RequestBody SideProductRequest sideProductRequest) {
+        log.info("sideProductModify(): " + sideProductRequest + "id: " + productId);
+
+        return sideProductsService.modify(productId, sideProductRequest);
+    }
+
 
 }

@@ -49,5 +49,31 @@ public class SideProductsServiceImpl implements SideProductsService {
     public void remove(Long productId) {
         sideProductsRepository.deleteById(productId);
     }
+
+    // 수정
+    @Override
+    public SideProductResponse modify(Long productId, SideProductRequest sideProductRequest) {
+        Optional<SideProduct> maybeSideProduct = sideProductsRepository.findByProductId(productId);
+
+        if(maybeSideProduct.isEmpty()){
+            return null;
+        }
+
+        SideProduct sideProduct = maybeSideProduct.get();
+
+        sideProduct.setTitle(sideProductRequest.getTitle());
+        sideProduct.setContent(sideProductRequest.getContent());
+        sideProduct.setPrice(sideProductRequest.getPrice());
+
+        sideProductsRepository.save(sideProduct);
+
+        SideProductResponse sideProductResponse = new SideProductResponse(
+                sideProduct.getProductId(),
+                sideProductRequest.getContent(),
+                sideProductRequest.getPrice(),
+                sideProductRequest.getTitle()
+        );
+
+        return sideProductResponse;
     }
 }
