@@ -1,8 +1,10 @@
 package com.example.demo.domain.products.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import javax.persistence.*;
 
@@ -10,19 +12,22 @@ import javax.persistence.*;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@ToString(exclude = "product")
 public class ProductImg {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long pImageId;
+    private Long imageId;
 
     @Column(nullable = false)
-    private String name;
+    private String imagePath;
 
-    @Column(nullable = false)
-    private String pImagePath;
-
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "product_id")
+    @JoinColumn(name = "productId")
     private Product product;
+
+    public ProductImg (String imagePath) {
+        this.imagePath = imagePath;
+    }
 }
