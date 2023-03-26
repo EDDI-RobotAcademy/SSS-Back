@@ -10,4 +10,6 @@ public interface SideProductsService {
 
     //리스트
     List<SideProduct> list();
+    //삭제
+    void remove(Long productId);
 }

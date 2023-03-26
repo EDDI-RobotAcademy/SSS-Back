@@ -44,5 +44,10 @@ public class SideProductsServiceImpl implements SideProductsService {
             return null;
         }
         return maybeSideProduct.get();
+    // 삭제
+    @Override
+    public void remove(Long productId) {
+        sideProductsRepository.deleteById(productId);
+    }
     }
 }

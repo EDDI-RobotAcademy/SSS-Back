@@ -1,6 +1,7 @@
 package com.example.demo.domain.sideProducts.controller;
 
 import com.example.demo.domain.sideProducts.dto.request.SideProductRequest;
+import com.example.demo.domain.sideProducts.dto.response.SideProductResponse;
 import com.example.demo.domain.sideProducts.entity.SideProduct;
 import com.example.demo.domain.sideProducts.service.SideProductsService;
 import lombok.RequiredArgsConstructor;
@@ -40,7 +41,13 @@ public class SideProductsController {
         return sideProductsService.read(productId);
     }
 
+    // 삭제
+    @DeleteMapping("/{productId}")
+    public void sideProductRemove(@PathVariable("productId") Long productId) {
+        log.info("sideProductRemove()");
 
+        sideProductsService.remove(productId);
+    }
 
 
 }
