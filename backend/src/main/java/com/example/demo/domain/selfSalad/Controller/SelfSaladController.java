@@ -1,6 +1,6 @@
 package com.example.demo.domain.selfSalad.Controller;
 
-import com.example.demo.domain.selfSalad.Controller.request.IngredientInfoRequest;
+import com.example.demo.domain.selfSalad.Controller.request.IngredientRegisterRequest;
 import com.example.demo.domain.selfSalad.entity.Ingredient;
 import com.example.demo.domain.selfSalad.service.SelfSaladService;
 import lombok.extern.slf4j.Slf4j;
@@ -22,11 +22,20 @@ public class SelfSaladController {
     }
 
     @GetMapping("/list")
-    public List<Ingredient> ingredientList () {
+    public List<Ingredient> ingredientList() {
+        String defaultIngredientType = "채소";
         log.info("ingredientList()");
 
-        return selfSaladService.list();
+        return selfSaladService.list(defaultIngredientType);
     }
+    @GetMapping("/list/{category}")
+    public List<Ingredient> ingredientList(@PathVariable("category") String category) {
+        String defaultIngredientType = "vegetable";
+        log.info("ingredientList()");
+
+        return selfSaladService.list(category);
+    }
+
 
     /**
      * VueToSpring
@@ -38,10 +47,10 @@ public class SelfSaladController {
             consumes = { MediaType.MULTIPART_FORM_DATA_VALUE, MediaType.APPLICATION_JSON_VALUE})
     public void ingredientRegister(
             @RequestPart(value = "imageFile")MultipartFile imageFile,
-            @RequestPart(value = "ingredientInfo") IngredientInfoRequest ingredientInfoRequest){
+            @RequestPart(value = "ingredientInfo") IngredientRegisterRequest ingredientRegisterRequest){
         log.info("ingredientRegister()");
 
-        selfSaladService.register( imageFile, ingredientInfoRequest);
+        selfSaladService.register( imageFile, ingredientRegisterRequest);
 
     }
 
