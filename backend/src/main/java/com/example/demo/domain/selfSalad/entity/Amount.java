@@ -1,5 +1,6 @@
 package com.example.demo.domain.selfSalad.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 
 import javax.persistence.*;
@@ -12,37 +13,55 @@ public class Amount {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    /**
-     * 관리자가 사용자가 선택할 수 있는 재료의 수량의 최솟값, 최댓값, 단위를 정함
-     * unit : 단위
-     * max : 수량 최댓값
-     * min : 수량 최솟값
-     *
-     * ex. 10단위로 최소 10g부터 최대 50g
-     * ex. 1단위로 최소 1개부터 4개
-     */
-    @Column(nullable = false)
+    @Column // 재료 최소 단위당 가격
+    private Integer price;
+
+    @Column // 재료 최소 단위당 칼로리
+    private Integer calorie;
+
+    @Column
     private Integer unit;
 
-    @Column(nullable = false)
+    @Column
     private Integer max;
 
-    @Column(nullable = false)
+    @Column
     private Integer min;
 
 
-    @Enumerated(EnumType.STRING)
+//    @Enumerated(EnumType.STRING)
+ //   @Column(insertable = false, updatable = false, nullable = false)
     @Column(nullable = false)
-    private MeasureType measureType;
+    private String amountType;
+    //private AmountType amountType;
 
-    public Amount(MeasureType measureType) {
-        this.measureType = measureType;
-    }
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JsonIgnore
+    @JoinColumn(name = "ingredient_id")
+    private Ingredient ingredient;
 
-    public Amount(Integer max, Integer min, Integer unit, MeasureType measureType) {
+
+    //public void to
+
+    public Amount(Integer max, Integer min, Integer unit, String amountType, Ingredient ingredient) {
         this.max = max;
         this.min = min;
         this.unit = unit;
-        this.measureType = measureType;
+        this.amountType = amountType;
+        this.ingredient = ingredient;
     }
+
+    public Amount(Integer max, Integer min, Integer unit, Integer price, Integer calorie, String amountType, Ingredient ingredient) {
+        this.max = max;
+        this.min = min;
+        this.unit = unit;
+        this.price = price;
+        this.calorie = calorie;
+        this.amountType = amountType;
+        this.ingredient = ingredient;
+    }
+
+    public void registerToIngredient(){this.ingredient.registerAmount(this); }
+
+
 }

@@ -1,8 +1,10 @@
 package com.example.demo.domain.selfSalad.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.*;
 
@@ -11,33 +13,57 @@ import javax.persistence.*;
 @Data
 @AllArgsConstructor
 public class Ingredient {
-    /**
-     * 재료분류(육류) > 재료(닭고기)
 
-     * 재료 클래스
-        * 재료 식별자(번호), 재료 이름(닭고기), 재료 사진(닭고기 사진), 재료 convert, 재료 수량
-
-     * 재료 수량 클래스 : 최대/최소 gram-개
-
-     * 재료 convert : 재료분류 이름(육류), 재료 단위(g)
-
-     */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long ingredientId;
+    private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY, targetEntity = Category.class ,cascade = CascadeType.ALL)
-    @JoinColumn(name="category_id")
-    private Category category;
-
-    @Column(nullable = false)
+    @Column(nullable = false) // 재료명
     private String name;
 
-    @OneToOne(targetEntity = ImageResource.class ,cascade = CascadeType.ALL)
-    private ImageResource imageResource;
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinColumn(name="category_id")
+    @JsonIgnore
+    private Category category;
 
-    @OneToOne(targetEntity = Amount.class ,cascade = CascadeType.ALL)
+    @OneToOne(mappedBy = "ingredient", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private IngredientImage ingredientImage;
+
+    @OneToOne(mappedBy = "ingredient", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private Amount amount;
 
 
+    public Ingredient(String name, Amount amount) {
+        this.name = name;
+        this.amount = amount;
+    }
+
+    public Ingredient(String name, Amount amount, IngredientImage image) {
+        this.name = name; this.amount = amount; this.ingredientImage = image;
+    }
+
+
+    /**
+     * 해당 category 에 새로운 재료를 등록
+     * @param category
+     */
+    public void registerToCategory(Category category) {
+        this.category = category;
+        this.category.registerIngredient(this);
+    }
+
+    /**
+     * 재료 이미지
+     * @param ingredientImage
+     */
+    public void registerImage(IngredientImage ingredientImage){
+        this.ingredientImage = ingredientImage;
+    }
+
+    public void registerAmount( Amount amount){this.amount = amount;}
+
+
+    public void registerName(String name) {
+        this.name = name;
+    }
 }
