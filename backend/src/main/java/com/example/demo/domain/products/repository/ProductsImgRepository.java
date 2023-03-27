@@ -8,5 +8,5 @@ import java.util.List;
 
 public interface ProductsImgRepository extends JpaRepository<ProductImg, Long> {
     @Query("select pi from ProductImg pi join pi.product p where p.productId = :id")
-    List<ProductImg> findImagePathByProductId(Long productId);
+    List<ProductImg> findImagePathByProductId(Long id);
 }
