@@ -1,5 +1,7 @@
 package com.example.demo.domain.products.controller;
 
+import com.example.demo.domain.products.controller.form.ProductImgResponse;
+import com.example.demo.domain.products.controller.form.ProductReadResponse;
 import com.example.demo.domain.products.controller.form.ProductsRegisterForm;
 import com.example.demo.domain.products.entity.Product;
 import com.example.demo.domain.products.service.ProductsService;
@@ -32,4 +34,21 @@ public class ProductsController {
 
         productsService.register(productImgList, form.toProductRegisterRequest());
     }
+
+    @GetMapping("/{productId}")
+    public ProductReadResponse productRead(@PathVariable("productId") Long productId) {
+        log.info("productRead()");
+
+        return productsService.read(productId);
+    }
+
+    @GetMapping("/imageList/{productId}")
+    public List<ProductImgResponse> readProductImgResource(
+            @PathVariable("productId") Long productId) {
+
+        log.info("readProductImgResource(): " + productId);
+
+        return productsService.findProductImage(productId);
+    }
+
 }

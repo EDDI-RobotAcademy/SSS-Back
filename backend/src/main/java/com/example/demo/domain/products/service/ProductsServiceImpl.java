@@ -1,5 +1,7 @@
 package com.example.demo.domain.products.service;
 
+import com.example.demo.domain.products.controller.form.ProductImgResponse;
+import com.example.demo.domain.products.controller.form.ProductReadResponse;
 import com.example.demo.domain.products.entity.Product;
 import com.example.demo.domain.products.entity.ProductImg;
 import com.example.demo.domain.products.repository.ProductsImgRepository;
@@ -16,6 +18,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @RequiredArgsConstructor
@@ -44,7 +47,7 @@ public class ProductsServiceImpl implements ProductsService {
         product.setPrice(request.getPrice());
         product.setContent(request.getContent());
 
-        final String fixedPath = "D:/sss/SSS-Front/frontend/src/assets/";
+        final String fixedPath = "C:/khproj/SSS-Front/frontend/src/assets/";
         UUID uuid = UUID.randomUUID();
 
         try {
@@ -68,4 +71,39 @@ public class ProductsServiceImpl implements ProductsService {
         productsRepository.save(product);
         productsImgRepository.saveAll(imgList);
     }
+
+    @Override
+    public ProductReadResponse read(Long productId) {
+        Optional<Product> maybeProduct = productsRepository.findById(productId);
+
+        if (maybeProduct.isEmpty()) {
+            log.info("없음!");
+            return null;
+        }
+
+        Product product = maybeProduct.get();
+
+        ProductReadResponse productReadResponse = new ProductReadResponse(
+                product.getProductId(), product.getTitle(),
+                product.getContent(), product.getPrice(), product.getRegDate()
+        );
+
+        return productReadResponse;
+    }
+
+    @Override
+    public List<ProductImgResponse> findProductImage(Long productId) {
+        List<ProductImg> productimgList = productsImgRepository.findImagePathByProductId(productId);
+        List<ProductImgResponse> productImgResponseList = new ArrayList<>();
+
+        for (ProductImg productImg: productimgList) {
+            System.out.println(productImg.getImagePath());
+
+            productImgResponseList.add(new ProductImgResponse(
+                    productImg.getImagePath()));
+        }
+
+        return productImgResponseList;
+    }
+
 }
