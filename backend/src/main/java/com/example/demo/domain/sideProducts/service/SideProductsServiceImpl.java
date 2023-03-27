@@ -35,6 +35,26 @@ public class SideProductsServiceImpl implements SideProductsService {
         return sideProductsRepository.findAll(Sort.by(Sort.Direction.DESC,"productId"));
     }
 
+    // 상세페이지(읽기)
+    @Override
+    public SideProductResponse read(Long productId) {
+        Optional<SideProduct> maybeSideProduct = sideProductsRepository.findByProductId(productId);
+
+        if(maybeSideProduct.isEmpty()){
+            log.info("없는데?");
+            return null;
+        }
+        SideProduct sideProduct = maybeSideProduct.get();
+
+        SideProductResponse sideProductResponse = new SideProductResponse(
+                sideProduct.getProductId(),
+                sideProduct.getContent(),
+                sideProduct.getPrice(),
+                sideProduct.getTitle()
+        );
+        return sideProductResponse;
+    }
+
     // 삭제
     @Override
     public void remove(Long productId) {

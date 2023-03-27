@@ -11,6 +11,10 @@ public interface SideProductsService {
 
     //리스트
     List<SideProduct> list();
+
+    //상세페이지(읽기)
+    SideProductResponse read(Long productId);
+
     //삭제
     void remove(Long productId);
 
