@@ -34,12 +34,6 @@ public class SideProductsController {
 
         return sideProductsService.list();
     }
-    @GetMapping("/read/{productId}")
-    public SideProduct sideProductRead(@PathVariable("productId") Long productId){
-        log.info("sideProductRead()");
-
-        return sideProductsService.read(productId);
-    }
 
     // 삭제
     @DeleteMapping("/{productId}")
