@@ -35,15 +35,6 @@ public class SideProductsServiceImpl implements SideProductsService {
         return sideProductsRepository.findAll(Sort.by(Sort.Direction.DESC,"productId"));
     }
 
-    @Override
-    public SideProduct read(Long productId) {
-        Optional<SideProduct> maybeSideProduct = sideProductsRepository.findByProductId(productId);
-
-        if(maybeSideProduct.isEmpty()){
-            log.info("없는데?");
-            return null;
-        }
-        return maybeSideProduct.get();
     // 삭제
     @Override
     public void remove(Long productId) {
