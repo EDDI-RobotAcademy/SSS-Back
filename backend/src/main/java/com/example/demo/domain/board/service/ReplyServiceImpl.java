@@ -1,8 +1,10 @@
 package com.example.demo.domain.board.service;
 
-import com.example.demo.domain.board.controller.request.BoardRequest;
-import com.example.demo.domain.board.entity.Board;
-import com.example.demo.domain.board.repository.BoardRepository;
+import com.example.demo.domain.board.controller.request.ReplyRequest;
+import com.example.demo.domain.board.entity.Reply;
+import com.example.demo.domain.board.repository.ReplyRepository;
+import com.example.demo.domain.board.service.ReplyService;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Sort;
@@ -14,74 +16,73 @@ import java.util.Optional;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class ReplyServiceImpl implements BoardService {
+public class ReplyServiceImpl implements ReplyService {
 
-    final private BoardRepository boardRepository;
+    final private ReplyRepository replyRepository;
 
-    public Board register(BoardRequest boardRequest) {
-        Board board = new Board();
-        board.setTitle(boardRequest.getTitle());
-        board.setWriter(boardRequest.getWriter());
-        board.setContent(boardRequest.getContent());
+    public Reply register(ReplyRequest replyRequest) {
+        Reply reply = new Reply();
+        reply.setReplyId(replyRequest.getReplyId());
+        reply.setReplyWriter(replyRequest.getReplyContent());
 
-        boardRepository.save(board);
+        replyRepository.save(reply);
 
-        return board;
+        return reply;
     }
 
     @Override
-    public List<Board> list() {
-        return boardRepository.findAll(Sort.by(Sort.Direction.DESC, "boardId"));
+    public List<Reply> list() {
+        return replyRepository.findAll(Sort.by(Sort.Direction.DESC, "replyId"));
     }
 
     @Override
-    public Board read(Long boardId) {
-        Optional<Board> maybeBoard = boardRepository.findById(boardId);
+    public Reply read(Long replyId) {
+        Optional<Reply> maybeReply = replyRepository.findById(replyId);
 
-        if (maybeBoard.isEmpty()) {
+        if (maybeReply.isEmpty()) {
             log.info("읽을 수 없습니다!");
             return null;
         }
 
-        return maybeBoard.get();
+        return maybeReply.get();
     }
 
     @Override
-    public void remove(Long boardId) {
-        boardRepository.deleteById(boardId);
+    public void remove(Long replyId) {
+        replyRepository.deleteById(replyId);
     }
 
     @Override
-    public Board modify(Long boardId, BoardRequest boardRequest) {
-        Optional<Board> maybeBoard = boardRepository.findById(boardId);
+    public Reply modify(Long replyId, ReplyRequest replyRequest) {
+        Optional<Reply> maybeReply = replyRepository.findById(replyId);
 
-        if (maybeBoard.isEmpty()) {
-            System.out.println("Board 정보를 찾지 못했습니다: " + boardId);
+        if (maybeReply.isEmpty()) {
+            System.out.println("reply 정보를 찾지 못했습니다: " + replyId);
             return null;
         }
 
-        Board board = maybeBoard.get();
-        board.setTitle(boardRequest.getTitle());
-        board.setContent(boardRequest.getContent());
+        Reply reply = maybeReply.get();
+        reply.setReplyId(replyRequest.getReplyId());
+        reply.setReplyContent(replyRequest.getReplyContent());
 
-        boardRepository.save(board);
+        replyRepository.save(reply);
 
-        return board;
+        return reply;
     }
 /*
     @Override
-    public List<Board> bigMisstake(Long boardId, BoardRequest boardRequest) {
-        return boardRepository.findByBoardIdAndWriter(boardId, boardRequest.getWriter());
+    public List<reply> bigMisstake(Long replyId, replyRequest replyRequest) {
+        return replyRepository.findByreplyIdAndWriter(replyId, replyRequest.getWriter());
     }
 */
-    @Override
-    public Long getCount() {
-        return boardRepository.countBy();
-    }
+//    @Override
+//    public Long getCount() {
+//        return replyRepository.countBy();
+//    }
 
-    @Override
-    public Long getLastEntityId() {
-        Board board = boardRepository.findFirstByOrderByBoardIdDesc();
-        return board.getBoardId();
-    }
+//    @Override
+//    public Long getLastEntityId() {
+//        reply reply = replyRepository.findFirstByOrderByreplyIdDesc();
+//        return reply.getreplyId();
+//    }
 }

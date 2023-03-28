@@ -1,8 +1,8 @@
 package com.example.demo.domain.board.controller;
 
-import com.example.demo.domain.board.controller.request.BoardRequest;
-import com.example.demo.domain.board.entity.Board;
-import com.example.demo.domain.board.service.BoardService;
+import com.example.demo.domain.board.controller.request.ReplyRequest;
+import com.example.demo.domain.board.entity.Reply;
+import com.example.demo.domain.board.service.ReplyService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
@@ -11,47 +11,47 @@ import java.util.List;
 
 @Slf4j
 @RestController
-@RequestMapping("/board")
+@RequestMapping("/reply")
 @RequiredArgsConstructor
 @CrossOrigin(origins = "http://localhost:8080", allowedHeaders = "*")
 public class ReplyController {
 
-    final private BoardService boardService;
+    final private ReplyService replyService;
 
-    @PostMapping("/replyregister")
-    public Reply boardRegister (@RequestBody BoardRequest boardRequest) {
-        log.info("boardRegister()");
+    @PostMapping("/register")
+    public Reply replyRegister (@RequestBody ReplyRequest replyRequest) {
+        log.info("replyRegister()");
 
-        return boardService.register(boardRequest);
+        return replyService.register(replyRequest);
     }
 
     @GetMapping("/list")
-    public List<Board> boardList () {
-        log.info("boardList()");
+    public List<Reply> replyList () {
+        log.info("replyList()");
 
-        return boardService.list();
+        return replyService.list();
     }
 
-    @GetMapping("/{boardId}")
-    public Board boardRead(@PathVariable("boardId") Long boardId) {
-        log.info("boardRead()");
+    @GetMapping("/{replyId}")
+    public Reply replyRead(@PathVariable("replyId") Long replyId) {
+        log.info("replyRead()");
 
-        return boardService.read(boardId);
+        return replyService.read(replyId);
     }
 
-    @DeleteMapping("/{boardId}")
-    public void boardRemove(@PathVariable("boardId") Long boardId) {
-        log.info("boardRemove()");
+    @DeleteMapping("/{replyId}")
+    public void replyRemove(@PathVariable("replyId") Long replyId) {
+        log.info("replyRemove()");
 
-        boardService.remove(boardId);
+        replyService.remove(replyId);
     }
 
-    @PutMapping("/{boardId}")
-    public Board boardModify(@PathVariable("boardId") Long boardId,
-                             @RequestBody BoardRequest boardRequest) {
+    @PutMapping("/{replyId}")
+    public Reply replyModify(@PathVariable("replyId") Long replyId,
+                             @RequestBody ReplyRequest replyRequest) {
 
-        log.info("boardModify(): " + boardRequest + "id: " + boardId);
+        log.info("replyModify(): " + replyRequest + "replyId: " + replyId);
 
-        return boardService.modify(boardId, boardRequest);
+        return replyService.modify(replyId, replyRequest);
     }
 }

@@ -16,12 +16,9 @@ import java.util.List;
 @Slf4j
 @RestController
 @RequestMapping("/products")
-<<<<<<< HEAD
-@RequiredArgsConstructor
-@CrossOrigin(origins = "http://localhost:8080", allowedHeaders = "*")
-=======
 
->>>>>>> main
+@RequiredArgsConstructor
+
 public class ProductsController {
 
     final private ProductsService productsService;

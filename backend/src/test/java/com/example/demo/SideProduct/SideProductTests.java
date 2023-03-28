@@ -1,8 +1,6 @@
 package com.example.demo.SideProduct;
 
 import com.example.demo.domain.sideProducts.controller.request.SideProductRequest;
-import com.example.demo.domain.sideProducts.entity.SideProduct;
-import com.example.demo.domain.sideProducts.service.SideProductsService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;

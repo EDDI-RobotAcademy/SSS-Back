@@ -1,15 +1,15 @@
 package com.example.demo.domain.board.repository;
 
-import com.example.demo.domain.board.entity.Board;
+import com.example.demo.domain.board.entity.Reply;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
 
-public interface ReplyRepository extends JpaRepository<Board, Long> {
+public interface ReplyRepository extends JpaRepository<Reply, Long> {
 
-    List<Board> findByBoardIdAndWriter(Long boardId, String writer);
+    List<Reply> findByReplyIdAndReplyWriter(Long replyId, String replyWriter);
 
-    Long countBy();
-
-    Board findFirstByOrderByBoardIdDesc();
+//    Long countBy();
+//
+//    Board findFirstByOrderByBoardIdDesc();
 }

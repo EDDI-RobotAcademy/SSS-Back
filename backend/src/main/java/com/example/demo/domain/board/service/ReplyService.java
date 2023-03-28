@@ -1,6 +1,7 @@
 package com.example.demo.domain.board.service;
 
 import com.example.demo.domain.board.controller.request.BoardRequest;
+import com.example.demo.domain.board.controller.request.ReplyRequest;
 import com.example.demo.domain.board.entity.Reply;
 
 import java.util.List;
@@ -8,37 +9,37 @@ import java.util.List;
 public interface ReplyService {
 
     /**
-     * 게시물 저장
+     * 댓글 저장
      */
-    public Reply register(BoardRequest boardRequest);
+    public Reply register(ReplyRequest replyRequest);
 
     /**
-     * 게시물 리스트
+     * 댓글 리스트
      */
     List<Reply> list();
 
     /**
-     * 게시물 읽기
+     * 댓글 읽기
      */
-    Reply read(Long boardId);
+    Reply read(Long replyId);
 
     /**
-     * 게시물 삭제
+     * 댓글 삭제
      */
-    void remove(Long boardId);
+    void remove(Long replyId);
 
     /**
-     * 게시물 수정
+     * 댓글 수정
      */
-    Reply modify(Long boardId, BoardRequest boardRequest);
+    Reply modify(Long replyId, ReplyRequest replyRequest);
 
-    /**
-     * 게시물 개수
-     */
-    Long getCount();
-
-    /**
-     * 마지막 엔티티 id번호
-     */
-    Long getLastEntityId();
+//    /**
+//     * 게시물 개수
+//     */
+//    Long getCount();
+//
+//    /**
+//     * 마지막 엔티티 id번호
+//     */
+//    Long getLastEntityId();
 }
