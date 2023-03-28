@@ -1,8 +1,7 @@
 package com.example.demo.domain.selfSalad.entity;
 
-import com.example.demo.domain.selfSalad.entity.convert.IngredientTypeConverter;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.*;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -10,23 +9,36 @@ import java.util.List;
 
 @Entity
 @NoArgsConstructor
-@Data
+@Getter
 public class Category {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false)
+    private String categoryName;
+        //private IngredientType ingredientType;
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "category")
+    @JsonIgnore
+    private List<Ingredient> ingredientList = new ArrayList<>();
+
+
+    public Category(Long id, String categoryName) {
+        this.id = id;
+        this.categoryName = categoryName;
+    }
+
+    public void createCategory (Long id, String categoryName){
+        Category category = new Category(id, categoryName);
+    }
+
     /**
-     * @Converter 을 필드에 적용할 때는 @Convert
-     * ingredientType enum을 @IngredientType에 @Embedded
+     * Category 에 해당하는 재료 추가하기
+     * @param ingredient
      */
-    @Convert(converter= IngredientTypeConverter.class, attributeName = "ingredient_type")
-    @Embedded
-    private IngredientType ingredientType;
-
-    @OneToMany(fetch = FetchType.EAGER, mappedBy = "category")
-    // Ingredient.class 의 Category 변수명을 mappedBy에 쓰기
-    private List<Ingredient> ingredients = new ArrayList<>();
-
+    public void registerIngredient(Ingredient ingredient) {
+        this.ingredientList.add(ingredient);
+    }
 }
 

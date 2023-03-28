@@ -1,51 +1,67 @@
 package com.example.demo.domain.selfSalad.entity;
 
-import com.example.demo.domain.selfSalad.entity.convert.MeasureTypeConverter;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.*;
 
 import javax.persistence.*;
 
 @Entity
 @NoArgsConstructor
-@Data
+@Getter
 public class Amount {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long measureId;
+    private Long id;
 
-    /**
-     * IngredientAmount.class -- @OneToOne --  Ingredient.class
-     */
+    @Column // 재료 최소 단위당 가격
+    private Integer price;
 
+    @Column // 재료 최소 단위당 칼로리
+    private Integer calorie;
 
-    /**
-     * 관리자가 사용자가 선택할 수 있는 재료의 수량의 최솟값, 최댓값, 단위를 정함
-     * unit : 단위
-     * max : 수량 최댓값
-     * min : 수량 최솟값
-     *
-     * ex. 10단위로 최소 10g부터 최대 50g
-     * ex. 1단위로 최소 1개부터 4개
-     */
-    @Lob
+    @Column
     private Integer unit;
 
-    @Lob
+    @Column
     private Integer max;
 
-    @Lob
+    @Column
     private Integer min;
 
-    /**
-     * 측정타입 (g/개) enum을 @Convert 후 @Embedded 시킨다.
-     */
-    @Convert(converter = MeasureTypeConverter.class, attributeName = "measure_type")
-    @Column(name = "measure_type", nullable = false)
-    @Embedded
-    private MeasureType measureType;
+
+//    @Enumerated(EnumType.STRING)
+ //   @Column(insertable = false, updatable = false, nullable = false)
+    @Column(nullable = false)
+    private String amountType;
+    //private AmountType amountType;
+
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JsonIgnore
+    @JoinColumn(name = "ingredient_id")
+    private Ingredient ingredient;
 
 
+    //public void to
+
+    public Amount(Integer max, Integer min, Integer unit, String amountType, Ingredient ingredient) {
+        this.max = max;
+        this.min = min;
+        this.unit = unit;
+        this.amountType = amountType;
+        this.ingredient = ingredient;
+    }
+
+    public Amount(Integer max, Integer min, Integer unit, Integer price, Integer calorie, String amountType, Ingredient ingredient) {
+        this.max = max;
+        this.min = min;
+        this.unit = unit;
+        this.price = price;
+        this.calorie = calorie;
+        this.amountType = amountType;
+        this.ingredient = ingredient;
+    }
+
+    public void registerToIngredient(){this.ingredient.registerAmount(this); }
 
 
 }
