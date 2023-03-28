@@ -13,7 +13,6 @@ import java.util.List;
 @Slf4j
 @RestController
 @RequestMapping("/sideproduct")
-@CrossOrigin(origins = "http://localhost:8080", allowedHeaders = "*")
 @RequiredArgsConstructor
 public class SideProductsController {
 
