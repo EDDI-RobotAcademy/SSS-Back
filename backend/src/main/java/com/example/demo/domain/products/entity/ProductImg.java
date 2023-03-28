@@ -11,23 +11,28 @@ import javax.persistence.*;
 @Entity
 @Data
 @NoArgsConstructor
-@AllArgsConstructor
 @ToString(exclude = "product")
 public class ProductImg {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long imageId;
+    private Long imgId;
 
     @Column(nullable = false)
-    private String imagePath;
+    private String originImg;
+
+    @Column(nullable = false)
+    private String editedImg;
+
+    @Column(nullable = false)
+    private String imgPath;
 
     @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id")
     private Product product;
 
-    public ProductImg (String imagePath) {
-        this.imagePath = imagePath;
+    public ProductImg (String imgPath) {
+        this.imgPath = imgPath;
     }
 }
