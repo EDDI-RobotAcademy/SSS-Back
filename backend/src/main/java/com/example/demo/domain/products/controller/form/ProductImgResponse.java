@@ -1,8 +1,13 @@
 package com.example.demo.domain.products.controller.form;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.ToString;
 
-public interface ProductImgResponse {
+@Getter
+@ToString
+@AllArgsConstructor
+public class ProductImgResponse {
 
-    Long getImgId();
-    String getEditedImg();
+    private String imagePath;
 }

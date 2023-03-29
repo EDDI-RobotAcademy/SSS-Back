@@ -9,14 +9,6 @@ import javax.persistence.*;
 @NoArgsConstructor
 @Getter
 public class Amount {
-    /**
-     * price : 최소 수량(min) 당 가격
-     * calorie: 최소 수량(min) 당 칼로리
-     * unit : min+ unit 씩 판매 수량이 늘어남 (ex. unit이 20일때 10g-30g-50g)
-     * max : 구매자가 선택할 수 있는 최대 수량
-     * min : 구매자가 선택할 수 있는 최소 수량
-     * amountType : 측정 단위 (g, 개)
-     */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

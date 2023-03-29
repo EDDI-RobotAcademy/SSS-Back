@@ -13,10 +13,6 @@ import javax.persistence.*;
 @Data
 @AllArgsConstructor
 public class Ingredient {
-    /**
-     * name : 재료명 (ex. 양파)
-     * ingredientImage : 재료 이미지
-     */
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

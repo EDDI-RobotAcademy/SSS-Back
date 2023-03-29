@@ -34,6 +34,15 @@ public class Product {
     @Column(nullable = false)
     private int viewCnt = 0;
 
+    @Column(nullable = false)
+    private int goodCnt = 0;
+
+    @CreationTimestamp
+    private Date regDate;
+
+    @UpdateTimestamp
+    private Date updDate;
+
     @OneToMany(mappedBy = "product", fetch = FetchType.EAGER, cascade = CascadeType.ALL) //LAZY 오류 - failed to lazily initialize a collection of role
     private List<ProductImg> productImgs = new ArrayList<>();
 
@@ -42,5 +51,4 @@ public class Product {
         this.price = price;
         this.content = content;
     }
-
 }

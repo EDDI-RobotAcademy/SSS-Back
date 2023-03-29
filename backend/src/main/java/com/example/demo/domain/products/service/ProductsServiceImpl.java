@@ -39,7 +39,7 @@ public class ProductsServiceImpl implements ProductsService {
     }
 
     @Override
-    public void register(List<MultipartFile> files, ProductsRegisterRequest request) {
+    public void register(List<MultipartFile> productImgList, ProductsRegisterRequest request) {
         List<ProductImg> imgList = new ArrayList<>();
         Product product = request.toProduct();
 
@@ -47,35 +47,25 @@ public class ProductsServiceImpl implements ProductsService {
         product.setPrice(request.getPrice());
         product.setContent(request.getContent());
 
-        for (MultipartFile multipartFile : files) {
-            UUID uuid = UUID.randomUUID();
-            String originImg = multipartFile.getOriginalFilename();
-            String editedImg = uuid + originImg;
-            String imgPath = "C:/khproj/SSS-Front/frontend/src/assets/";
+        final String fixedPath = "C:/khproj/SSS-Front/frontend/src/assets/";
+        UUID uuid = UUID.randomUUID();
 
-            ProductImg productImg = new ProductImg();
-            productImg.setOriginImg(originImg);
-            productImg.setProduct(product);
-            productImg.setEditedImg(editedImg);
-            productImg.setImgPath(imgPath);
-            imgList.add(productImg);
-            log.info(multipartFile.getOriginalFilename());
-
-            try {
-
-                FileOutputStream writer = new FileOutputStream(
-                        imgPath + editedImg
-                );
-
+        try {
+            for (MultipartFile multipartFile: productImgList) {
+                String name = uuid + multipartFile.getOriginalFilename();
+                FileOutputStream writer = new FileOutputStream((fixedPath + name));
                 writer.write(multipartFile.getBytes());
                 writer.close();
-                log.info("file upload success");
 
-            } catch (FileNotFoundException e) {
-                throw new RuntimeException(e);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
+                ProductImg productImg = new ProductImg(fixedPath + name);
+                productImg.setProduct(product);
+                imgList.add(productImg);
+                product.setProductImgs(imgList);
             }
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
 
         productsRepository.save(product);
@@ -83,22 +73,37 @@ public class ProductsServiceImpl implements ProductsService {
     }
 
     @Override
-    public Product read(Long productId) {
+    public ProductReadResponse read(Long productId) {
         Optional<Product> maybeProduct = productsRepository.findById(productId);
 
         if (maybeProduct.isEmpty()) {
             log.info("없음!");
             return null;
         }
+
         Product product = maybeProduct.get();
-        return product;
+
+        ProductReadResponse productReadResponse = new ProductReadResponse(
+                product.getProductId(), product.getTitle(),
+                product.getContent(), product.getPrice(), product.getRegDate()
+        );
+
+        return productReadResponse;
     }
 
     @Override
     public List<ProductImgResponse> findProductImage(Long productId) {
-        List<ProductImgResponse> productImgList = productsImgRepository.findImagePathByProductId(productId);
+        List<ProductImg> productimgList = productsImgRepository.findImagePathByProductId(productId);
+        List<ProductImgResponse> productImgResponseList = new ArrayList<>();
 
-        return productImgList;
+        for (ProductImg productImg: productimgList) {
+            System.out.println(productImg.getImagePath());
+
+            productImgResponseList.add(new ProductImgResponse(
+                    productImg.getImagePath()));
+        }
+
+        return productImgResponseList;
     }
 
 }
