@@ -11,6 +11,9 @@ import java.util.List;
 @NoArgsConstructor
 @Getter
 public class Category {
+    /**
+     * categoryName : 재료의 분류 (ex. 채소, 육류...)
+     */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
