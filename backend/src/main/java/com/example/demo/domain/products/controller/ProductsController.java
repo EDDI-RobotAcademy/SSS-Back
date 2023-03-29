@@ -37,7 +37,7 @@ public class ProductsController {
     }
 
     @GetMapping("/{productId}")
-    public ProductReadResponse productRead(@PathVariable("productId") Long productId) {
+    public Product productRead(@PathVariable("productId") Long productId) {
         log.info("productRead()");
 
         return productsService.read(productId);
