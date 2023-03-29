@@ -6,9 +6,12 @@ import com.example.demo.domain.sideProducts.entity.SideProduct;
 import com.example.demo.domain.sideProducts.service.SideProductsService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+
 
 @Slf4j
 @RestController
@@ -19,11 +22,15 @@ public class SideProductsController {
     final private SideProductsService sideProductsService;
 
     // 등록
-    @PostMapping("/register")
-    public SideProduct SideProductRegister (@RequestBody SideProductRequest sideProductRequest) {
-        log.info("SideProductRegister()");
+    @PostMapping(value = "/register",
+            consumes = { MediaType.MULTIPART_FORM_DATA_VALUE, MediaType.APPLICATION_JSON_VALUE })
+    public void SideProductRegister(
+            @RequestPart(value = "fileList",required = false) MultipartFile sideProductImgList,
+            @RequestPart(value = "productInfo") SideProductRequest sideProductRequest) {
+        log.info("productRegister()");
+        System.out.println("@@@@@@@@@@@@@@@@@@@");
 
-        return sideProductsService.register(sideProductRequest);
+        sideProductsService.register(sideProductImgList, sideProductRequest);
     }
 
     @GetMapping("/list")
