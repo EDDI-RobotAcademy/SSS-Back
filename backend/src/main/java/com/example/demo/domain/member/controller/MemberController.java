@@ -1,10 +1,12 @@
 package com.example.demo.domain.member.controller;
 
+import com.example.demo.domain.member.controller.form.MemberRegisterForm;
 import com.example.demo.domain.member.controller.form.MemberSignInForm;
 import com.example.demo.domain.member.controller.form.MemberSignUpForm;
 import com.example.demo.domain.member.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
@@ -49,4 +51,16 @@ public class MemberController {
     public void deleteMember(@PathVariable Long id) {
         memberService.deleteMember(id);
     }
+
+    @PostMapping("/memberRegister")
+    public Boolean memberRegister(@Validated @RequestBody MemberRegisterForm form) {
+        log.info("MainFormController#memberRegister: {}", form);
+
+        return memberService.memberRegister(form.toMemberRegisterRequest());
+    }
+
+
+
 }
+
+
