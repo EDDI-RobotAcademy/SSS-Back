@@ -18,6 +18,7 @@ public class ReplyController {
 
     final private ReplyService replyService;
 
+    // 댓글 등록
     @PostMapping("/register")
     public Reply replyRegister (@RequestBody ReplyRequest replyRequest) {
         log.info("replyRegister()");
@@ -32,6 +33,7 @@ public class ReplyController {
         return replyService.list();
     }
 
+    // 댓글 조회
     @GetMapping("/{replyId}")
     public Reply replyRead(@PathVariable("replyId") Long replyId) {
         log.info("replyRead()");
@@ -39,6 +41,7 @@ public class ReplyController {
         return replyService.read(replyId);
     }
 
+    // 댓글 삭제
     @DeleteMapping("/{replyId}")
     public void replyRemove(@PathVariable("replyId") Long replyId) {
         log.info("replyRemove()");
@@ -46,6 +49,7 @@ public class ReplyController {
         replyService.remove(replyId);
     }
 
+    // 댓글 수정
     @PutMapping("/{replyId}")
     public Reply replyModify(@PathVariable("replyId") Long replyId,
                              @RequestBody ReplyRequest replyRequest) {

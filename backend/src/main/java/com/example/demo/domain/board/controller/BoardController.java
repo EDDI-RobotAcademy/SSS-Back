@@ -18,6 +18,7 @@ public class BoardController {
 
     final private BoardService boardService;
 
+    // 게시물 등록
     @PostMapping("/register")
     public Board boardRegister (@RequestBody BoardRequest boardRequest) {
         log.info("boardRegister()");
@@ -32,6 +33,7 @@ public class BoardController {
         return boardService.list();
     }
 
+    // 게시물 조회
     @GetMapping("/{boardId}")
     public Board boardRead(@PathVariable("boardId") Long boardId) {
         log.info("boardRead()");
@@ -39,6 +41,7 @@ public class BoardController {
         return boardService.read(boardId);
     }
 
+    // 게시물 삭제
     @DeleteMapping("/{boardId}")
     public void boardRemove(@PathVariable("boardId") Long boardId) {
         log.info("boardRemove()");
@@ -46,6 +49,7 @@ public class BoardController {
         boardService.remove(boardId);
     }
 
+    // 게시물 수정
     @PutMapping("/{boardId}")
     public Board boardModify(@PathVariable("boardId") Long boardId,
                              @RequestBody BoardRequest boardRequest) {
@@ -54,4 +58,6 @@ public class BoardController {
 
         return boardService.modify(boardId, boardRequest);
     }
+
+
 }

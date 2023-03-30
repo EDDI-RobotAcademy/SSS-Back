@@ -8,8 +8,12 @@ import java.util.List;
 public interface ReplyRepository extends JpaRepository<Reply, Long> {
 
     List<Reply> findByReplyIdAndReplyWriter(Long replyId, String replyWriter);
+    List<Reply> findReplyContentByReplyId(Long replyId);
 
-//    Long countBy();
-//
-//    Board findFirstByOrderByBoardIdDesc();
+
+
+    Long countBy();
+
+
+    Reply findFirstByOrderByReplyIdDesc();
 }

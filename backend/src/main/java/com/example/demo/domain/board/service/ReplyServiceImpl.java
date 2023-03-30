@@ -3,13 +3,10 @@ package com.example.demo.domain.board.service;
 import com.example.demo.domain.board.controller.request.ReplyRequest;
 import com.example.demo.domain.board.entity.Reply;
 import com.example.demo.domain.board.repository.ReplyRepository;
-import com.example.demo.domain.board.service.ReplyService;
-
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-
 import java.util.List;
 import java.util.Optional;
 
@@ -62,27 +59,29 @@ public class ReplyServiceImpl implements ReplyService {
         }
 
         Reply reply = maybeReply.get();
-        reply.setReplyId(replyRequest.getReplyId());
+//        reply.setReplyId(replyRequest.getReplyId());
         reply.setReplyContent(replyRequest.getReplyContent());
 
         replyRepository.save(reply);
 
         return reply;
     }
+
+
 /*
     @Override
     public List<reply> bigMisstake(Long replyId, replyRequest replyRequest) {
         return replyRepository.findByreplyIdAndWriter(replyId, replyRequest.getWriter());
     }
 */
-//    @Override
-//    public Long getCount() {
-//        return replyRepository.countBy();
-//    }
+    @Override
+    public Long getCount() {
+        return replyRepository.countBy();
+    }
 
-//    @Override
-//    public Long getLastEntityId() {
-//        reply reply = replyRepository.findFirstByOrderByreplyIdDesc();
-//        return reply.getreplyId();
-//    }
+    @Override
+    public Long getLastEntityId() {
+        Reply reply = replyRepository.findFirstByOrderByReplyIdDesc();
+        return reply.getReplyId();
+    }
 }

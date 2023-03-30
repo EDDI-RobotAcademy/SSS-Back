@@ -1,6 +1,5 @@
 package com.example.demo.domain.board.service;
 
-import com.example.demo.domain.board.controller.request.BoardRequest;
 import com.example.demo.domain.board.controller.request.ReplyRequest;
 import com.example.demo.domain.board.entity.Reply;
 
@@ -33,13 +32,13 @@ public interface ReplyService {
      */
     Reply modify(Long replyId, ReplyRequest replyRequest);
 
-//    /**
-//     * 게시물 개수
-//     */
-//    Long getCount();
-//
-//    /**
-//     * 마지막 엔티티 id번호
-//     */
-//    Long getLastEntityId();
+    /**
+     * 게시물 개수
+     */
+    Long getCount();
+
+    /**
+     * 마지막 엔티티 id번호
+     */
+    Long getLastEntityId();
 }
