@@ -1,151 +1,123 @@
 package com.example.demo.domain.selfSalad.service;
 
-import com.example.demo.domain.selfSalad.Controller.request.IngredientRegisterRequest;
 import com.example.demo.domain.selfSalad.entity.*;
+import com.example.demo.domain.selfSalad.repository.*;
 
-import com.example.demo.domain.selfSalad.repository.AmountRepository;
-import com.example.demo.domain.selfSalad.repository.CategoryRepository;
-import com.example.demo.domain.selfSalad.repository.IngredientImageRepository;
-import com.example.demo.domain.selfSalad.repository.IngredientRepository;
+import com.example.demo.domain.selfSalad.service.request.IngredientRegisterRequest;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import com.example.demo.domain.selfSalad.Controller.request.IngredientRegisterForm;
+
+import javax.annotation.PostConstruct;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class SelfSaladServiceImpl implements SelfSaladService {
 
-    @Autowired
-    IngredientRepository ingredientRepository;
-
-    @Autowired
-    CategoryRepository categoryRepository;
-
-    @Autowired
-    IngredientImageRepository ingredientImageRepository;
-
-    @Autowired
-    AmountRepository amountRepository;
-
+    // repository
+    final private CategoryRepository categoryRepository;
+    final private IngredientRepository ingredientRepository;
+    final private AmountRepository amountRepository;
+    final private IngredientAmountRepository ingredientAmountRepository;
+    final private IngredientCategoryRepository ingredientCategoryRepository;
 
     /**
-     * 새로운 카테고리 생성
-     * @param id
-     * @param name
+     * 사전에 enum (카테고리, 수량) 저장하기
      */
-    public void createCategory(Long id, String name){
-        Category category = new Category(id, name);
-        categoryRepository.save(category);
+    @PostConstruct
+    private void initSetCategory (){
+        List<Category> categoryList = new ArrayList<>(Arrays.asList(
+                new Category(CategoryType.VEGETABLE),
+                new Category(CategoryType.MEAT),
+                new Category(CategoryType.TOPPING)
+        ));
+        categoryRepository.saveAll(categoryList);
     }
-
+    @PostConstruct
+    private void initSetAmount (){
+        List<Amount> amountList = new ArrayList<>(Arrays.asList(
+                new Amount(AmountType.GRAM),
+                new Amount(AmountType.COUNT)
+        ));
+        amountRepository.saveAll(amountList);
+    }
     /**
-     * 새로운 재료 등록
-     * @param image
+     * 재료 등록 절차 1 : Ingredient > IngredientRepository
      * @param request
      * @return
      */
+    private Ingredient registerIngredient (IngredientRegisterRequest request) {
+        final Ingredient ingredient = request.toIngredient();
+        ingredientRepository.save(ingredient);
+
+        return ingredient;
+    }
+
+    /**
+     * 재료 등록 절차 2 : Amount > AmountRepository
+     * @param ingredient
+     * @param request
+     */
+    private void registerIngredientAmount (
+            Ingredient ingredient, IngredientRegisterRequest request) {
+        log.info("잘 받아왔니??"+request.getAmountType().toString());
+
+        final Amount amount =
+                amountRepository.findByAmountType(request.getAmountType()).get();
+
+        final IngredientAmount ingredientAmount =
+                new IngredientAmount(ingredient, amount,
+                        request.getPrice(),
+                        request.getCalorie(),
+                        request.getUnit(),
+                        request.getMax(),
+                        request.getMin());
+
+        ingredientAmountRepository.save(ingredientAmount);
+    }
+
+    /**
+     * 재료 등록 절차 3 : Ingredient, Request > Category
+     * @param ingredient
+     * @param request
+     */
+    public void registerIngredientCategory(
+            Ingredient ingredient, IngredientRegisterRequest request) {
+        log.info("카테고리 잘 받아왔니??"+request.getCategoryType().toString());
+
+        final Category category =
+                categoryRepository.findByCategoryType(request.getCategoryType()).get();
+
+        final IngredientCategory ingredientCategory =
+                new IngredientCategory(ingredient, category);
+
+        ingredientCategoryRepository.save(ingredientCategory);
+    }
+
+    /**
+     * 재료 등록 절차 4 (최종)
+     * @param ingredientRegisterRequest
+     * @return
+     */
     @Override
-    @Transactional
-    public boolean register(MultipartFile image, IngredientRegisterRequest request){
+    public boolean register(IngredientRegisterRequest ingredientRegisterRequest) {
+        // 1. 재료 entity 및 image 생성
+        Ingredient ingredient = registerIngredient(ingredientRegisterRequest);
 
-        // 1. 카테고리 찾기
-        log.info("requestIngredientType : " + request.getCategory());
+        // 2. 수량 entity 생성
+        registerIngredientAmount(ingredient, ingredientRegisterRequest);
 
-        Optional<Category> maybeCategory = categoryRepository.findByCategoryName(  request.getCategory());
-
-        log.info("1 차 시도");
-
-        if (maybeCategory.isEmpty()) {
-            return false;
-        }
-        Category category = maybeCategory.get();
-
-        log.info("카테고리 찾았다");
-
-        // 2. 재료 entity 생성 : 하위에 계속 추가해 최종적으로 리포지터리에 저장
-        Ingredient ingredient = new Ingredient();
-        ingredient.registerName( request.getName());
-
-        // 2. 수량 entity
-        log.info(request.getUnit().toString());
-        Amount amount = new Amount(request.getMax(), request.getMin(), request.getUnit(), request.getPrice(), request.getCalorie(),
-                request.getMeasure(), ingredient);
-        //Amount amount = request.toEntity();
-
-            // 수량 entity 에 재료 넣기
-        ingredient.registerAmount(amount);
-        log.info(amount.getUnit().toString());
-
-        amountRepository.save(amount);
-
-        log.info("request.toIngredient(amount): Amount 추가");
-
-
-        // 4. 이미지
-        final String fixedStringPath = "../../SSS-Front/frontend/src/assets/selfSaladImgs/";
-        try {
-            log.info("requestImageFile - filename: " + image.getOriginalFilename());
-
-            UUID randomName = UUID.randomUUID();
-            String fileRandomName = randomName + image.getOriginalFilename();
-
-            // 파일 경로지정
-            FileOutputStream writer = new FileOutputStream(
-                    fixedStringPath + fileRandomName);
-
-            writer.write(image.getBytes());
-            writer.close();
-
-            IngredientImage ingredientImage = new IngredientImage(
-                    image.getOriginalFilename(),
-                    fileRandomName,
-                    ingredient
-            );
-
-            // Ingredient.class에 재료 이미지 entity 저장
-            ingredientImage.registerToIngredient();
-            ingredientImageRepository.save(ingredientImage);
-
-
-        } catch (FileNotFoundException e) {
-            throw new RuntimeException(e);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-
-        // 해당 카테고리에 새로운 재료 entity 를 저장
-        ingredient.registerToCategory( category);
-        log.info("여기였군");
-
-        ingredientRepository.save( ingredient);
+        // 3. 카테고리 처리
+        registerIngredientCategory(ingredient, ingredientRegisterRequest);
 
         return true;
     }
 
-    @Override
-    public List<Ingredient> list(String requestType){
-
-        Optional<Category> maybeCategory = categoryRepository.findByCategoryName(requestType);
-
-        if (maybeCategory.isEmpty()) {
-            return null;
-        }
-        Category category = maybeCategory.get();
-
-        //List <Ingredient>maybeIngredient = ingredientImageRepository.findByCategoryId( category.getId());
-
-        return ingredientRepository.findByCategoryId( category.getId());
-
-    }
 
 }
