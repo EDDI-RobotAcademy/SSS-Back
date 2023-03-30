@@ -57,4 +57,9 @@ public class ProductsController {
         log.info("productModify: " + request + "id: " + productId);
         return productsService.modify(productId, productImgList, request);
     }
+
+    @DeleteMapping("/delete/{productId}")
+    public void productDelete(@PathVariable("productId") Long productId) {
+        productsService.delete(productId);
+    }
 }

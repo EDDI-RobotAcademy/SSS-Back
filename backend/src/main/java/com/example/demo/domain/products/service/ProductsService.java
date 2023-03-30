@@ -17,4 +17,6 @@ public interface ProductsService {
     List<ProductImgResponse> findProductImage(Long productId);
 
     Product modify(Long productId, List<MultipartFile> productImgList, ProductsInfoRequest request);
+
+    void delete(Long productId);
 }

@@ -166,4 +166,27 @@ public class ProductsServiceImpl implements ProductsService {
 
         return product;
     }
+
+    @Override
+    public void delete(Long productId) {
+        List<ProductImgResponse> removeImgs = productsImgRepository.findImagePathByProductId(productId);
+
+        final String imgPath = "C:/khproj/SSS-Front/frontend/src/assets/product/";
+
+        for(int i = 0; i < removeImgs.size(); i++) {
+            String fileName = removeImgs.get(i).getEditedImg();
+            System.out.println(fileName);
+
+            File file = new File(imgPath + fileName);
+
+            if(file.exists()) {
+                file.delete();
+            } else {
+                System.out.println("삭제 실패");
+            }
+        }
+
+        productsImgRepository.deleteProductImgByProductId(productId);
+        productsRepository.deleteById(productId);
+    }
 }
