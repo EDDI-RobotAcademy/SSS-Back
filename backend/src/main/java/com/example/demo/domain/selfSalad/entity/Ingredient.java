@@ -1,19 +1,17 @@
 package com.example.demo.domain.selfSalad.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.*;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
-@NoArgsConstructor
-@Data
-@AllArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Ingredient {
     /**
+     * Aggregate Root
      * name : 재료명 (ex. 양파)
      * ingredientImage : 재료 이미지
      */
@@ -22,52 +20,34 @@ public class Ingredient {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false) // 재료명
+    @Column(nullable = false)
     private String name;
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinColumn(name="category_id")
-    @JsonIgnore
-    private Category category;
+    @OneToOne(mappedBy = "ingredient", fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
+    private IngredientImg ingredientImg;
 
-    @OneToOne(mappedBy = "ingredient", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    private IngredientImage ingredientImage;
+    @OneToMany(mappedBy = "ingredient", fetch = FetchType.LAZY)
+    private Set<IngredientCategory> ingredientCategories = new HashSet<>();
 
-    @OneToOne(mappedBy = "ingredient", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    private Amount amount;
+    @OneToMany(mappedBy = "ingredient", fetch = FetchType.LAZY)
+    private Set<IngredientAmount> ingredientAmounts = new HashSet<>();
 
+    /**
+     * 재료 등록 (이름, 참조되는 이미지 객체 지정 후 이미지 entity 에 넘기기 = 이미지 레포지터리에 저장하기 위해..?)
+     * @param name
+     * @param ingredientImg
+     */
+    public Ingredient(String name, IngredientImg ingredientImg) {
 
-    public Ingredient(String name, Amount amount) {
         this.name = name;
-        this.amount = amount;
-    }
+        this.ingredientImg = ingredientImg;
 
-    public Ingredient(String name, Amount amount, IngredientImage image) {
-        this.name = name; this.amount = amount; this.ingredientImage = image;
+        ingredientImg.setIngredient(this);
     }
 
 
     /**
-     * 해당 category 에 새로운 재료를 등록
-     * @param category
+     * 재료 이미지 수정
      */
-    public void registerToCategory(Category category) {
-        this.category = category;
-        this.category.registerIngredient(this);
-    }
-
-    /**
-     * 재료 이미지
-     * @param ingredientImage
-     */
-    public void registerImage(IngredientImage ingredientImage){
-        this.ingredientImage = ingredientImage;
-    }
-
-    public void registerAmount( Amount amount){this.amount = amount;}
-
-
-    public void registerName(String name) {
-        this.name = name;
-    }
+    //public void modifyImage(IngredientImg ingredientImg){ this.ingredientImg = ingredientImg ; }
 }
