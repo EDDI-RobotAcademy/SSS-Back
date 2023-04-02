@@ -1,10 +1,12 @@
 package com.example.demo.domain.selfSalad.entity;
 
+import com.example.demo.domain.selfSalad.Controller.response.IngredientListResponse;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Set;
 
 @Entity
@@ -45,7 +47,26 @@ public class Ingredient {
         ingredientImg.setIngredient(this);
     }
 
+    public IngredientListResponse toResponseList(Ingredient ingredient){
 
+        IngredientAmount ingredientAmount = null;
+        Iterator<IngredientAmount> checkAmount = ingredient.ingredientAmounts.iterator();
+
+        while(checkAmount.hasNext()) {              // iterator에 다음 값이 있다면
+            ingredientAmount = checkAmount.next();; // iter에서 값 꺼내기
+        }
+
+        String amountType = ingredientAmount.getAmount().getAmountType().toString();
+
+        return new IngredientListResponse(ingredient.id, ingredient.name,
+                                          ingredient.ingredientImg.getEditedName(),
+                                          amountType,
+                                          ingredientAmount.getMax(),
+                                          ingredientAmount.getMin(),
+                                          ingredientAmount.getUnit(),
+                                          ingredientAmount.getCalorie(),
+                                          ingredientAmount.getPrice() );
+    }
     /**
      * 재료 이미지 수정
      */

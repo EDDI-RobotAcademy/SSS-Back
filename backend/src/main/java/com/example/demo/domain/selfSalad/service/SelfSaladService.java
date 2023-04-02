@@ -1,8 +1,13 @@
 package com.example.demo.domain.selfSalad.service;
 
+import com.example.demo.domain.selfSalad.Controller.response.IngredientListResponse;
 import com.example.demo.domain.selfSalad.service.request.IngredientRegisterRequest;
+
+import java.util.List;
 
 
 public interface SelfSaladService {
     boolean register(IngredientRegisterRequest ingredientRegisterRequest);
+
+    List<IngredientListResponse> list(String requestType);
 }

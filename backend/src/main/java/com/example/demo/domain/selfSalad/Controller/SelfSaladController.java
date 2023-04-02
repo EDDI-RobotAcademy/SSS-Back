@@ -1,11 +1,15 @@
 package com.example.demo.domain.selfSalad.Controller;
 
+import com.example.demo.domain.selfSalad.Controller.response.IngredientListResponse;
 import com.example.demo.domain.selfSalad.Controller.request.IngredientRegisterForm;
 import com.example.demo.domain.selfSalad.service.SelfSaladService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
+import java.util.List;
 
 @Slf4j
 @RestController
@@ -17,20 +21,20 @@ public class SelfSaladController {
         this.selfSaladService = selfSaladService;
     }
 
-//    @GetMapping("/list")
-//    public List<Ingredient> ingredientList() {
-//        String defaultIngredientType = "채소";
-//        log.info("ingredientList()");
-//
-//        return selfSaladService.list(defaultIngredientType);
-//    }
-//    @GetMapping("/list/{category}")
-//    public List<Ingredient> ingredientList(@PathVariable("category") String category) {
-//        String defaultIngredientType = "vegetable";
-//        log.info("ingredientList()");
-//
-//        return selfSaladService.list(category);
-//    }
+    @GetMapping("/list")
+    public List<IngredientListResponse> ingredientList() {
+        String defaultIngredientType = "VEGETABLE";
+        log.info("ingredientList()");
+
+        return selfSaladService.list(defaultIngredientType);
+    }
+    @GetMapping("/list/{category}")
+    public List<IngredientListResponse> ingredientList(@PathVariable("category") String categoryName) {
+        log.info("ingredientList()");
+        log.info("전달 받은 카테고리 이름 : "+categoryName);
+
+        return selfSaladService.list(categoryName);
+    }
 
 
     /**
@@ -43,7 +47,7 @@ public class SelfSaladController {
             consumes = { MediaType.MULTIPART_FORM_DATA_VALUE, MediaType.APPLICATION_JSON_VALUE})
     public void ingredientRegister(
             @RequestPart(value = "imageFile")MultipartFile imageFile,
-            @RequestPart(value = "ingredientInfo") IngredientRegisterForm ingredientRegisterForm){
+            @RequestPart(value = "ingredientInfo") IngredientRegisterForm ingredientRegisterForm) throws IOException {
         log.info("ingredientRegister(): " + ingredientRegisterForm);
 
         selfSaladService.register( ingredientRegisterForm.toIngredientRegisterRequest(imageFile));

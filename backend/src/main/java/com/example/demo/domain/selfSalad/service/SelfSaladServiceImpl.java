@@ -1,5 +1,6 @@
 package com.example.demo.domain.selfSalad.service;
 
+import com.example.demo.domain.selfSalad.Controller.response.IngredientListResponse;
 import com.example.demo.domain.selfSalad.entity.*;
 import com.example.demo.domain.selfSalad.repository.*;
 
@@ -8,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.*;
 
 @Slf4j
 @Service
@@ -91,6 +93,27 @@ public class SelfSaladServiceImpl implements SelfSaladService {
         registerIngredientCategory(ingredient, ingredientRegisterRequest);
 
         return true;
+    }
+
+        // 전달 받은 카테고리가 있는지 확인
+    @Override
+    public List<IngredientListResponse> list(String requestType){
+        Optional<Category> maybeId =  categoryRepository.findByCategoryType( CategoryType.valueOf(requestType));
+        log.info("카테고리 아이디 확인 : "+ maybeId.get()); //Category{id=1, categoryType=VEGETABLE}
+
+        Category category = maybeId.get();
+        log.info(category.getCategoryId()+"이것이 바로 카테고리 아이디");
+
+        List<Ingredient> ingredientList = ingredientRepository.findByCategoryId(category.getCategoryId());
+        List<IngredientListResponse> listResponse =  new ArrayList<>();
+
+        for(Ingredient ingredient : ingredientList){
+            listResponse.add(ingredient.toResponseList( ingredient));
+
+                    log.info("반복문 출력: " +listResponse);
+        }
+
+        return  listResponse;
     }
 
 

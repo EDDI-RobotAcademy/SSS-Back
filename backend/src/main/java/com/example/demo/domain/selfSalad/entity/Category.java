@@ -35,6 +35,10 @@ public class Category {
         return categoryType;
     }
 
+    public Long getCategoryId(){
+        return this.id;
+    }
+
     @Override
     public String toString() {
         return "Category{" +

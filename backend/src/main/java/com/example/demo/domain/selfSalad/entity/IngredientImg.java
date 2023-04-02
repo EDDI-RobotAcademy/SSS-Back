@@ -22,10 +22,10 @@ public class IngredientImg {
     private Ingredient ingredient;
 
     @Column
-    private String editedImg;
+    private String editedName;
 
     public IngredientImg(String editedImg) {
-        this.editedImg = editedImg;
+        this.editedName = editedImg;
     }
 
     // 등록 요청
@@ -45,5 +45,7 @@ public class IngredientImg {
     public void setIngredient (Ingredient ingredient) {
         this.ingredient = ingredient;
     }
+
+    public String getEditedName(){ return this.editedName; }
 
 }

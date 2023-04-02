@@ -60,7 +60,7 @@ public class IngredientAmount {
         this.min = min;
     }
 
-    public Amount getCategory () {
+    public Amount getAmount () {
         return amount;
     }
 }
