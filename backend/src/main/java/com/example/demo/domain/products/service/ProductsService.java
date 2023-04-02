@@ -18,5 +18,7 @@ public interface ProductsService {
 
     Product modify(Long productId, List<MultipartFile> productImgList, ProductsInfoRequest request);
 
+    Product modifyWithoutImg(Long productId, ProductsInfoRequest request);
+
     void delete(Long productId);
 }

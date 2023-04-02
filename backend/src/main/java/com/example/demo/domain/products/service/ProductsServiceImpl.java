@@ -168,6 +168,19 @@ public class ProductsServiceImpl implements ProductsService {
     }
 
     @Override
+    public Product modifyWithoutImg(Long productId, ProductsInfoRequest request) {
+        Optional<Product> maybeProduct = productsRepository.findById(productId);
+
+        Product product = maybeProduct.get();
+        product.setTitle(request.getTitle());
+        product.setContent(request.getContent());
+        product.setPrice(request.getPrice());
+
+        productsRepository.save(product);
+        return product;
+    }
+
+    @Override
     public void delete(Long productId) {
         List<ProductImgResponse> removeImgs = productsImgRepository.findImagePathByProductId(productId);
 

@@ -58,6 +58,12 @@ public class ProductsController {
         return productsService.modify(productId, productImgList, request);
     }
 
+    @PutMapping("/modify-text/{productId}")
+    public Product productModifyWithoutImg(@PathVariable("productId") Long productId, @RequestBody ProductsInfoRequest request) {
+        log.info(("productModify: " + request + "id: " + productId));
+        return productsService.modifyWithoutImg(productId, request);
+    }
+
     @DeleteMapping("/delete/{productId}")
     public void productDelete(@PathVariable("productId") Long productId) {
         productsService.delete(productId);
