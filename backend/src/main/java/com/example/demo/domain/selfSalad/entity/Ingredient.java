@@ -59,7 +59,7 @@ public class Ingredient {
         String amountType = ingredientAmount.getAmount().getAmountType().toString();
 
         return new IngredientListResponse(ingredient.id, ingredient.name,
-                                          ingredient.ingredientImg.getEditedName(),
+                                          ingredient.ingredientImg.getEditedImg(),
                                           amountType,
                                           ingredientAmount.getMax(),
                                           ingredientAmount.getMin(),

@@ -15,12 +15,12 @@ public class IngredientRegisterRequest {
     final private Integer min;
     final private Integer unit;
     final private AmountType amountType;
-    final private String editedName;
+    final private String editedImg;
 
     public Ingredient toIngredient () {
         return new Ingredient(
                 name,
-                IngredientImg.of(editedName));
+                IngredientImg.of(editedImg));
     }
 
     public IngredientCategory toIngredientCategory (Ingredient ingredient) {

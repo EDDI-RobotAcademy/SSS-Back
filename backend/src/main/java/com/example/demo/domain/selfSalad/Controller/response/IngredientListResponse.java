@@ -13,7 +13,7 @@ public class IngredientListResponse {
     final private Long id;
     final private String name;
 
-    final private String editedName;
+    final private String editedImg;
 
     // IngredientAmount
     final private Integer price;
@@ -25,11 +25,11 @@ public class IngredientListResponse {
     final private String amountType;
 
 
-    public IngredientListResponse(Long id, String name, String editedName, String amountType,
+    public IngredientListResponse(Long id, String name, String editedImg, String amountType,
                                   Integer max, Integer min, Integer unit, Integer calorie, Integer price) {
         this.id = id;
         this.name = name;
-        this.editedName = editedName;
+        this.editedImg = editedImg;
         this.amountType = amountType;
         this.max = max;
         this.min = min;
