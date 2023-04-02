@@ -8,12 +8,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import com.example.demo.domain.selfSalad.Controller.request.IngredientRegisterForm;
-
-import javax.annotation.PostConstruct;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 @Slf4j
 @Service
@@ -27,26 +21,6 @@ public class SelfSaladServiceImpl implements SelfSaladService {
     final private IngredientAmountRepository ingredientAmountRepository;
     final private IngredientCategoryRepository ingredientCategoryRepository;
 
-    /**
-     * 사전에 enum (카테고리, 수량) 저장하기
-     */
-    @PostConstruct
-    private void initSetCategory (){
-        List<Category> categoryList = new ArrayList<>(Arrays.asList(
-                new Category(CategoryType.VEGETABLE),
-                new Category(CategoryType.MEAT),
-                new Category(CategoryType.TOPPING)
-        ));
-        categoryRepository.saveAll(categoryList);
-    }
-    @PostConstruct
-    private void initSetAmount (){
-        List<Amount> amountList = new ArrayList<>(Arrays.asList(
-                new Amount(AmountType.GRAM),
-                new Amount(AmountType.COUNT)
-        ));
-        amountRepository.saveAll(amountList);
-    }
     /**
      * 재료 등록 절차 1 : Ingredient > IngredientRepository
      * @param request
