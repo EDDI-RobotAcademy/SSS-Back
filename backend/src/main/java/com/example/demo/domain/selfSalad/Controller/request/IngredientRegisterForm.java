@@ -9,6 +9,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.UUID;
 
 @Getter
@@ -33,9 +36,18 @@ public class IngredientRegisterForm {
     @JsonProperty("measure")
     final private AmountType amountType;
 
-    public IngredientRegisterRequest toIngredientRegisterRequest (MultipartFile imageFile) {
+    public IngredientRegisterRequest toIngredientRegisterRequest (MultipartFile imageFile) throws IOException {
         UUID randomName = UUID.randomUUID();
         String editedImg = randomName + imageFile.getOriginalFilename();
+
+        final String fixedStringPath = "../../SSS-Front/frontend/src/assets/selfSalad/";
+        FileOutputStream writer = new FileOutputStream(
+                fixedStringPath + editedImg + imageFile.getOriginalFilename()
+        );
+
+        writer.write(imageFile.getBytes());
+        writer.close();
+
 
         return new IngredientRegisterRequest(
                 name, categoryType, price, calorie,
@@ -43,4 +55,3 @@ public class IngredientRegisterForm {
     }
 
 }
-
