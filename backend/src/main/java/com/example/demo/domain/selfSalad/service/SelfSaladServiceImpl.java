@@ -1,5 +1,6 @@
 package com.example.demo.domain.selfSalad.service;
 
+import com.example.demo.domain.selfSalad.Controller.request.IngredientImgModifyForm;
 import com.example.demo.domain.selfSalad.Controller.response.IngredientImgReadResponse;
 import com.example.demo.domain.selfSalad.Controller.response.IngredientListResponse;
 import com.example.demo.domain.selfSalad.entity.*;
@@ -11,6 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.FileNotFoundException;
 import java.util.*;
 
 @Slf4j
@@ -24,6 +26,7 @@ public class SelfSaladServiceImpl implements SelfSaladService {
     final private AmountRepository amountRepository;
     final private IngredientAmountRepository ingredientAmountRepository;
     final private IngredientCategoryRepository ingredientCategoryRepository;
+    final private IngredientImgRepository ingredientImgRepository;
 
     /**
      * 재료 등록 절차 1 : Ingredient > IngredientRepository
@@ -135,6 +138,23 @@ public class SelfSaladServiceImpl implements SelfSaladService {
         IngredientImgReadResponse imgResponse = ingredient.toImgResponse( ingredient);
 
         return imgResponse;
+    }
+
+    @Override
+    public void modifyIngredientImg( Long ingredientId, String modifyImg ) throws FileNotFoundException {
+
+        // 수정 전 이미지 객체
+        IngredientImg ingredientImg = ingredientImgRepository.findByIngredientId( ingredientId);
+
+        // 수정 전 이미지 객체에 해당하는 이미지 파일을 폴더에서 삭제
+        IngredientImgModifyForm modifyForm = new IngredientImgModifyForm();
+        modifyForm.deleteBeforeImg( ingredientImg);
+
+        // 수정 후 이미지 객체로 변경됨
+        ingredientImg.toModifyImg(modifyImg);
+
+        ingredientImgRepository.save(ingredientImg);
+
     }
 
 

@@ -6,5 +6,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface IngredientImgRepository extends JpaRepository<IngredientImg, Long> {
-
+    IngredientImg findByIngredientId( Long ingredientId );
 }

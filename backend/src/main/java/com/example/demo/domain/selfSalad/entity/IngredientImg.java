@@ -48,4 +48,15 @@ public class IngredientImg {
 
     public String getEditedImg(){ return this.editedImg; }
 
+    /**
+     * 수정 후 이미지명으로 변경
+     * @param modifyImg
+     */
+    public void toModifyImg(String modifyImg) {
+        this.editedImg = modifyImg;
+    }
+
+
+
+
 }

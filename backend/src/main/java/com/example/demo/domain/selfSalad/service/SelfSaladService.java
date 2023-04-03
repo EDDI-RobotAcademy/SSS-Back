@@ -4,6 +4,7 @@ import com.example.demo.domain.selfSalad.Controller.response.IngredientImgReadRe
 import com.example.demo.domain.selfSalad.Controller.response.IngredientListResponse;
 import com.example.demo.domain.selfSalad.service.request.IngredientRegisterRequest;
 
+import java.io.FileNotFoundException;
 import java.util.List;
 
 
@@ -13,4 +14,6 @@ public interface SelfSaladService {
     List<IngredientListResponse> list(String requestType);
 
     IngredientImgReadResponse findIngredientImg(Long ingredientId);
+
+    void modifyIngredientImg(Long ingredientId, String modifyImg ) throws FileNotFoundException;
 }
