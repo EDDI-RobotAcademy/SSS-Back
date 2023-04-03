@@ -14,8 +14,9 @@ public class MemberSignInForm {
 
     private String email;
     private String password;
+    private String authorityCode;
 
     public MemberSignInRequest toMemberSignInRequest(){
-        return new MemberSignInRequest(email, password);
+        return new MemberSignInRequest(email, password, authorityCode);
     }
 }

@@ -1,6 +1,6 @@
 package com.example.demo.domain.products.controller.form;
 
-import com.example.demo.domain.products.service.request.ProductsRegisterRequest;
+import com.example.demo.domain.products.service.request.ProductsInfoRequest;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -16,7 +16,7 @@ public class ProductsRegisterForm {
     private Long price;
     private String content;
 
-    public ProductsRegisterRequest toProductRegisterRequest() {
-        return new ProductsRegisterRequest(title, price, content);
+    public ProductsInfoRequest toProductRegisterRequest() {
+        return new ProductsInfoRequest(title, price, content);
     }
 }
