@@ -1,5 +1,6 @@
 package com.example.demo.domain.selfSalad.entity;
 
+import com.example.demo.domain.selfSalad.Controller.response.IngredientImgReadResponse;
 import com.example.demo.domain.selfSalad.Controller.response.IngredientListResponse;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
@@ -35,7 +36,7 @@ public class Ingredient {
     private Set<IngredientAmount> ingredientAmounts = new HashSet<>();
 
     /**
-     * 재료 등록 (이름, 참조되는 이미지 객체 지정 후 이미지 entity 에 넘기기 = 이미지 레포지터리에 저장하기 위해..?)
+     * 재료 등록 (이름, 참조되는 이미지 객체 지정)
      * @param name
      * @param ingredientImg
      */
@@ -67,6 +68,12 @@ public class Ingredient {
                                           ingredientAmount.getCalorie(),
                                           ingredientAmount.getPrice() );
     }
+
+    public IngredientImgReadResponse toImgResponse(Ingredient ingredient ){
+
+        IngredientImgReadResponse imgResponse;
+        return new IngredientImgReadResponse( ingredient.name, ingredient.ingredientImg.getEditedImg());
+    };
     /**
      * 재료 이미지 수정
      */

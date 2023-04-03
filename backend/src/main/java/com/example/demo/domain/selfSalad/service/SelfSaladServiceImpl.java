@@ -1,5 +1,6 @@
 package com.example.demo.domain.selfSalad.service;
 
+import com.example.demo.domain.selfSalad.Controller.response.IngredientImgReadResponse;
 import com.example.demo.domain.selfSalad.Controller.response.IngredientListResponse;
 import com.example.demo.domain.selfSalad.entity.*;
 import com.example.demo.domain.selfSalad.repository.*;
@@ -114,6 +115,21 @@ public class SelfSaladServiceImpl implements SelfSaladService {
         }
 
         return  listResponse;
+    }
+
+    @Override
+    public IngredientImgReadResponse findIngredientImg (Long ingredientId ){
+        Optional<Ingredient> maybeIngredientId = ingredientRepository.findById( ingredientId);
+
+        if (maybeIngredientId.isEmpty()) {
+            log.info("없음!");
+            return null;
+        }
+        Ingredient ingredient = maybeIngredientId.get();
+
+        IngredientImgReadResponse imgResponse = ingredient.toImgResponse( ingredient);
+
+        return imgResponse;
     }
 
 

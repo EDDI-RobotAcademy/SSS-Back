@@ -1,5 +1,6 @@
 package com.example.demo.domain.selfSalad.Controller;
 
+import com.example.demo.domain.selfSalad.Controller.response.IngredientImgReadResponse;
 import com.example.demo.domain.selfSalad.Controller.response.IngredientListResponse;
 import com.example.demo.domain.selfSalad.Controller.request.IngredientRegisterForm;
 import com.example.demo.domain.selfSalad.service.SelfSaladService;
@@ -54,4 +55,15 @@ public class SelfSaladController {
 
     }
 
+    /**
+     * 이미지 수정 전, 이미지 정보 요청
+     * @param ingredientId
+     * @return ingredient id, name, beforeEditedImg
+     */
+    @GetMapping("/img/{ingredientId}")
+    public IngredientImgReadResponse ingredientImgRead (@PathVariable("ingredientId") Long ingredientId) {
+        log.info("Image Modify");
+
+        return selfSaladService.findIngredientImg( ingredientId );
+    }
 }
