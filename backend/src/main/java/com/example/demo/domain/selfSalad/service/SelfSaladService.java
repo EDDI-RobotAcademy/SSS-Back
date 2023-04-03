@@ -1,16 +1,19 @@
 package com.example.demo.domain.selfSalad.service;
 
-import com.example.demo.domain.selfSalad.Controller.request.IngredientRegisterRequest;
-import com.example.demo.domain.selfSalad.entity.Ingredient;
-import org.springframework.web.multipart.MultipartFile;
+import com.example.demo.domain.selfSalad.Controller.response.IngredientImgReadResponse;
+import com.example.demo.domain.selfSalad.Controller.response.IngredientListResponse;
+import com.example.demo.domain.selfSalad.service.request.IngredientRegisterRequest;
 
+import java.io.FileNotFoundException;
 import java.util.List;
 
+
 public interface SelfSaladService {
+    boolean register(IngredientRegisterRequest ingredientRegisterRequest);
 
-    void createCategory(Long id, String name);
-    List<Ingredient> list(String ingredientType);
+    List<IngredientListResponse> list(String requestType);
 
+    IngredientImgReadResponse findIngredientImg(Long ingredientId);
 
-    boolean register(MultipartFile imageFile, IngredientRegisterRequest ingredientRegisterRequest);
+    void modifyIngredientImg(Long ingredientId, String modifyImg ) throws FileNotFoundException;
 }

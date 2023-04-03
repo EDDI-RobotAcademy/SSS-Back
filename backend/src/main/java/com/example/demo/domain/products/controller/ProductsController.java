@@ -1,10 +1,10 @@
 package com.example.demo.domain.products.controller;
 
 import com.example.demo.domain.products.controller.form.ProductImgResponse;
-import com.example.demo.domain.products.controller.form.ProductReadResponse;
 import com.example.demo.domain.products.controller.form.ProductsRegisterForm;
 import com.example.demo.domain.products.entity.Product;
 import com.example.demo.domain.products.service.ProductsService;
+import com.example.demo.domain.products.service.request.ProductsInfoRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
@@ -16,7 +16,9 @@ import java.util.List;
 @Slf4j
 @RestController
 @RequestMapping("/products")
+
 @RequiredArgsConstructor
+
 public class ProductsController {
 
     final private ProductsService productsService;
@@ -50,4 +52,22 @@ public class ProductsController {
         return productsService.findProductImage(productId);
     }
 
+    @PutMapping(value = "/modify/{productId}", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE, MediaType.APPLICATION_JSON_VALUE})
+    public Product productModify(@PathVariable("productId") Long productId,
+                                 @RequestPart(value = "productImgList") List<MultipartFile> productImgList,
+                                 @RequestPart(value = "productInfo") ProductsInfoRequest request) {
+        log.info("productModify: " + request + "id: " + productId);
+        return productsService.modify(productId, productImgList, request);
+    }
+
+    @PutMapping("/modify-text/{productId}")
+    public Product productModifyWithoutImg(@PathVariable("productId") Long productId, @RequestBody ProductsInfoRequest request) {
+        log.info(("productModify: " + request + "id: " + productId));
+        return productsService.modifyWithoutImg(productId, request);
+    }
+
+    @DeleteMapping("/delete/{productId}")
+    public void productDelete(@PathVariable("productId") Long productId) {
+        productsService.delete(productId);
+    }
 }
