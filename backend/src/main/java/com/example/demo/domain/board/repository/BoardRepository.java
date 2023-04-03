@@ -11,5 +11,7 @@ public interface BoardRepository extends JpaRepository<Board, Long> {
 
     Long countBy();
 
+    Board findBoardByBoardId(Long boardId);
+
     Board findFirstByOrderByBoardIdDesc();
 }
