@@ -44,8 +44,8 @@ public class BoardTests {
 
     @Test
     public void 게시물_삭제_테스트 () {
-        boardService.remove(14L);
-        boardService.read(14L);
+        boardService.remove(1L);
+        boardService.read(1L);
     }
 
     @Test
