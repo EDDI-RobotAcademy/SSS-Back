@@ -29,12 +29,17 @@ public class Member {
     @Column(nullable = false)
     private String nickname;
 
+    @Getter
+    @Column
+    private String authorityCode;
+
     @OneToMany(mappedBy = "member", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
     private Set<Authentication> authentications = new HashSet<>();
 
-    public Member(String email, String nickname) {
+    public Member(String email, String nickname, String authorityCode) {
         this.email = email;
         this.nickname = nickname;
+        this.authorityCode = authorityCode;
     }
 
     //올바른 패스워드인지 확인
