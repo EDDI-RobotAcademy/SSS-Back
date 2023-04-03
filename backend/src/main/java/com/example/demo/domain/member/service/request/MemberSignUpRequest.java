@@ -13,8 +13,9 @@ public class MemberSignUpRequest {
     final private String email;
     final private String password;
     final private String nickname;
+    final private String authorityCode;
 
     public Member toMember () {
-        return new Member(email, nickname);
+        return new Member(email, nickname, authorityCode);
     }
 }
