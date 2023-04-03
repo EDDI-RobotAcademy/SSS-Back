@@ -34,8 +34,8 @@ public class Product {
     @Column(nullable = false)
     private int viewCnt = 0;
 
-    @OneToMany(mappedBy = "product", fetch = FetchType.EAGER, cascade = CascadeType.ALL) //LAZY 오류 - failed to lazily initialize a collection of role
-    private List<ProductImg> productImgs = new ArrayList<>();
+    @OneToMany(mappedBy = "product", fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true) //LAZY 오류 - failed to lazily initialize a collection of role
+    private List<ProductImg> productImgs = new ArrayList<>();             //orphanRemoval = true : 부모 엔티티에서 자식 엔티티 삭제 가능
 
     public Product(String title, Long price, String content) {
         this.title = title;

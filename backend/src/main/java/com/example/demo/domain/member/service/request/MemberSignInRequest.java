@@ -11,4 +11,5 @@ public class MemberSignInRequest {
 
     final private String email;
     final private String password;
+    final private String authorityCode;
 }

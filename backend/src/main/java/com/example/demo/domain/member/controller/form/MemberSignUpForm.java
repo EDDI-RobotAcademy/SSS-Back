@@ -15,8 +15,9 @@ public class MemberSignUpForm {
     private String email;
     private String password;
     private String nickname;
+    private String authorityCode;
 
     public MemberSignUpRequest toMemberSignUpRequest() {
-        return new MemberSignUpRequest(email, password, nickname);
+        return new MemberSignUpRequest(email, password, nickname, authorityCode);
     }
 }
