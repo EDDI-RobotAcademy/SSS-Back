@@ -9,6 +9,7 @@ import com.example.demo.domain.selfSalad.service.request.IngredientRegisterReque
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 
@@ -98,9 +99,15 @@ public class SelfSaladServiceImpl implements SelfSaladService {
 
         // 전달 받은 카테고리가 있는지 확인
     @Override
+    @Transactional
     public List<IngredientListResponse> list(String requestType){
         Optional<Category> maybeId =  categoryRepository.findByCategoryType( CategoryType.valueOf(requestType));
         log.info("카테고리 아이디 확인 : "+ maybeId.get()); //Category{id=1, categoryType=VEGETABLE}
+
+        if (maybeId.isEmpty()) {
+            log.info("없음!");
+            return null;
+        }
 
         Category category = maybeId.get();
         log.info(category.getCategoryId()+"이것이 바로 카테고리 아이디");
@@ -110,8 +117,6 @@ public class SelfSaladServiceImpl implements SelfSaladService {
 
         for(Ingredient ingredient : ingredientList){
             listResponse.add(ingredient.toResponseList( ingredient));
-
-                    log.info("반복문 출력: " +listResponse);
         }
 
         return  listResponse;
