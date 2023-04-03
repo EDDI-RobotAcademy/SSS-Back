@@ -24,7 +24,6 @@ public class SideProduct {
     @Column(nullable = false)
     private Long price;
 
-    @JsonIgnore
     @OneToOne(mappedBy = "sideProduct", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private SideProductImg sideProductImg;
 

@@ -1,5 +1,6 @@
 package com.example.demo.domain.sideProducts.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -19,8 +20,9 @@ public class SideProductImg {
     @Column
     private String editedImg;
 
+    @JsonIgnore
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "sideProductId")
+    @JoinColumn(name = "side_product_id")
     private SideProduct sideProduct;
 
     public SideProductImg (String originImg, String editedImg, SideProduct sideProduct) {
