@@ -68,7 +68,9 @@ public class MemberServiceImpl implements MemberService {
     @Override
     public Map<String, String> signIn(MemberSignInRequest signInRequest) {
         String email = signInRequest.getEmail();
-        Optional<Member> maybeMember = memberRepository.findByEmail(email);
+        String authorityCode = signInRequest.getAuthorityCode();
+
+        Optional<Member> maybeMember = memberRepository.findByEmailAndAuthorityCode(email, authorityCode);
 
         if (maybeMember.isPresent()) {
             Member memberInfo = maybeMember.get();
@@ -88,6 +90,7 @@ public class MemberServiceImpl implements MemberService {
             userInfo.put("userEmail", memberInfo.getEmail());
             userInfo.put("userNickName", memberInfo.getNickname());
             userInfo.put("userId", memberInfo.getId().toString());
+            userInfo.put("authorityType", memberInfo.getAuthorityCode());
 
             log.info("userProfile()" + userInfo);
 

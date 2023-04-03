@@ -8,7 +8,7 @@ import lombok.ToString;
 @Getter
 @ToString
 @RequiredArgsConstructor
-public class ProductsRegisterRequest {
+public class ProductsInfoRequest {
 
     final private String title;
     final private Long price;
