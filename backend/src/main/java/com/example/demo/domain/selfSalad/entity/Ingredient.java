@@ -6,6 +6,7 @@ import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.io.FileNotFoundException;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
@@ -86,5 +87,7 @@ public class Ingredient {
     /**
      * 재료 이미지 수정
      */
-    //public void modifyImage(IngredientImg ingredientImg){ this.ingredientImg = ingredientImg ; }
+    public void setName(String modifyName) {
+        this.name = modifyName;
+    }
 }

@@ -1,6 +1,6 @@
 package com.example.demo.domain.selfSalad.Controller;
 
-import com.example.demo.domain.selfSalad.Controller.request.IngredientImgModifyForm;
+import com.example.demo.domain.selfSalad.Controller.request.IngredientInfoModifyForm;
 import com.example.demo.domain.selfSalad.Controller.response.IngredientInfoReadResponse;
 import com.example.demo.domain.selfSalad.Controller.response.IngredientListResponse;
 import com.example.demo.domain.selfSalad.Controller.request.IngredientRegisterForm;
@@ -70,16 +70,16 @@ public class SelfSaladController {
     /**
      * 이미지 수정된 정보 등록
      */
-    @PutMapping(value = "/modify/img/{ingredientId}",
+    @PutMapping(value = "/modify/info/{ingredientId}",
             consumes = { MediaType.MULTIPART_FORM_DATA_VALUE, MediaType.APPLICATION_JSON_VALUE})
-    public void ingredientImgModify (
+    public void ingredientInfoModify (
             @RequestPart(value = "imageFile")MultipartFile imageFile,
+            @RequestPart(value = "ingredientInfo")IngredientInfoModifyForm ingredientInfoModifyForm,
             @PathVariable("ingredientId") Long ingredientId) throws IOException {
         log.info("ingredient-img-modify(): ");
-        IngredientImgModifyForm ingredientImgModifyForm = new IngredientImgModifyForm();
 
-        selfSaladService.modifyIngredientImg( ingredientId,
-                                              ingredientImgModifyForm.modifyEditedImg( imageFile) );
+        selfSaladService.modifyIngredientInfo( ingredientId,
+                                              ingredientInfoModifyForm.modifyEditedImg( imageFile) );
 
     }
 

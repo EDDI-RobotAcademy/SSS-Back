@@ -5,13 +5,17 @@ import com.example.demo.domain.selfSalad.Controller.response.IngredientListRespo
 import com.example.demo.domain.selfSalad.entity.*;
 import com.example.demo.domain.selfSalad.repository.*;
 
+import com.example.demo.domain.selfSalad.service.request.IngredientInfoModifyRequest;
 import com.example.demo.domain.selfSalad.service.request.IngredientRegisterRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.File;
 import java.io.FileNotFoundException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 
 @Slf4j
@@ -140,22 +144,69 @@ public class SelfSaladServiceImpl implements SelfSaladService {
         return infoResponse;
     }
 
-    @Override
-    public void modifyIngredientImg( Long ingredientId, String modifyImg ) throws FileNotFoundException {
 
-        // 수정 전 이미지 객체
-        IngredientImg ingredientImg = ingredientImgRepository.findByIngredientId( ingredientId);
+    private void deleteImgFile(Long ingredientId)throws FileNotFoundException {
 
-        // 수정 전 이미지 객체에 해당하는 이미지 파일을 폴더에서 삭제
-        IngredientImgModifyForm modifyForm = new IngredientImgModifyForm();
-        modifyForm.deleteBeforeImg( ingredientImg);
+        final IngredientImg ingredientImg
+                = ingredientImgRepository.findByIngredientId(ingredientId);
 
-        // 수정 후 이미지 객체로 변경됨
-        ingredientImg.toModifyImg(modifyImg);
+        final String fixedStringPath = "../../SSS-Front/frontend/src/assets/selfSalad/";
+        Path filePath = Paths.get(fixedStringPath, ingredientImg.getEditedImg());
+        //File 객체로 변환
+        File file = filePath.toFile();
+        if (file.exists()) {
+            file.delete();
+        } else {
+            throw new FileNotFoundException("이미지 파일이 존재하지 않습니다.");
+        }
+    }
 
+    private void modifyIngredientCategory( Long ingredientId, CategoryType categoryType) {
+
+        final Category category =
+                categoryRepository.findByCategoryType(categoryType).get();
+
+        final IngredientCategory ingredientCategory =
+                ingredientCategoryRepository.findByIngredientId( ingredientId);
+
+        ingredientCategory.setCategory(category);
+
+        ingredientCategoryRepository.save(ingredientCategory);
+    }
+
+    private void modifyIngredient( Long ingredientId, String ingredientName, String modifyImg ){
+
+        final Ingredient ingredient =
+                ingredientRepository.findById(ingredientId).get();
+
+        ingredient.setName(ingredientName);
+        ingredientRepository.save(ingredient);
+
+        final IngredientImg ingredientImg =
+                ingredientImgRepository.findByIngredientId(ingredientId);
+
+        ingredientImg.setEditedImg(modifyImg);
         ingredientImgRepository.save(ingredientImg);
 
     }
 
+    @Override
+    public void modifyIngredientInfo(Long ingredientId,
+                                     IngredientInfoModifyRequest modifyRequest) throws FileNotFoundException {
+
+        // 수정 전 이미지 파일을 폴더에서 삭제
+        deleteImgFile(ingredientId);
+        log.info("이미지 삭제 성공");
+
+        // 이름 및 이미지 수정
+        modifyIngredient(ingredientId, modifyRequest.getName(), modifyRequest.getModifyEditedImg());
+        log.info("수정 이미지명: "+modifyRequest.getModifyEditedImg());
+        log.info("이름 및 이미지 수정 성공");
+
+        // 카테고리 수정
+        modifyIngredientCategory(ingredientId, modifyRequest.getCategoryType());
+        log.info("카테고리 수정 성공");
+
+    }
 
 }
