@@ -51,20 +51,6 @@ public class Ingredient {
         ingredientImg.setIngredient(this);
     }
 
-    public IngredientInfoReadResponse toInfoResponse(Ingredient ingredient ){
-
-        IngredientCategory ingredientCategory = null;
-        Iterator<IngredientCategory> checkCategory = ingredient.ingredientCategories.iterator();
-
-        while(checkCategory.hasNext()) {              // iterator에 다음 값이 있다면
-            ingredientCategory = checkCategory.next();; // iter에서 값 꺼내기
-        }
-
-        String categoryType = String.valueOf(ingredientCategory.getCategory().getCategoryType());
-
-        IngredientInfoReadResponse imgResponse;
-        return new IngredientInfoReadResponse( ingredient.name, ingredient.ingredientImg.getEditedImg(), categoryType);
-    };
     /**
      * 재료 이미지 수정
      */

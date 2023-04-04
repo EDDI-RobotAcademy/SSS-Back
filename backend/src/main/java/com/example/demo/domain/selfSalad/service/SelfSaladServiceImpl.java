@@ -137,17 +137,16 @@ public class SelfSaladServiceImpl implements SelfSaladService {
     @Override
     @Transactional
     public IngredientInfoReadResponse findIngredientInfo(Long ingredientId) {
-        Optional<Ingredient> maybeIngredientId = ingredientRepository.findById(ingredientId);
+        final Ingredient ingredient = ingredientRepository.findById(ingredientId).get();
 
-        if (maybeIngredientId.isEmpty()) {
-            log.info("없음!");
-            return null;
-        }
-        Ingredient ingredient = maybeIngredientId.get();
+        final IngredientCategory ingredientCategory =
+                ingredientCategoryRepository.findByIngredientId(ingredientId);
 
-        IngredientInfoReadResponse infoResponse = ingredient.toInfoResponse(ingredient);
-
-        return infoResponse;
+        return new IngredientInfoReadResponse(
+                ingredient.getName(),
+                ingredient.getIngredientImg().getEditedImg(),
+                ingredientCategory.getCategory().getCategoryType().toString()
+        );
     }
 
 
