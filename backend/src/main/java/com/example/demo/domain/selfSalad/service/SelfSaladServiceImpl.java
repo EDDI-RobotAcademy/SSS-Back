@@ -109,24 +109,28 @@ public class SelfSaladServiceImpl implements SelfSaladService {
     @Override
     @Transactional
     public List<IngredientListResponse> list(String requestType){
-        Optional<Category> maybeId =  categoryRepository.findByCategoryType( CategoryType.valueOf(requestType));
-        log.info("카테고리 아이디 확인 : "+ maybeId.get()); //Category{id=1, categoryType=VEGETABLE}
-
-        if (maybeId.isEmpty()) {
-            log.info("없음!");
-            return null;
-        }
-
-        Category category = maybeId.get();
+        Category category =  categoryRepository.findByCategoryType( CategoryType.valueOf(requestType)).get();
         log.info(category.getCategoryId()+"이것이 바로 카테고리 아이디");
 
         List<Ingredient> ingredientList = ingredientRepository.findByCategoryId(category.getCategoryId());
         List<IngredientListResponse> listResponse =  new ArrayList<>();
 
         for(Ingredient ingredient : ingredientList){
-            listResponse.add(ingredient.toResponseList( ingredient));
-        }
+            for (IngredientAmount responseAmount : ingredient.getIngredientAmounts()) {
+                listResponse.add( new IngredientListResponse(
 
+                        ingredient.getId(),
+                        ingredient.getName(),
+                        ingredient.getIngredientImg().getEditedImg(),
+                        responseAmount.getAmount().getAmountType().toString(),
+                        responseAmount.getMax(),
+                        responseAmount.getMin(),
+                        responseAmount.getUnit(),
+                        responseAmount.getPrice(),
+                        responseAmount.getCalorie()
+                ));
+            }
+        }
         return  listResponse;
     }
 
@@ -239,4 +243,5 @@ public class SelfSaladServiceImpl implements SelfSaladService {
         );
         return amountResponse;
     }
+
 }

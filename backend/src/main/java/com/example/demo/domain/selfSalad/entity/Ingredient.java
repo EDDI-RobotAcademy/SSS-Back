@@ -3,6 +3,7 @@ package com.example.demo.domain.selfSalad.entity;
 import com.example.demo.domain.selfSalad.Controller.response.IngredientInfoReadResponse;
 import com.example.demo.domain.selfSalad.Controller.response.IngredientListResponse;
 import lombok.AccessLevel;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
@@ -12,6 +13,7 @@ import java.util.Iterator;
 import java.util.Set;
 
 @Entity
+@Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Ingredient {
     /**
@@ -49,27 +51,6 @@ public class Ingredient {
         ingredientImg.setIngredient(this);
     }
 
-    public IngredientListResponse toResponseList(Ingredient ingredient){
-
-        IngredientAmount ingredientAmount = null;
-        Iterator<IngredientAmount> checkAmount = ingredient.ingredientAmounts.iterator();
-
-        while(checkAmount.hasNext()) {              // iterator에 다음 값이 있다면
-            ingredientAmount = checkAmount.next();; // iter에서 값 꺼내기
-        }
-
-        String amountType = ingredientAmount.getAmount().getAmountType().toString();
-
-        return new IngredientListResponse(ingredient.id, ingredient.name,
-                                          ingredient.ingredientImg.getEditedImg(),
-                                          amountType,
-                                          ingredientAmount.getMax(),
-                                          ingredientAmount.getMin(),
-                                          ingredientAmount.getUnit(),
-                                          ingredientAmount.getCalorie(),
-                                          ingredientAmount.getPrice() );
-    }
-
     public IngredientInfoReadResponse toInfoResponse(Ingredient ingredient ){
 
         IngredientCategory ingredientCategory = null;
@@ -90,5 +71,5 @@ public class Ingredient {
     public void setName(String modifyName) {
         this.name = modifyName;
     }
-    public String getName(){ return name;}
+
 }
