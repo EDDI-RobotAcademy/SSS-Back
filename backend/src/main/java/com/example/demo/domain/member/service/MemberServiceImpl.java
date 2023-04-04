@@ -1,5 +1,7 @@
 package com.example.demo.domain.member.service;
 
+import com.example.demo.domain.member.entity.AdminCode;
+import com.example.demo.domain.member.repository.AdminCodeRepository;
 import com.example.demo.domain.member.repository.MemberRepository;
 import com.example.demo.domain.member.service.request.MemberSignInRequest;
 import com.example.demo.domain.member.service.request.MemberSignUpRequest;
@@ -12,6 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import com.example.demo.domain.member.entity.Member;
 
+import javax.swing.text.html.Option;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -24,11 +27,14 @@ public class MemberServiceImpl implements MemberService {
 
     final private MemberRepository memberRepository;
 
+    final private AdminCodeRepository adminCodeRepository;
+
     final private AuthenticationRepository authenticationRepository;
 
     final private RedisService redisService;
 
     //이메일 중복 확인
+    @Override
     public Boolean emailValidation(String email) {
         Optional<Member> maybeMember = memberRepository.findByEmail(email);
 
@@ -39,6 +45,7 @@ public class MemberServiceImpl implements MemberService {
     }
 
     //닉네임 중복 확인
+    @Override
     public Boolean nicknameValidation(String nickname) {
         Optional<Member> maybeNickName = memberRepository.findByNickName(nickname);
 
@@ -48,18 +55,44 @@ public class MemberServiceImpl implements MemberService {
         return true;
     }
 
+    @Override
+    public Boolean adminCodeValidation(String adminCode) {
+        Optional<AdminCode> maybeAdmin = adminCodeRepository.findByCode(adminCode);
+        if(maybeAdmin.isPresent()) {
+            return true;
+        }
+        return false;
+    }
+
     //회원가입
+    @Override
     public Boolean signUp(MemberSignUpRequest memberSignUpRequest) {
-        final Member member = memberSignUpRequest.toMember();
-        memberRepository.save(member);
+        log.info("관리자코드: " + memberSignUpRequest.getAdminCode());
 
-        final BasicAuthentication authentication = new BasicAuthentication(
-                member,
-                Authentication.BASIC_AUTH,
-                memberSignUpRequest.getPassword()
-        );
+        if(memberSignUpRequest.getAdminCode() == null || memberSignUpRequest.getAdminCode().isEmpty()) {
+            log.info("일반회원가입");
+            final Member member = memberSignUpRequest.toMember();
+            memberRepository.save(member);
 
-        authenticationRepository.save(authentication);
+            final BasicAuthentication authentication = new BasicAuthentication(
+                    member,
+                    Authentication.BASIC_AUTH,
+                    memberSignUpRequest.getPassword()
+            );
+            authenticationRepository.save(authentication);
+
+        } else {
+            log.info("관리자가입");
+            final Member member = memberSignUpRequest.toMember();
+            memberRepository.save(member);
+
+            final BasicAuthentication authentication = new BasicAuthentication(
+                    member,
+                    Authentication.BASIC_AUTH,
+                    memberSignUpRequest.getPassword()
+            );
+            authenticationRepository.save(authentication);
+        }
 
         return true;
     }
@@ -68,9 +101,9 @@ public class MemberServiceImpl implements MemberService {
     @Override
     public Map<String, String> signIn(MemberSignInRequest signInRequest) {
         String email = signInRequest.getEmail();
-        String authorityCode = signInRequest.getAuthorityCode();
+//        String authorityCode = signInRequest.getAuthorityCode();
 
-        Optional<Member> maybeMember = memberRepository.findByEmailAndAuthorityCode(email, authorityCode);
+        Optional<Member> maybeMember = memberRepository.findByEmail(email);
 
         if (maybeMember.isPresent()) {
             Member memberInfo = maybeMember.get();
@@ -90,7 +123,7 @@ public class MemberServiceImpl implements MemberService {
             userInfo.put("userEmail", memberInfo.getEmail());
             userInfo.put("userNickName", memberInfo.getNickname());
             userInfo.put("userId", memberInfo.getId().toString());
-            userInfo.put("authorityType", memberInfo.getAuthorityCode());
+//            userInfo.put("authorityType", memberInfo.getAdminCheck());
 
             log.info("userProfile()" + userInfo);
 
