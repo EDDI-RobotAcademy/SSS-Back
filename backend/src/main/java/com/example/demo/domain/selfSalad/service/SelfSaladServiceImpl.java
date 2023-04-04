@@ -1,7 +1,6 @@
 package com.example.demo.domain.selfSalad.service;
 
-import com.example.demo.domain.selfSalad.Controller.request.IngredientImgModifyForm;
-import com.example.demo.domain.selfSalad.Controller.response.IngredientImgReadResponse;
+import com.example.demo.domain.selfSalad.Controller.response.IngredientInfoReadResponse;
 import com.example.demo.domain.selfSalad.Controller.response.IngredientListResponse;
 import com.example.demo.domain.selfSalad.entity.*;
 import com.example.demo.domain.selfSalad.repository.*;
@@ -126,8 +125,9 @@ public class SelfSaladServiceImpl implements SelfSaladService {
     }
 
     @Override
-    public IngredientImgReadResponse findIngredientImg (Long ingredientId ){
-        Optional<Ingredient> maybeIngredientId = ingredientRepository.findById( ingredientId);
+    @Transactional
+    public IngredientInfoReadResponse findIngredientInfo(Long ingredientId) {
+        Optional<Ingredient> maybeIngredientId = ingredientRepository.findById(ingredientId);
 
         if (maybeIngredientId.isEmpty()) {
             log.info("없음!");
@@ -135,9 +135,9 @@ public class SelfSaladServiceImpl implements SelfSaladService {
         }
         Ingredient ingredient = maybeIngredientId.get();
 
-        IngredientImgReadResponse imgResponse = ingredient.toImgResponse( ingredient);
+        IngredientInfoReadResponse infoResponse = ingredient.toInfoResponse(ingredient);
 
-        return imgResponse;
+        return infoResponse;
     }
 
     @Override

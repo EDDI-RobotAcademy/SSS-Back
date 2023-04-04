@@ -1,6 +1,6 @@
 package com.example.demo.domain.selfSalad.service;
 
-import com.example.demo.domain.selfSalad.Controller.response.IngredientImgReadResponse;
+import com.example.demo.domain.selfSalad.Controller.response.IngredientInfoReadResponse;
 import com.example.demo.domain.selfSalad.Controller.response.IngredientListResponse;
 import com.example.demo.domain.selfSalad.service.request.IngredientRegisterRequest;
 
@@ -13,7 +13,7 @@ public interface SelfSaladService {
 
     List<IngredientListResponse> list(String requestType);
 
-    IngredientImgReadResponse findIngredientImg(Long ingredientId);
+    IngredientInfoReadResponse findIngredientInfo(Long ingredientId);
 
     void modifyIngredientImg(Long ingredientId, String modifyImg ) throws FileNotFoundException;
 }

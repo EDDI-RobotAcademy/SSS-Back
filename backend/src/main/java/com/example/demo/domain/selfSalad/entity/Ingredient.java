@@ -1,6 +1,6 @@
 package com.example.demo.domain.selfSalad.entity;
 
-import com.example.demo.domain.selfSalad.Controller.response.IngredientImgReadResponse;
+import com.example.demo.domain.selfSalad.Controller.response.IngredientInfoReadResponse;
 import com.example.demo.domain.selfSalad.Controller.response.IngredientListResponse;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
@@ -69,10 +69,19 @@ public class Ingredient {
                                           ingredientAmount.getPrice() );
     }
 
-    public IngredientImgReadResponse toImgResponse(Ingredient ingredient ){
+    public IngredientInfoReadResponse toInfoResponse(Ingredient ingredient ){
 
-        IngredientImgReadResponse imgResponse;
-        return new IngredientImgReadResponse( ingredient.name, ingredient.ingredientImg.getEditedImg());
+        IngredientCategory ingredientCategory = null;
+        Iterator<IngredientCategory> checkCategory = ingredient.ingredientCategories.iterator();
+
+        while(checkCategory.hasNext()) {              // iterator에 다음 값이 있다면
+            ingredientCategory = checkCategory.next();; // iter에서 값 꺼내기
+        }
+
+        String categoryType = String.valueOf(ingredientCategory.getCategory().getCategoryType());
+
+        IngredientInfoReadResponse imgResponse;
+        return new IngredientInfoReadResponse( ingredient.name, ingredient.ingredientImg.getEditedImg(), categoryType);
     };
     /**
      * 재료 이미지 수정
