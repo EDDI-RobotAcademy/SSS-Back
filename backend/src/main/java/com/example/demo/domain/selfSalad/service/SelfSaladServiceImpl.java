@@ -1,5 +1,6 @@
 package com.example.demo.domain.selfSalad.service;
 
+import com.example.demo.domain.selfSalad.Controller.response.IngredientAmountReadResponse;
 import com.example.demo.domain.selfSalad.Controller.response.IngredientInfoReadResponse;
 import com.example.demo.domain.selfSalad.Controller.response.IngredientListResponse;
 import com.example.demo.domain.selfSalad.entity.*;
@@ -12,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.swing.text.html.Option;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.nio.file.Path;
@@ -217,5 +219,24 @@ public class SelfSaladServiceImpl implements SelfSaladService {
         log.info("카테고리 수정 성공");
 
     }
+    @Override
+    @Transactional
+    public IngredientAmountReadResponse findIngredientAmount(Long ingredientId) {
+        final String ingredientName =
+                ingredientRepository.findById(ingredientId).get().getName();
 
+        final IngredientAmount ingredientAmount =
+                ingredientAmountRepository.findByIngredientId(ingredientId);
+
+        IngredientAmountReadResponse amountResponse =
+                new IngredientAmountReadResponse(ingredientName,
+                                                 ingredientAmount.getPrice(),
+                                                 ingredientAmount.getCalorie(),
+                                                 ingredientAmount.getUnit(),
+                                                 ingredientAmount.getMax(),
+                                                 ingredientAmount.getMin(),
+                                                 ingredientAmount.getAmount().getAmountType().toString()
+        );
+        return amountResponse;
+    }
 }

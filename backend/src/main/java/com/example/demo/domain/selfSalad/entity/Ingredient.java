@@ -90,4 +90,5 @@ public class Ingredient {
     public void setName(String modifyName) {
         this.name = modifyName;
     }
+    public String getName(){ return name;}
 }
