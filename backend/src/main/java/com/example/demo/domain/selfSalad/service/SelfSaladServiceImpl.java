@@ -174,13 +174,16 @@ public class SelfSaladServiceImpl implements SelfSaladService {
         ingredientCategoryRepository.save(ingredientCategory);
     }
 
-    private void modifyIngredient( Long ingredientId, String ingredientName, String modifyImg ){
+    private void modifyIngredientName( Long ingredientId, String ingredientName ){
 
         final Ingredient ingredient =
                 ingredientRepository.findById(ingredientId).get();
 
         ingredient.setName(ingredientName);
         ingredientRepository.save(ingredient);
+
+    }
+    private void modifyIngredientImg( Long ingredientId, String modifyImg ){
 
         final IngredientImg ingredientImg =
                 ingredientImgRepository.findByIngredientId(ingredientId);
@@ -195,13 +198,19 @@ public class SelfSaladServiceImpl implements SelfSaladService {
                                      IngredientInfoModifyRequest modifyRequest) throws FileNotFoundException {
 
         // 수정 전 이미지 파일을 폴더에서 삭제
-        deleteImgFile(ingredientId);
-        log.info("이미지 삭제 성공");
+        if( ! modifyRequest.getModifyEditedImg().equals("notImgChange")){
+            deleteImgFile(ingredientId);
+            log.info("이미지 삭제 성공");
 
-        // 이름 및 이미지 수정
-        modifyIngredient(ingredientId, modifyRequest.getName(), modifyRequest.getModifyEditedImg());
+            modifyIngredientImg(ingredientId, modifyRequest.getModifyEditedImg());
+            log.info("이미지 수정 성공");
+
+        }
+        log.info("이미지 수정 요청 들어왔을까? "+modifyRequest.getModifyEditedImg());
+        // 이름 수정
+        modifyIngredientName(ingredientId, modifyRequest.getName());
         log.info("수정 이미지명: "+modifyRequest.getModifyEditedImg());
-        log.info("이름 및 이미지 수정 성공");
+        log.info("이름 수정 성공");
 
         // 카테고리 수정
         modifyIngredientCategory(ingredientId, modifyRequest.getCategoryType());

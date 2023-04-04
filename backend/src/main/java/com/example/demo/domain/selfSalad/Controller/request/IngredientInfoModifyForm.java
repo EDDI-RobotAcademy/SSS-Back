@@ -34,18 +34,26 @@ public class IngredientInfoModifyForm {
      * @throws IOException
      */
     public IngredientInfoModifyRequest modifyEditedImg (MultipartFile imageFile) throws IOException {
-        UUID randomName = UUID.randomUUID();
-        String modifyEditedImg = randomName + imageFile.getOriginalFilename();
 
-        final String fixedStringPath = "../../SSS-Front/frontend/src/assets/selfSalad/";
-        FileOutputStream writer = new FileOutputStream(
-                fixedStringPath + modifyEditedImg
-        );
+        if (!imageFile.isEmpty()) {
+            UUID randomName = UUID.randomUUID();
+            String modifyEditedImg = randomName + imageFile.getOriginalFilename();
 
-        writer.write(imageFile.getBytes());
-        writer.close();
+            final String fixedStringPath = "../../SSS-Front/frontend/src/assets/selfSalad/";
+            FileOutputStream writer = new FileOutputStream(
+                    fixedStringPath + modifyEditedImg
+            );
 
-        return new IngredientInfoModifyRequest(this.name, this.categoryType, modifyEditedImg);
+            writer.write(imageFile.getBytes());
+            writer.close();
+
+            return new IngredientInfoModifyRequest(this.name, this.categoryType, modifyEditedImg);
+        }else{
+            String modifyEditedImg = "notImgChange";
+            return new IngredientInfoModifyRequest(this.name, this.categoryType, modifyEditedImg);
+
+        }
+
 
     }
 
