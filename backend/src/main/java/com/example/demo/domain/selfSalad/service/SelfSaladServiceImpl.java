@@ -6,6 +6,7 @@ import com.example.demo.domain.selfSalad.Controller.response.IngredientListRespo
 import com.example.demo.domain.selfSalad.entity.*;
 import com.example.demo.domain.selfSalad.repository.*;
 
+import com.example.demo.domain.selfSalad.service.request.IngredientAmountModifyRequest;
 import com.example.demo.domain.selfSalad.service.request.IngredientInfoModifyRequest;
 import com.example.demo.domain.selfSalad.service.request.IngredientRegisterRequest;
 import lombok.RequiredArgsConstructor;
@@ -13,7 +14,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.swing.text.html.Option;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.nio.file.Path;
@@ -241,6 +241,24 @@ public class SelfSaladServiceImpl implements SelfSaladService {
                                                  ingredientAmount.getAmount().getAmountType().toString()
         );
         return amountResponse;
+    }
+
+    public void modifyIngredientAmount(Long ingredientId, IngredientAmountModifyRequest modifyRequest){
+        final Amount amount =
+                amountRepository.findByAmountType(modifyRequest.getAmountType()).get();
+
+        final IngredientAmount ingredientAmount =
+                ingredientAmountRepository.findByIngredientId(ingredientId);
+
+        ingredientAmount.setIngredientAmount(
+                amount,
+                modifyRequest.getPrice(),
+                modifyRequest.getCalorie(),
+                modifyRequest.getUnit(),
+                modifyRequest.getMax(),
+                modifyRequest.getMin()
+        );
+        ingredientAmountRepository.save(ingredientAmount);
     }
 
 }

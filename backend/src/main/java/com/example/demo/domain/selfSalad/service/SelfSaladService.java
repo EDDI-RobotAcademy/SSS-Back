@@ -3,6 +3,7 @@ package com.example.demo.domain.selfSalad.service;
 import com.example.demo.domain.selfSalad.Controller.response.IngredientAmountReadResponse;
 import com.example.demo.domain.selfSalad.Controller.response.IngredientInfoReadResponse;
 import com.example.demo.domain.selfSalad.Controller.response.IngredientListResponse;
+import com.example.demo.domain.selfSalad.service.request.IngredientAmountModifyRequest;
 import com.example.demo.domain.selfSalad.service.request.IngredientInfoModifyRequest;
 import com.example.demo.domain.selfSalad.service.request.IngredientRegisterRequest;
 
@@ -20,4 +21,6 @@ public interface SelfSaladService {
     void modifyIngredientInfo(Long ingredientId,  IngredientInfoModifyRequest modifyRequest) throws FileNotFoundException;
 
     IngredientAmountReadResponse findIngredientAmount(Long ingredientId);
+
+    void modifyIngredientAmount(Long ingredientId, IngredientAmountModifyRequest ingredientAmountModifyRequest);
 }

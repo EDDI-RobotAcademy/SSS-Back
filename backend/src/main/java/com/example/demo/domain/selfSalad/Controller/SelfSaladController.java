@@ -6,6 +6,7 @@ import com.example.demo.domain.selfSalad.Controller.response.IngredientInfoReadR
 import com.example.demo.domain.selfSalad.Controller.response.IngredientListResponse;
 import com.example.demo.domain.selfSalad.Controller.request.IngredientRegisterForm;
 import com.example.demo.domain.selfSalad.service.SelfSaladService;
+import com.example.demo.domain.selfSalad.service.request.IngredientAmountModifyRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
@@ -94,6 +95,19 @@ public class SelfSaladController {
         log.info("Amount Modify");
 
         return selfSaladService.findIngredientAmount( ingredientId );
+    }
+
+    /**
+     * 수량/가격 수정된 정보 등록
+     */
+    @PutMapping("/modify/amount/{ingredientId}")
+    public void ingredientAmountModify (
+            @RequestBody IngredientAmountModifyRequest ingredientAmountModifyRequest,
+            @PathVariable("ingredientId") Long ingredientId) {
+        log.info("ingredient-amount-modify(): ");
+
+        selfSaladService.modifyIngredientAmount( ingredientId, ingredientAmountModifyRequest );
+
     }
 
 
