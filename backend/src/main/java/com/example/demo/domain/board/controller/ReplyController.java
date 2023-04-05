@@ -1,6 +1,6 @@
 package com.example.demo.domain.board.controller;
 
-import com.example.demo.domain.board.controller.request.ReplyRequest;
+import com.example.demo.domain.board.dto.request.ReplyRequest;
 import com.example.demo.domain.board.entity.Reply;
 import com.example.demo.domain.board.service.ReplyService;
 import lombok.RequiredArgsConstructor;

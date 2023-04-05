@@ -1,6 +1,6 @@
 package com.example.demo.domain.board.service;
 
-import com.example.demo.domain.board.controller.request.ReplyRequest;
+import com.example.demo.domain.board.dto.request.ReplyRequest;
 import com.example.demo.domain.board.entity.Reply;
 import com.example.demo.domain.board.repository.ReplyRepository;
 import lombok.RequiredArgsConstructor;
@@ -20,7 +20,7 @@ public class ReplyServiceImpl implements ReplyService {
     public Reply register(ReplyRequest replyRequest) {
         Reply reply = new Reply();
         reply.setReplyId(replyRequest.getReplyId());
-        reply.setReplyWriter(replyRequest.getReplyContent());
+        reply.setReplyContent(replyRequest.getReplyContent());
 
         replyRepository.save(reply);
 

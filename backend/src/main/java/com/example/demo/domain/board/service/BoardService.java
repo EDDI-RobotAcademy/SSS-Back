@@ -1,6 +1,6 @@
 package com.example.demo.domain.board.service;
 
-import com.example.demo.domain.board.controller.request.BoardRequest;
+import com.example.demo.domain.board.dto.request.BoardRequest;
 import com.example.demo.domain.board.entity.Board;
 
 import java.util.List;
