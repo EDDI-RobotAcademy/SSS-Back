@@ -4,4 +4,6 @@ import com.example.demo.domain.selfSalad.entity.IngredientCategory;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface IngredientCategoryRepository extends JpaRepository<IngredientCategory, Long> {
+    IngredientCategory findByIngredientId(Long ingredientId );
+
 }

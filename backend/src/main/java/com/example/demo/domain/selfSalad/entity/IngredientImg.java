@@ -1,10 +1,15 @@
 package com.example.demo.domain.selfSalad.entity;
 
+import com.example.demo.domain.selfSalad.Controller.request.IngredientInfoModifyForm;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -52,11 +57,8 @@ public class IngredientImg {
      * 수정 후 이미지명으로 변경
      * @param modifyImg
      */
-    public void toModifyImg(String modifyImg) {
+    public void setEditedImg(String modifyImg){
         this.editedImg = modifyImg;
     }
-
-
-
 
 }

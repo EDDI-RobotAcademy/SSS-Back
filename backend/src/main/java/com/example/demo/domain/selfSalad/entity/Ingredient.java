@@ -1,16 +1,19 @@
 package com.example.demo.domain.selfSalad.entity;
 
-import com.example.demo.domain.selfSalad.Controller.response.IngredientImgReadResponse;
+import com.example.demo.domain.selfSalad.Controller.response.IngredientInfoReadResponse;
 import com.example.demo.domain.selfSalad.Controller.response.IngredientListResponse;
 import lombok.AccessLevel;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.io.FileNotFoundException;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
 @Entity
+@Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Ingredient {
     /**
@@ -48,34 +51,11 @@ public class Ingredient {
         ingredientImg.setIngredient(this);
     }
 
-    public IngredientListResponse toResponseList(Ingredient ingredient){
-
-        IngredientAmount ingredientAmount = null;
-        Iterator<IngredientAmount> checkAmount = ingredient.ingredientAmounts.iterator();
-
-        while(checkAmount.hasNext()) {              // iterator에 다음 값이 있다면
-            ingredientAmount = checkAmount.next();; // iter에서 값 꺼내기
-        }
-
-        String amountType = ingredientAmount.getAmount().getAmountType().toString();
-
-        return new IngredientListResponse(ingredient.id, ingredient.name,
-                                          ingredient.ingredientImg.getEditedImg(),
-                                          amountType,
-                                          ingredientAmount.getMax(),
-                                          ingredientAmount.getMin(),
-                                          ingredientAmount.getUnit(),
-                                          ingredientAmount.getCalorie(),
-                                          ingredientAmount.getPrice() );
-    }
-
-    public IngredientImgReadResponse toImgResponse(Ingredient ingredient ){
-
-        IngredientImgReadResponse imgResponse;
-        return new IngredientImgReadResponse( ingredient.name, ingredient.ingredientImg.getEditedImg());
-    };
     /**
      * 재료 이미지 수정
      */
-    //public void modifyImage(IngredientImg ingredientImg){ this.ingredientImg = ingredientImg ; }
+    public void setName(String modifyName) {
+        this.name = modifyName;
+    }
+
 }
