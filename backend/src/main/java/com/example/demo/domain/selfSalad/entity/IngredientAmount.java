@@ -63,4 +63,15 @@ public class IngredientAmount {
     public Amount getAmount () {
         return amount;
     }
+
+    public void setIngredientAmount(Amount amount, Integer price, Integer calorie,
+                                    Integer unit, Integer max, Integer min){
+        this.amount = amount;
+        this.price = price;
+        this.calorie = calorie;
+        this.unit = unit;
+        this.max = max;
+        this.min = min;
+
+    }
 }

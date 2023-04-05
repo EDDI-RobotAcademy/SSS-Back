@@ -1,10 +1,12 @@
 package com.example.demo.domain.selfSalad.Controller;
 
-import com.example.demo.domain.selfSalad.Controller.request.IngredientImgModifyForm;
-import com.example.demo.domain.selfSalad.Controller.response.IngredientImgReadResponse;
+import com.example.demo.domain.selfSalad.Controller.request.IngredientInfoModifyForm;
+import com.example.demo.domain.selfSalad.Controller.response.IngredientAmountReadResponse;
+import com.example.demo.domain.selfSalad.Controller.response.IngredientInfoReadResponse;
 import com.example.demo.domain.selfSalad.Controller.response.IngredientListResponse;
 import com.example.demo.domain.selfSalad.Controller.request.IngredientRegisterForm;
 import com.example.demo.domain.selfSalad.service.SelfSaladService;
+import com.example.demo.domain.selfSalad.service.request.IngredientAmountModifyRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
@@ -57,29 +59,54 @@ public class SelfSaladController {
     }
 
     /**
-     * 이미지 수정 전, 이미지 정보 요청
+     * 재료 INFO 수정 전, INFO 정보 요청
      * @param ingredientId
-     * @return ingredient id, name, beforeEditedImg
+     * @return ingredient id, name, beforeEditedImg, categoryType,
      */
-    @GetMapping("/read/img/{ingredientId}")
-    public IngredientImgReadResponse ingredientImgRead (@PathVariable("ingredientId") Long ingredientId) {
+    @GetMapping("/read/info/{ingredientId}")
+    public IngredientInfoReadResponse ingredientInfoRead (@PathVariable("ingredientId") Long ingredientId) {
         log.info("Image Modify");
 
-        return selfSaladService.findIngredientImg( ingredientId );
+        return selfSaladService.findIngredientInfo( ingredientId );
     }
     /**
      * 이미지 수정된 정보 등록
      */
-    @PutMapping(value = "/modify/img/{ingredientId}",
+    @PutMapping(value = "/modify/info/{ingredientId}",
             consumes = { MediaType.MULTIPART_FORM_DATA_VALUE, MediaType.APPLICATION_JSON_VALUE})
-    public void ingredientImgModify (
+    public void ingredientInfoModify (
             @RequestPart(value = "imageFile")MultipartFile imageFile,
+            @RequestPart(value = "ingredientInfo")IngredientInfoModifyForm ingredientInfoModifyForm,
             @PathVariable("ingredientId") Long ingredientId) throws IOException {
         log.info("ingredient-img-modify(): ");
-        IngredientImgModifyForm ingredientImgModifyForm = new IngredientImgModifyForm();
 
-        selfSaladService.modifyIngredientImg( ingredientId,
-                                              ingredientImgModifyForm.modifyEditedImg( imageFile) );
+        selfSaladService.modifyIngredientInfo( ingredientId,
+                                              ingredientInfoModifyForm.modifyEditedImg( imageFile) );
+
+    }
+
+    /**
+     * 재료info 수정 전, 재료info 정보 요청
+     * @param ingredientId
+     * @return ingredient id, name, beforeEditedImg
+     */
+    @GetMapping("/read/amount/{ingredientId}")
+    public IngredientAmountReadResponse ingredientAmountRead (@PathVariable("ingredientId") Long ingredientId) {
+        log.info("Amount Modify");
+
+        return selfSaladService.findIngredientAmount( ingredientId );
+    }
+
+    /**
+     * 수량/가격 수정된 정보 등록
+     */
+    @PutMapping("/modify/amount/{ingredientId}")
+    public void ingredientAmountModify (
+            @RequestBody IngredientAmountModifyRequest ingredientAmountModifyRequest,
+            @PathVariable("ingredientId") Long ingredientId) {
+        log.info("ingredient-amount-modify(): ");
+
+        selfSaladService.modifyIngredientAmount( ingredientId, ingredientAmountModifyRequest );
 
     }
 
