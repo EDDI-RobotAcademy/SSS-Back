@@ -1,6 +1,6 @@
 package com.example.demo.board;
 
-import com.example.demo.domain.board.controller.request.BoardRequest;
+import com.example.demo.domain.board.dto.request.BoardRequest;
 import com.example.demo.domain.board.entity.Board;
 import com.example.demo.domain.board.service.BoardService;
 import org.junit.jupiter.api.Test;

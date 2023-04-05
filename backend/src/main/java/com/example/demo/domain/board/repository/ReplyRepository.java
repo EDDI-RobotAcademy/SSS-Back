@@ -7,7 +7,7 @@ import java.util.List;
 
 public interface ReplyRepository extends JpaRepository<Reply, Long> {
 
-    List<Reply> findByReplyIdAndReplyWriter(Long replyId, String replyWriter);
+    List<Reply> findByReplyIdAndReplyContent(Long replyId, String replyContent);
     List<Reply> findReplyContentByReplyId(Long replyId);
 
 
