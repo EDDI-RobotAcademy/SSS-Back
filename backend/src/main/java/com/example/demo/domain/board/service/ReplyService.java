@@ -15,7 +15,7 @@ public interface ReplyService {
     /**
      * 댓글 리스트
      */
-    List<Reply> list();
+    List<Reply> list(Long boarId);
 
     /**
      * 댓글 읽기

@@ -1,10 +1,13 @@
 package com.example.demo.domain.board.service;
 
 import com.example.demo.domain.board.dto.request.ReplyRequest;
+import com.example.demo.domain.board.entity.Board;
 import com.example.demo.domain.board.entity.Reply;
+import com.example.demo.domain.board.repository.BoardRepository;
 import com.example.demo.domain.board.repository.ReplyRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import java.util.List;
@@ -15,11 +18,30 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class ReplyServiceImpl implements ReplyService {
 
-    final private ReplyRepository replyRepository;
+    @Autowired
+    ReplyRepository replyRepository;
 
+    @Autowired
+    BoardRepository BoardRepository;
+
+//    public Reply register(ReplyRequest replyRequest) {
+//        Reply reply = new Reply();
+////        reply.setReplyId(replyRequest.getReplyId());
+//        reply.setReplyWriter(replyRequest.getReplyWriter());
+//        reply.setReplyContent(replyRequest.getReplyContent());
+//
+//        replyRepository.save(reply);
+//
+//        return reply;
+//    }
+
+    @Override
     public Reply register(ReplyRequest replyRequest) {
+        Optional<Board> maybeBoard = BoardRepository.findByBoardId(replyRequest.getBoardId());
+
         Reply reply = new Reply();
-        reply.setReplyId(replyRequest.getReplyId());
+        reply.setBoard(maybeBoard.get());
+        reply.setReplyWriter(replyRequest.getReplyWriter());
         reply.setReplyContent(replyRequest.getReplyContent());
 
         replyRepository.save(reply);
@@ -28,8 +50,8 @@ public class ReplyServiceImpl implements ReplyService {
     }
 
     @Override
-    public List<Reply> list() {
-        return replyRepository.findAll(Sort.by(Sort.Direction.DESC, "replyId"));
+    public List<Reply> list(Long boardId) {
+        return replyRepository.findAll(Sort.by(Sort.Direction.DESC, "boardId"));
     }
 
     @Override

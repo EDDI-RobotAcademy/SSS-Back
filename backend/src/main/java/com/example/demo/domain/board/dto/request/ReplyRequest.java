@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 public class ReplyRequest {
 
         final private Long replyId;
+        final private String replyWriter;
         final private String replyContent;
 
 }

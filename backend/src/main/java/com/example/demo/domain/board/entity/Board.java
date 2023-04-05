@@ -18,6 +18,7 @@ public class Board {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name="board_id")
     private Long boardId;
 
     @Column(length = 128, nullable = false)

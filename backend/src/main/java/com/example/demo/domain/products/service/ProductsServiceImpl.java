@@ -52,7 +52,7 @@ public class ProductsServiceImpl implements ProductsService {
             UUID uuid = UUID.randomUUID();
             String originImg = multipartFile.getOriginalFilename();
             String editedImg = uuid + originImg;
-            String imgPath = "C:/khproj/SSS-Front/frontend/src/assets/product/";
+            String imgPath = "../../SSS-Front/frontend/src/assets/product/";
 
             ProductImg productImg = new ProductImg();
             productImg.setOriginImg(originImg);
