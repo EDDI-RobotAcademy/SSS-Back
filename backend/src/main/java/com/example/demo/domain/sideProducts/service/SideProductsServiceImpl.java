@@ -1,9 +1,6 @@
 package com.example.demo.domain.sideProducts.service;
 
-import com.example.demo.domain.selfSalad.entity.Amount;
-import com.example.demo.domain.selfSalad.entity.Category;
-import com.example.demo.domain.selfSalad.entity.Ingredient;
-import com.example.demo.domain.selfSalad.entity.IngredientImage;
+
 import com.example.demo.domain.sideProducts.dto.request.SideProductRequest;
 import com.example.demo.domain.sideProducts.dto.response.SideProductResponse;
 import com.example.demo.domain.sideProducts.entity.SideProduct;
@@ -17,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.transaction.Transactional;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -105,8 +103,8 @@ public class SideProductsServiceImpl implements SideProductsService {
 
     // 상세페이지(읽기)
     @Override
-    public SideProductResponse read(Long productId) {
-        Optional<SideProduct> maybeSideProduct = sideProductsRepository.findById(productId);
+    public SideProductResponse read(Long sideProductId) {
+        Optional<SideProduct> maybeSideProduct = sideProductsRepository.findById(sideProductId);
 
         if(maybeSideProduct.isEmpty()){
             log.info("없는데?");
@@ -118,41 +116,87 @@ public class SideProductsServiceImpl implements SideProductsService {
                 sideProduct.getSideProductId(),
                 sideProduct.getContent(),
                 sideProduct.getPrice(),
-                sideProduct.getTitle()
+                sideProduct.getTitle(),
+                sideProduct.getSideProductImg()
         );
         return sideProductResponse;
     }
 
     // 삭제
     @Override
-    public void remove(Long productId) {
-        sideProductsRepository.deleteById(productId);
+    public void remove(Long sideProductId) {
+
+        sideProductsRepository.deleteById(sideProductId);
+
+        Optional<SideProduct> imageResource = sideProductsImgRepository.findImagePathBySideProductId(sideProductId);
+
+        if (imageResource.isPresent()) {
+            SideProductImg fileName = imageResource.get().getSideProductImg();
+            File vueFile = new File("../../SSS-Front/frontend/src/assets/selfSalad/" + fileName);
+
+            if (vueFile.exists()) {
+                vueFile.delete();
+            } else {
+                System.out.println("파일 삭제 실패!");
+            }
+
+            sideProductsImgRepository.deleteSpecificProduct(sideProductId);
+
+        }
     }
 
     // 수정
     @Override
-    public SideProductResponse modify(Long productId, SideProductRequest sideProductRequest) {
-        Optional<SideProduct> maybeSideProduct = sideProductsRepository.findById(productId);
+    public SideProductResponse modify(Long sideProductId, SideProductRequest sideProductRequest, MultipartFile sideProductImgList) {
+        Optional<SideProduct> maybeSideProduct = sideProductsRepository.findById(sideProductId);
+
+        sideProductsImgRepository.deleteSpecificProduct(sideProductId);
 
         if(maybeSideProduct.isEmpty()){
             return null;
         }
 
         SideProduct sideProduct = maybeSideProduct.get();
-
         sideProduct.setTitle(sideProductRequest.getTitle());
         sideProduct.setContent(sideProductRequest.getContent());
         sideProduct.setPrice(sideProductRequest.getPrice());
 
+        final String fixedStringPath = "../../SSS-Front/frontend/src/assets/selfSalad/";
+        try {
+            log.info("requestImageFile - filename: " + sideProductImgList.getOriginalFilename());
+
+            UUID randomName = UUID.randomUUID();
+            String fileRandomName = randomName + sideProductImgList.getOriginalFilename();
+
+            // 파일 경로지정
+            FileOutputStream writer = new FileOutputStream(
+                    fixedStringPath + fileRandomName);
+
+            writer.write(sideProductImgList.getBytes());
+            writer.close();
+
+            SideProductImg sideProductImg = new SideProductImg(
+                    sideProductImgList.getOriginalFilename(),
+                    fileRandomName,
+                    sideProduct
+            );
+            sideProductImg.registerToSideProduct();
+            sideProductsImgRepository.save(sideProductImg);
+
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
         sideProductsRepository.save(sideProduct);
 
         SideProductResponse sideProductResponse = new SideProductResponse(
                 sideProduct.getSideProductId(),
-                sideProductRequest.getContent(),
-                sideProductRequest.getPrice(),
-                sideProductRequest.getTitle()
+                sideProduct.getContent(),
+                sideProduct.getPrice(),
+                sideProduct.getTitle(),
+                sideProduct.getSideProductImg()
         );
-
         return sideProductResponse;
     }
 

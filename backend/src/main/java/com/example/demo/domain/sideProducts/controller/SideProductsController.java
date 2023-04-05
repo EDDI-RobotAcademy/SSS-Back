@@ -41,28 +41,33 @@ public class SideProductsController {
         return sideProductsService.list();
     }
     // 상세페이지(읽기)
-    @GetMapping("/read/{productId}")
-    public SideProductResponse sideProductRead(@PathVariable("productId") Long productId){
+    @GetMapping("/read/{sideProductId}")
+    public SideProductResponse sideProductRead(@PathVariable("sideProductId") Long sideProductId){
         log.info("sideProductRead()");
 
-        return sideProductsService.read(productId);
+        return sideProductsService.read(sideProductId);
     }
 
     // 삭제
-    @DeleteMapping("/{productId}")
-    public void sideProductRemove(@PathVariable("productId") Long productId) {
+    @DeleteMapping("/{sideProductId}")
+    public void sideProductRemove(@PathVariable("sideProductId") Long sideProductId) {
         log.info("sideProductRemove()");
 
-        sideProductsService.remove(productId);
+        sideProductsService.remove(sideProductId);
     }
 
     // 수정
-    @PutMapping("/modify/{productId}")
-    public SideProductResponse sideProductModify(@PathVariable("productId")Long productId,
-                                                 @RequestBody SideProductRequest sideProductRequest) {
-        log.info("sideProductModify(): " + sideProductRequest + "id: " + productId);
+    @PutMapping(value = "/modify/{sideProductId}",
+            consumes = { MediaType.MULTIPART_FORM_DATA_VALUE, MediaType.APPLICATION_JSON_VALUE })
+    public SideProductResponse sideProductModify(@PathVariable("sideProductId")Long sideProductId,
+                                                 @RequestPart(value = "fileList",required = false) MultipartFile sideProductImgList,
+                                                 @RequestPart(value = "productInfo") SideProductRequest sideProductRequest){
+        log.info("sideProductModify(): " + sideProductRequest + "id: " + sideProductId);
 
-        return sideProductsService.modify(productId, sideProductRequest);
+        System.out.println("수정컨트롤");
+        System.out.println(sideProductRequest);
+        return sideProductsService.modify(sideProductId, sideProductRequest, sideProductImgList);
+
     }
 
 
