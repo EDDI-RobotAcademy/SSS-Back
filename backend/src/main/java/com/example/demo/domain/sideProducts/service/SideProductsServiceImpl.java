@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.transaction.Transactional;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -129,28 +130,56 @@ public class SideProductsServiceImpl implements SideProductsService {
 
     // 수정
     @Override
-    public SideProductResponse modify(Long productId, SideProductRequest sideProductRequest) {
-        Optional<SideProduct> maybeSideProduct = sideProductsRepository.findById(productId);
+    public SideProductResponse modify(Long sideProductId, SideProductRequest sideProductRequest, MultipartFile sideProductImgList) {
+        Optional<SideProduct> maybeSideProduct = sideProductsRepository.findById(sideProductId);
+
+        sideProductsImgRepository.deleteSpecificProduct(sideProductId);
 
         if(maybeSideProduct.isEmpty()){
             return null;
         }
 
         SideProduct sideProduct = maybeSideProduct.get();
-
         sideProduct.setTitle(sideProductRequest.getTitle());
         sideProduct.setContent(sideProductRequest.getContent());
         sideProduct.setPrice(sideProductRequest.getPrice());
 
+        final String fixedStringPath = "../../SSS-Front/frontend/src/assets/selfSalad/";
+        try {
+            log.info("requestImageFile - filename: " + sideProductImgList.getOriginalFilename());
+
+            UUID randomName = UUID.randomUUID();
+            String fileRandomName = randomName + sideProductImgList.getOriginalFilename();
+
+            // 파일 경로지정
+            FileOutputStream writer = new FileOutputStream(
+                    fixedStringPath + fileRandomName);
+
+            writer.write(sideProductImgList.getBytes());
+            writer.close();
+
+            SideProductImg sideProductImg = new SideProductImg(
+                    sideProductImgList.getOriginalFilename(),
+                    fileRandomName,
+                    sideProduct
+            );
+            sideProductImg.registerToSideProduct();
+            sideProductsImgRepository.save(sideProductImg);
+
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
         sideProductsRepository.save(sideProduct);
 
         SideProductResponse sideProductResponse = new SideProductResponse(
                 sideProduct.getSideProductId(),
-                sideProductRequest.getContent(),
-                sideProductRequest.getPrice(),
-                sideProductRequest.getTitle()
+                sideProduct.getContent(),
+                sideProduct.getPrice(),
+                sideProduct.getTitle(),
+                sideProduct.getSideProductImg()
         );
-
         return sideProductResponse;
     }
 

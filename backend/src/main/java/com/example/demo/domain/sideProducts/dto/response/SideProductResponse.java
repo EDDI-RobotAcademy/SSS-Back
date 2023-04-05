@@ -1,5 +1,6 @@
 package com.example.demo.domain.sideProducts.dto.response;
 
+import com.example.demo.domain.sideProducts.entity.SideProductImg;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -17,6 +18,9 @@ public class SideProductResponse {
 
     // 제목
     final private String title;
+
+    // 이미지
+    final private SideProductImg sideProductImg;
 
 
 

@@ -57,12 +57,17 @@ public class SideProductsController {
     }
 
     // 수정
-    @PutMapping("/modify/{productId}")
-    public SideProductResponse sideProductModify(@PathVariable("productId")Long productId,
-                                                 @RequestBody SideProductRequest sideProductRequest) {
-        log.info("sideProductModify(): " + sideProductRequest + "id: " + productId);
+    @PutMapping(value = "/modify/{sideProductId}",
+            consumes = { MediaType.MULTIPART_FORM_DATA_VALUE, MediaType.APPLICATION_JSON_VALUE })
+    public SideProductResponse sideProductModify(@PathVariable("sideProductId")Long sideProductId,
+                                                 @RequestPart(value = "fileList",required = false) MultipartFile sideProductImgList,
+                                                 @RequestPart(value = "productInfo") SideProductRequest sideProductRequest){
+        log.info("sideProductModify(): " + sideProductRequest + "id: " + sideProductId);
 
-        return sideProductsService.modify(productId, sideProductRequest);
+        System.out.println("수정컨트롤");
+        System.out.println(sideProductRequest);
+        return sideProductsService.modify(sideProductId, sideProductRequest, sideProductImgList);
+
     }
 
 
