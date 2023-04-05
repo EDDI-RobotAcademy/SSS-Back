@@ -1,6 +1,7 @@
 package com.example.demo.domain.sideProducts.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -9,6 +10,7 @@ import javax.persistence.*;
 @Getter
 @Entity
 @NoArgsConstructor
+@AllArgsConstructor
 public class SideProductImg {
 
     @Id
@@ -30,8 +32,10 @@ public class SideProductImg {
         this.editedImg = editedImg;
         this.sideProduct = sideProduct;
     }
-    public void registerToSideProduct(){
-        this.sideProduct.setSideProductImg(this);
+
+
+    public void setEditedImg (String Img){
+        this.editedImg = Img;
     }
 
 

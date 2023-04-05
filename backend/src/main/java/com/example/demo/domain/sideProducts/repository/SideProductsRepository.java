@@ -14,4 +14,5 @@ import java.util.Optional;
 public interface SideProductsRepository extends JpaRepository<SideProduct, Long> {
 
 
+    SideProductImg findBySideProductId(Long sideProductId);
 }

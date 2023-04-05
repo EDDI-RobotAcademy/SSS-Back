@@ -85,7 +85,7 @@ public class SideProductsServiceImpl implements SideProductsService {
                     fileRandomName,
                     sideProduct
             );
-            sideProductImg.registerToSideProduct();
+            sideProduct.registerImg(sideProductImg);
             sideProductsImgRepository.save(sideProductImg);
 
         } catch (FileNotFoundException e) {
@@ -150,8 +150,6 @@ public class SideProductsServiceImpl implements SideProductsService {
     public SideProductResponse modify(Long sideProductId, SideProductRequest sideProductRequest, MultipartFile sideProductImgList) {
         Optional<SideProduct> maybeSideProduct = sideProductsRepository.findById(sideProductId);
 
-        sideProductsImgRepository.deleteSpecificProduct(sideProductId);
-
         if(maybeSideProduct.isEmpty()){
             return null;
         }
@@ -169,18 +167,15 @@ public class SideProductsServiceImpl implements SideProductsService {
             String fileRandomName = randomName + sideProductImgList.getOriginalFilename();
 
             // 파일 경로지정
-            FileOutputStream writer = new FileOutputStream(
-                    fixedStringPath + fileRandomName);
+            FileOutputStream writer = new FileOutputStream(fixedStringPath + fileRandomName);
 
             writer.write(sideProductImgList.getBytes());
             writer.close();
 
-            SideProductImg sideProductImg = new SideProductImg(
-                    sideProductImgList.getOriginalFilename(),
-                    fileRandomName,
-                    sideProduct
-            );
-            sideProductImg.registerToSideProduct();
+            SideProductImg sideProductImg =
+                    sideProductsRepository.findBySideProductId(sideProductId);
+
+            sideProductImg.setEditedImg(fileRandomName);
             sideProductsImgRepository.save(sideProductImg);
 
         } catch (FileNotFoundException e) {
