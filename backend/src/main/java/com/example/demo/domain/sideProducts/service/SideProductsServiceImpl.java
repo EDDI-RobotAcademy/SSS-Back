@@ -125,7 +125,24 @@ public class SideProductsServiceImpl implements SideProductsService {
     // 삭제
     @Override
     public void remove(Long sideProductId) {
+
         sideProductsRepository.deleteById(sideProductId);
+
+        Optional<SideProduct> imageResource = sideProductsImgRepository.findImagePathBySideProductId(sideProductId);
+
+        if (imageResource.isPresent()) {
+            SideProductImg fileName = imageResource.get().getSideProductImg();
+            File vueFile = new File("../../SSS-Front/frontend/src/assets/selfSalad/" + fileName);
+
+            if (vueFile.exists()) {
+                vueFile.delete();
+            } else {
+                System.out.println("파일 삭제 실패!");
+            }
+
+            sideProductsImgRepository.deleteSpecificProduct(sideProductId);
+
+        }
     }
 
     // 수정
