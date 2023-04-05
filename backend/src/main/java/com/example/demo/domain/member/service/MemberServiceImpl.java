@@ -14,7 +14,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import com.example.demo.domain.member.entity.Member;
 
-import javax.swing.text.html.Option;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;

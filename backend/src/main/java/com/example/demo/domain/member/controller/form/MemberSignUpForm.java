@@ -21,6 +21,6 @@ public class MemberSignUpForm {
     private String adminCode;
 
     public MemberSignUpRequest toMemberSignUpRequest() {
-        return new MemberSignUpRequest(email, password, nickname, authorityName, adminCheck);
+        return new MemberSignUpRequest(email, password, nickname, authorityName, adminCheck, adminCode);
     }
 }

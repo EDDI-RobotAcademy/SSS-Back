@@ -11,7 +11,6 @@ import lombok.ToString;
 @Getter
 @ToString
 @RequiredArgsConstructor
-@AllArgsConstructor
 public class MemberSignUpRequest {
 
     final private String email;
@@ -21,12 +20,13 @@ public class MemberSignUpRequest {
     private boolean adminCheck;
     private String adminCode;
 
-    public MemberSignUpRequest(String email, String password, String nickname, AuthorityType authorityName, boolean adminCheck) {
+    public MemberSignUpRequest(String email, String password, String nickname, AuthorityType authorityName, boolean adminCheck, String adminCode) {
         this.email = email;
         this.password = password;
         this.nickname = nickname;
         this.authorityName = authorityName;
         this.adminCheck = adminCheck;
+        this.adminCode = adminCode;
     }
 
     public Member toMember () {
