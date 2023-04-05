@@ -1,7 +1,6 @@
 package com.example.demo.domain.sideProducts.service;
 
 
-import com.example.demo.domain.selfSalad.Controller.request.IngredientRegisterRequest;
 import com.example.demo.domain.sideProducts.dto.request.SideProductRequest;
 import com.example.demo.domain.sideProducts.dto.response.SideProductResponse;
 import com.example.demo.domain.sideProducts.entity.SideProduct;
@@ -22,12 +21,12 @@ public interface SideProductsService {
     List<SideProduct> list();
 
     //상세페이지(읽기)
-    SideProductResponse read(Long productId);
+    SideProductResponse read(Long sideProductId);
 
     //삭제
-    void remove(Long productId);
+    void remove(Long sideProductId);
 
     //수정
-    SideProductResponse modify(Long productId, SideProductRequest sideProductRequest);
+    SideProductResponse modify(Long sideProductId, SideProductRequest sideProductRequest, MultipartFile sideProductImgList);
 }
 

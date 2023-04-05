@@ -41,19 +41,19 @@ public class SideProductsController {
         return sideProductsService.list();
     }
     // 상세페이지(읽기)
-    @GetMapping("/read/{productId}")
-    public SideProductResponse sideProductRead(@PathVariable("productId") Long productId){
+    @GetMapping("/read/{sideProductId}")
+    public SideProductResponse sideProductRead(@PathVariable("sideProductId") Long sideProductId){
         log.info("sideProductRead()");
 
-        return sideProductsService.read(productId);
+        return sideProductsService.read(sideProductId);
     }
 
     // 삭제
-    @DeleteMapping("/{productId}")
-    public void sideProductRemove(@PathVariable("productId") Long productId) {
+    @DeleteMapping("/{sideProductId}")
+    public void sideProductRemove(@PathVariable("sideProductId") Long sideProductId) {
         log.info("sideProductRemove()");
 
-        sideProductsService.remove(productId);
+        sideProductsService.remove(sideProductId);
     }
 
     // 수정

@@ -1,9 +1,6 @@
 package com.example.demo.domain.sideProducts.service;
 
-import com.example.demo.domain.selfSalad.entity.Amount;
-import com.example.demo.domain.selfSalad.entity.Category;
-import com.example.demo.domain.selfSalad.entity.Ingredient;
-import com.example.demo.domain.selfSalad.entity.IngredientImage;
+
 import com.example.demo.domain.sideProducts.dto.request.SideProductRequest;
 import com.example.demo.domain.sideProducts.dto.response.SideProductResponse;
 import com.example.demo.domain.sideProducts.entity.SideProduct;
@@ -105,8 +102,8 @@ public class SideProductsServiceImpl implements SideProductsService {
 
     // 상세페이지(읽기)
     @Override
-    public SideProductResponse read(Long productId) {
-        Optional<SideProduct> maybeSideProduct = sideProductsRepository.findById(productId);
+    public SideProductResponse read(Long sideProductId) {
+        Optional<SideProduct> maybeSideProduct = sideProductsRepository.findById(sideProductId);
 
         if(maybeSideProduct.isEmpty()){
             log.info("없는데?");
@@ -118,15 +115,16 @@ public class SideProductsServiceImpl implements SideProductsService {
                 sideProduct.getSideProductId(),
                 sideProduct.getContent(),
                 sideProduct.getPrice(),
-                sideProduct.getTitle()
+                sideProduct.getTitle(),
+                sideProduct.getSideProductImg()
         );
         return sideProductResponse;
     }
 
     // 삭제
     @Override
-    public void remove(Long productId) {
-        sideProductsRepository.deleteById(productId);
+    public void remove(Long sideProductId) {
+        sideProductsRepository.deleteById(sideProductId);
     }
 
     // 수정
