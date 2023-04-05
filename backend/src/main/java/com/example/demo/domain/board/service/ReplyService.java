@@ -1,6 +1,6 @@
 package com.example.demo.domain.board.service;
 
-import com.example.demo.domain.board.controller.request.ReplyRequest;
+import com.example.demo.domain.board.dto.request.ReplyRequest;
 import com.example.demo.domain.board.entity.Reply;
 
 import java.util.List;
