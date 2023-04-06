@@ -31,6 +31,11 @@ public class MemberController {
         return memberService.nicknameValidation(nickname);
     }
 
+    @PostMapping("/check-admin/{adminCode}")
+    public Boolean adminCodeValidation(@PathVariable("adminCode") String adminCode) {
+        return memberService.adminCodeValidation(adminCode);
+    }
+
     @PostMapping("/sign-up")
     public Boolean signUp(@RequestBody MemberSignUpForm form) {
         log.info("signUp(): " + form);
