@@ -7,7 +7,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class ReplyRequest {
 
-        final private Long replyId;
+        final private Long boardId;
         final private String replyWriter;
         final private String replyContent;
 

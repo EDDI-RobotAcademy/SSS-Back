@@ -12,18 +12,22 @@ import java.util.List;
 @Slf4j
 @RestController
 @RequestMapping("/board")
-@RequiredArgsConstructor
+//@RequiredArgsConstructor
 @CrossOrigin(origins = "http://localhost:8080", allowedHeaders = "*")
 public class BoardController {
 
     final private BoardService boardService;
 
+    public BoardController(BoardService boardService) {
+        this.boardService = boardService;
+    }
+
     // 게시물 등록
     @PostMapping("/register")
-    public Board boardRegister (@RequestBody BoardRequest boardRequest) {
+    public void boardRegister (@RequestBody BoardRequest boardRequest) {
         log.info("boardRegister()");
 
-        return boardService.register(boardRequest);
+        boardService.register(boardRequest);
     }
 
     @GetMapping("/list")

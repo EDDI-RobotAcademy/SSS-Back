@@ -12,8 +12,8 @@ public interface ReplyRepository extends JpaRepository<Reply, Long> {
 //    List<Reply> findReplyContentByReplyId(Long replyId);
 
 
-    @Query("select qc from Reply qc join fetch qc.Board qb where qb.BoardId = :BoardId")
-    List<Reply> findAll(Long BoardId);
+    @Query("select qc from Reply qc join fetch qc.Board qb where qb.boardId = :boardId")
+    List<Reply> findAll(Long boardId);
 
     Long countBy();
 

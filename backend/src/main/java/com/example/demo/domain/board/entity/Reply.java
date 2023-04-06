@@ -29,7 +29,7 @@ public class Reply {
     private String replyWriter;
 
     @JsonBackReference
-    @ManyToOne(fetch = FetchType.EAGER, targetEntity = Board.class)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name= "board_id")
     private Board board;
 

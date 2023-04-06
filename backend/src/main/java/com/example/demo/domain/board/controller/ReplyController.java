@@ -20,17 +20,19 @@ public class ReplyController {
 
     // 댓글 등록
     @PostMapping("/register")
-    public Reply replyRegister (@RequestBody ReplyRequest replyRequest) {
-        log.info("replyRegister()");
+    public void replyRegister (@RequestBody ReplyRequest replyRequest) {
+        log.info("replyRegister() 게시물 아이디 : " + replyRequest.getBoardId());
+        log.info(replyRequest.getReplyContent());
+        log.info(replyRequest.getReplyWriter());
 
-        return replyService.register(replyRequest);
+        replyService.replyRegister(replyRequest);
     }
 
-    @GetMapping("/list")
-    public List<Reply> replyList () {
-        log.info("replyList()");
+    @GetMapping("/{replyId}")
+    public List<Reply> replyList (@PathVariable("replyId") Long replyId) {
+        log.info("replyList() 동작!");
 
-        return replyService.list();
+        return replyService.replyList(replyId);
     }
 
     // 댓글 조회
@@ -38,7 +40,7 @@ public class ReplyController {
     public Reply replyRead(@PathVariable("replyId") Long replyId) {
         log.info("replyRead()");
 
-        return replyService.read(replyId);
+        return replyService.replyRead(replyId);
     }
 
     // 댓글 삭제
@@ -46,7 +48,7 @@ public class ReplyController {
     public void replyRemove(@PathVariable("replyId") Long replyId) {
         log.info("replyRemove()");
 
-        replyService.remove(replyId);
+        replyService.replyRemove(replyId);
     }
 
     // 댓글 수정
@@ -56,6 +58,6 @@ public class ReplyController {
 
         log.info("replyModify(): " + replyRequest + "replyId: " + replyId);
 
-        return replyService.modify(replyId, replyRequest);
+        return replyService.replyModify(replyId, replyRequest);
     }
 }

@@ -22,7 +22,7 @@ public class ReplyServiceImpl implements ReplyService {
     ReplyRepository replyRepository;
 
     @Autowired
-    BoardRepository BoardRepository;
+    BoardRepository boardRepository;
 
 //    public Reply register(ReplyRequest replyRequest) {
 //        Reply reply = new Reply();
@@ -36,8 +36,8 @@ public class ReplyServiceImpl implements ReplyService {
 //    }
 
     @Override
-    public Reply register(ReplyRequest replyRequest) {
-        Optional<Board> maybeBoard = BoardRepository.findByBoardId(replyRequest.getBoardId());
+    public void replyRegister(ReplyRequest replyRequest) {
+        Optional<Board> maybeBoard = boardRepository.findById(replyRequest.getBoardId());
 
         Reply reply = new Reply();
         reply.setBoard(maybeBoard.get());
@@ -45,17 +45,15 @@ public class ReplyServiceImpl implements ReplyService {
         reply.setReplyContent(replyRequest.getReplyContent());
 
         replyRepository.save(reply);
-
-        return reply;
     }
 
     @Override
-    public List<Reply> list(Long boardId) {
-        return replyRepository.findAll(Sort.by(Sort.Direction.DESC, "boardId"));
+    public List<Reply> replyList(Long boardId) {
+        return replyRepository.findAll(boardId);
     }
 
     @Override
-    public Reply read(Long replyId) {
+    public Reply replyRead(Long replyId) {
         Optional<Reply> maybeReply = replyRepository.findById(replyId);
 
         if (maybeReply.isEmpty()) {
@@ -67,12 +65,12 @@ public class ReplyServiceImpl implements ReplyService {
     }
 
     @Override
-    public void remove(Long replyId) {
+    public void replyRemove(Long replyId) {
         replyRepository.deleteById(replyId);
     }
 
     @Override
-    public Reply modify(Long replyId, ReplyRequest replyRequest) {
+    public Reply replyModify(Long replyId, ReplyRequest replyRequest) {
         Optional<Reply> maybeReply = replyRepository.findById(replyId);
 
         if (maybeReply.isEmpty()) {

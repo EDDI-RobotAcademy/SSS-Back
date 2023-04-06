@@ -24,10 +24,10 @@ public class Board {
     @Column(length = 128, nullable = false)
     private String title;
 
-
-    @OneToMany(mappedBy = "board", fetch=FetchType.EAGER)
-    @JsonManagedReference
-    private List<Reply> replyList = new ArrayList<>();
+//
+//    @OneToMany(mappedBy = "board", fetch=FetchType.EAGER)
+//    @JsonManagedReference
+//    private List<Reply> replyList = new ArrayList<>();
 
     @Column(length = 32, nullable = false)
     private String writer;
