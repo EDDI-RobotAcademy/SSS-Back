@@ -33,10 +33,8 @@ public class SideProductImg {
         this.sideProduct = sideProduct;
     }
 
-
-    public void setEditedImg (String Img){
-        this.editedImg = Img;
+    public void registerToSideProduct(){
+        this.sideProduct.setSideProductImg(this);
     }
-
 
 }
