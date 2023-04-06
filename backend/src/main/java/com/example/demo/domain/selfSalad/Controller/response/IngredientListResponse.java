@@ -16,27 +16,14 @@ public class IngredientListResponse {
     final private String editedImg;
 
     // IngredientAmount
-    final private Integer price;
-    final private Integer calorie;
+    final private String amountType;
     final private Integer max;
     final private Integer min;
     final private Integer unit;
 
-    final private String amountType;
+    final private Integer price;
+    final private Integer calorie;
 
-
-    public IngredientListResponse(Long id, String name, String editedImg, String amountType,
-                                  Integer max, Integer min, Integer unit, Integer calorie, Integer price) {
-        this.id = id;
-        this.name = name;
-        this.editedImg = editedImg;
-        this.amountType = amountType;
-        this.max = max;
-        this.min = min;
-        this.unit = unit;
-        this.price = price;
-        this.calorie = calorie;
-    }
 }
 
 
