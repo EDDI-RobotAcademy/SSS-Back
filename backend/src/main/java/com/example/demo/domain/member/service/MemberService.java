@@ -11,6 +11,8 @@ public interface MemberService {
 
     Boolean nicknameValidation(String nickname);
 
+    Boolean adminCodeValidation(String adminCode);
+
     Boolean signUp(MemberSignUpRequest memberSignUpRequest);
 
     Map<String, String> signIn(MemberSignInRequest memberSignInRequest);

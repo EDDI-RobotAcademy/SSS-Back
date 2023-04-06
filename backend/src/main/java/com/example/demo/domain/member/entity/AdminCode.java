@@ -3,28 +3,31 @@ package com.example.demo.domain.member.entity;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import javax.persistence.*;
 
+@Getter
+@Setter
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
-public class Authority {
+public class AdminCode {
 
     @Id
-    @Getter
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "authority_id")
+    @Column(name = "admin_code_id")
     private Long id;
 
     @Getter
-    private AuthorityType authorityName;
+    @Column(nullable = false)
+    private String code;
 
-    public Authority(AuthorityType authorityName) {
-        this.authorityName = authorityName;
+    public AdminCode(String code) {
+        this.code = code;
     }
 
-    public static Authority ofMember(AuthorityType authorityName) {
-        return new Authority(authorityName);
+    public static AdminCode of(String code) {
+        return new AdminCode(code);
     }
 }

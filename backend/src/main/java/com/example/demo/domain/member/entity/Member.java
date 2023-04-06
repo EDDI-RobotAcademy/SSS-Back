@@ -31,15 +31,21 @@ public class Member {
 
     @Getter
     @Column
-    private String authorityCode;
+    private boolean adminCheck;
 
     @OneToMany(mappedBy = "member", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
     private Set<Authentication> authentications = new HashSet<>();
 
-    public Member(String email, String nickname, String authorityCode) {
+    @Getter
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
+    @JoinColumn(name = "authority_id")
+    private Authority authority;
+
+    public Member(String email, String nickname, Authority authority, boolean adminCheck) {
         this.email = email;
         this.nickname = nickname;
-        this.authorityCode = authorityCode;
+        this.authority = authority;
+        this.adminCheck = adminCheck;
     }
 
     //올바른 패스워드인지 확인
