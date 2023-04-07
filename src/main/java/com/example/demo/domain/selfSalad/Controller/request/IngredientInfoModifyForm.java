@@ -39,7 +39,7 @@ public class IngredientInfoModifyForm {
             UUID randomName = UUID.randomUUID();
             String modifyEditedImg = randomName + imageFile.getOriginalFilename();
 
-            final String fixedStringPath = "../../SSS-Front/frontend/src/assets/selfSalad/";
+            final String fixedStringPath = "../SSS-Front/frontend/src/assets/selfSalad/";
             FileOutputStream writer = new FileOutputStream(
                     fixedStringPath + modifyEditedImg
             );
