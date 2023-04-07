@@ -23,4 +23,6 @@ public interface SelfSaladService {
     IngredientAmountReadResponse findIngredientAmount(Long ingredientId);
 
     void modifyIngredientAmount(Long ingredientId, IngredientAmountModifyRequest ingredientAmountModifyRequest);
+
+    void delete(Long ingredientId);
 }
