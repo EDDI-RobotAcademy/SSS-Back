@@ -66,7 +66,7 @@ public class SideProductsServiceImpl implements SideProductsService {
 
 
 
-        final String fixedStringPath = "../../SSS-Front/frontend/src/assets/selfSalad/";
+        final String fixedStringPath = "../SSS-Front/frontend/src/assets/selfSalad/";
         try {
             log.info("requestImageFile - filename: " + sideProductImgList.getOriginalFilename());
 
@@ -132,7 +132,7 @@ public class SideProductsServiceImpl implements SideProductsService {
 
         if (imageResource.isPresent()) {
             SideProductImg fileName = imageResource.get().getSideProductImg();
-            File vueFile = new File("../../SSS-Front/frontend/src/assets/selfSalad/" + fileName);
+            File vueFile = new File("../SSS-Front/frontend/src/assets/selfSalad/" + fileName);
 
             if (vueFile.exists()) {
                 vueFile.delete();
@@ -161,7 +161,7 @@ public class SideProductsServiceImpl implements SideProductsService {
         sideProduct.setContent(sideProductRequest.getContent());
         sideProduct.setPrice(sideProductRequest.getPrice());
 
-        final String fixedStringPath = "../../SSS-Front/frontend/src/assets/selfSalad/";
+        final String fixedStringPath = "../SSS-Front/frontend/src/assets/selfSalad/";
         try {
             log.info("requestImageFile - filename: " + sideProductImgList.getOriginalFilename());
 
