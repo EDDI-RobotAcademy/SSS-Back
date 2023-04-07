@@ -52,7 +52,7 @@ public class ProductsServiceImpl implements ProductsService {
             UUID uuid = UUID.randomUUID();
             String originImg = multipartFile.getOriginalFilename();
             String editedImg = uuid + originImg;
-            String imgPath = "../../SSS-Front/frontend/src/assets/product/";
+            String imgPath = "../SSS-Front/frontend/src/assets/product/";
 
             ProductImg productImg = new ProductImg();
             productImg.setOriginImg(originImg);
@@ -107,7 +107,7 @@ public class ProductsServiceImpl implements ProductsService {
         List<ProductImg> imgList = new ArrayList<>();
         List<ProductImgResponse> removeImgs = productsImgRepository.findImagePathByProductId(productId);
 
-        final String imgPath = "../../SSS-Front/frontend/src/assets/product/";
+        final String imgPath = "../SSS-Front/frontend/src/assets/product/";
 
         for(int i = 0; i < removeImgs.size(); i++) {
             String fileName = removeImgs.get(i).getEditedImg();
@@ -184,7 +184,7 @@ public class ProductsServiceImpl implements ProductsService {
     public void delete(Long productId) {
         List<ProductImgResponse> removeImgs = productsImgRepository.findImagePathByProductId(productId);
 
-        final String imgPath = "../../SSS-Front/frontend/src/assets/product/";
+        final String imgPath = "../SSS-Front/frontend/src/assets/product/";
 
         for(int i = 0; i < removeImgs.size(); i++) {
             String fileName = removeImgs.get(i).getEditedImg();
