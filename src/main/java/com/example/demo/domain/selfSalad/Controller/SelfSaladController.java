@@ -110,6 +110,11 @@ public class SelfSaladController {
 
     }
 
+    @DeleteMapping("/delete/{ingredientId}")
+    public void ingredientRemove(@PathVariable("ingredientId") Long ingredientId) {
+        log.info("ingredientRemove()");
 
+        selfSaladService.delete(ingredientId);
+    }
 
 }

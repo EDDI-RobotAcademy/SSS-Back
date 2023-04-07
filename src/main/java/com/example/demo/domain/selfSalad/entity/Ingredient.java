@@ -29,13 +29,13 @@ public class Ingredient {
     @Column(nullable = false)
     private String name;
 
-    @OneToOne(mappedBy = "ingredient", fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
+    @OneToOne(mappedBy = "ingredient", fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
     private IngredientImg ingredientImg;
 
-    @OneToMany(mappedBy = "ingredient", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "ingredient", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
     private Set<IngredientCategory> ingredientCategories = new HashSet<>();
 
-    @OneToMany(mappedBy = "ingredient", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "ingredient", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
     private Set<IngredientAmount> ingredientAmounts = new HashSet<>();
 
     /**

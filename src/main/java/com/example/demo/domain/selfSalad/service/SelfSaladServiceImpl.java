@@ -261,4 +261,8 @@ public class SelfSaladServiceImpl implements SelfSaladService {
         ingredientAmountRepository.save(ingredientAmount);
     }
 
+    public void delete(Long ingredientId){
+        ingredientRepository.deleteById(ingredientId);
+    }
+
 }
