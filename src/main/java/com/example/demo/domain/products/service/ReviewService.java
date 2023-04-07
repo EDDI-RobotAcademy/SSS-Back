@@ -10,4 +10,9 @@ public interface ReviewService {
 
     void register(List<MultipartFile> reviewImgList, ReviewRegisterRequest request);
 
+    List<Review> productReviewList(Long productId);
+
+//    List<Review> memberReviewList(Long memberId);
+
+    List<ReviewImgResponse> findReviewImg(Long productId);
 }

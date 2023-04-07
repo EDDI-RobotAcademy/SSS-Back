@@ -10,5 +10,8 @@ import java.util.List;
 public interface ReviewRepository extends JpaRepository<Review, Long> {
 
     @Query("select r from Review r join fetch r.product p where p.productId = :productId order by r.reviewId desc")
-    List<Review> findReviewOnProduct(@Param("productId") Long productId);
+    List<Review> findByProductId(@Param("productId") Long productId);
+
+//    @Query("select r from Review r join fetch r.orderInfo.payment join fetch r.product join fetch r.member m where m.id= :memberId")
+//    List<Review> findByMemberId(Long memberId);
 }

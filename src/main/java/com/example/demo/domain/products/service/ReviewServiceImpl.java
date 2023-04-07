@@ -12,7 +12,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.swing.text.html.Option;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -30,8 +29,26 @@ public class ReviewServiceImpl implements ReviewService {
     final private ReviewRepository reviewRepository;
     final private ReviewImgRepository reviewImgRepository;
 
+//    @Override
+//    public void register(ReviewRegisterRequest request) {
+//        Review review = new Review();
+//
+//        review.setWriter(request.getWriter());
+//        review.setRating(request.getRating());
+//        review.setContent(review.getContent());
+//
+//        Optional<Product> maybeProduct = productsRepository.findById(request.getProductId());
+//        if(maybeProduct.isPresent()) {
+//            Product product = maybeProduct.get();
+//            review.setProduct(product);
+//        } else {
+//            throw new RuntimeException("등록된 상품이 아닙니다.");
+//        }
+//    }
+
     @Override
     public void register(List<MultipartFile> files, ReviewRegisterRequest request) {
+
         List<ReviewImg> imgList = new ArrayList<>();
         Review review = new Review();
 
@@ -82,4 +99,21 @@ public class ReviewServiceImpl implements ReviewService {
         reviewImgRepository.saveAll(imgList);
     }
 
+    @Override
+    public List<Review> productReviewList(Long productId) {
+        List<Review> reviewList = reviewRepository.findByProductId(productId);
+        return reviewList;
+    }
+
+//    @Override
+//    public List<Review> memberReviewList(Long memberId) {
+//        List<Review> reviewList = reviewRepository.findByMemberId(memberId);
+//        return reviewList;
+//    }
+
+    @Override
+    public List<ReviewImgResponse> findReviewImg(Long reviewId) {
+        List<ReviewImgResponse> reviewImgList = reviewImgRepository.findReviewImgById(reviewId);
+        return reviewImgList;
+    }
 }
