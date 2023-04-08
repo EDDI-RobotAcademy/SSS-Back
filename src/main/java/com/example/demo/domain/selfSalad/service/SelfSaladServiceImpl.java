@@ -261,7 +261,13 @@ public class SelfSaladServiceImpl implements SelfSaladService {
         ingredientAmountRepository.save(ingredientAmount);
     }
 
-    public void delete(Long ingredientId){
+    public void delete(Long ingredientId) throws FileNotFoundException {
+
+        final IngredientImg ingredientImg
+                = ingredientImgRepository.findByIngredientId(ingredientId);
+        
+        deleteImgFile(ingredientImg);
+
         ingredientRepository.deleteById(ingredientId);
     }
 
