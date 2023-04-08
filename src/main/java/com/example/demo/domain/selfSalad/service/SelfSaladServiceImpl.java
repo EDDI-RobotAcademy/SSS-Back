@@ -59,11 +59,9 @@ public class SelfSaladServiceImpl implements SelfSaladService {
 
         final IngredientAmount ingredientAmount =
                 new IngredientAmount(ingredient, amount,
-                        request.getPrice(),
                         request.getCalorie(),
                         request.getUnit(),
-                        request.getMax(),
-                        request.getMin());
+                        request.getMax());
 
         ingredientAmountRepository.save(ingredientAmount);
     }
@@ -121,12 +119,11 @@ public class SelfSaladServiceImpl implements SelfSaladService {
 
                         ingredient.getId(),
                         ingredient.getName(),
+                        ingredient.getPrice(),
                         ingredient.getIngredientImg().getEditedImg(),
                         responseAmount.getAmount().getAmountType().toString(),
                         responseAmount.getMax(),
-                        responseAmount.getMin(),
                         responseAmount.getUnit(),
-                        responseAmount.getPrice(),
                         responseAmount.getCalorie()
                 ));
             }
@@ -225,19 +222,23 @@ public class SelfSaladServiceImpl implements SelfSaladService {
     @Override
     @Transactional
     public IngredientAmountReadResponse findIngredientAmount(Long ingredientId) {
-        final String ingredientName =
-                ingredientRepository.findById(ingredientId).get().getName();
+
+        Optional<Ingredient> maybeIngredient =
+                ingredientRepository.findById(ingredientId);
+        if(maybeIngredient.isEmpty()){
+            log.info("선택한 재료가 없습니다.");
+        }
+        Ingredient ingredient = maybeIngredient.get();
 
         final IngredientAmount ingredientAmount =
                 ingredientAmountRepository.findByIngredientId(ingredientId);
 
         IngredientAmountReadResponse amountResponse =
-                new IngredientAmountReadResponse(ingredientName,
-                                                 ingredientAmount.getPrice(),
+                new IngredientAmountReadResponse(ingredient.getName(),
+                                                 ingredient.getPrice(),
                                                  ingredientAmount.getCalorie(),
                                                  ingredientAmount.getUnit(),
                                                  ingredientAmount.getMax(),
-                                                 ingredientAmount.getMin(),
                                                  ingredientAmount.getAmount().getAmountType().toString()
         );
         return amountResponse;
@@ -250,13 +251,11 @@ public class SelfSaladServiceImpl implements SelfSaladService {
         final IngredientAmount ingredientAmount =
                 ingredientAmountRepository.findByIngredientId(ingredientId);
 
-        ingredientAmount.setIngredientAmount(
+        ingredientAmount.modifyIngredientAmount(
                 amount,
-                modifyRequest.getPrice(),
                 modifyRequest.getCalorie(),
                 modifyRequest.getUnit(),
-                modifyRequest.getMax(),
-                modifyRequest.getMin()
+                modifyRequest.getMax()
         );
         ingredientAmountRepository.save(ingredientAmount);
     }

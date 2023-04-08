@@ -12,14 +12,13 @@ public class IngredientRegisterRequest {
     final private Integer price;
     final private Integer calorie;
     final private Integer max;
-    final private Integer min;
     final private Integer unit;
     final private AmountType amountType;
     final private String editedImg;
 
     public Ingredient toIngredient () {
         return new Ingredient(
-                name,
+                name, price,
                 IngredientImg.of(editedImg));
     }
 
@@ -31,6 +30,6 @@ public class IngredientRegisterRequest {
         return new IngredientAmount(
                 ingredient,
                 new Amount(amountType),
-                price, calorie, unit, max, min);
+                calorie, unit, max);
     }
 }
