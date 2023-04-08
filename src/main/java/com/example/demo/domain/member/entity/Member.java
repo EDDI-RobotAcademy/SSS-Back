@@ -19,7 +19,7 @@ public class Member {
     @Id
     @Getter
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long memberId;
 
     @Getter
     @Column(nullable = false)
@@ -33,6 +33,11 @@ public class Member {
     @Column
     private boolean adminCheck;
 
+
+
+    @OneToOne(mappedBy = "member", cascade = CascadeType.ALL)
+    private MemberUpdate memberUpdate;
+
     @OneToMany(mappedBy = "member", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
     private Set<Authentication> authentications = new HashSet<>();
 
@@ -40,6 +45,7 @@ public class Member {
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
     @JoinColumn(name = "authority_id")
     private Authority authority;
+
 
     public Member(String email, String nickname, Authority authority, boolean adminCheck) {
         this.email = email;

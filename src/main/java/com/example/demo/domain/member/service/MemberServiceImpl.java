@@ -1,10 +1,14 @@
 package com.example.demo.domain.member.service;
 
+import com.example.demo.domain.member.entity.Address;
 import com.example.demo.domain.member.entity.AdminCode;
+import com.example.demo.domain.member.entity.MemberUpdate;
 import com.example.demo.domain.member.repository.AdminCodeRepository;
 import com.example.demo.domain.member.repository.MemberRepository;
+import com.example.demo.domain.member.repository.MemberUpdateRepository;
 import com.example.demo.domain.member.service.request.MemberSignInRequest;
 import com.example.demo.domain.member.service.request.MemberSignUpRequest;
+import com.example.demo.domain.member.service.request.MemberUpdateRequest;
 import com.example.demo.domain.security.entity.Authentication;
 import com.example.demo.domain.security.entity.BasicAuthentication;
 import com.example.demo.domain.security.repository.AuthenticationRepository;
@@ -25,6 +29,7 @@ import java.util.UUID;
 public class MemberServiceImpl implements MemberService {
 
     final private MemberRepository memberRepository;
+    final private MemberUpdateRepository memberUpdateRepository;
 
     final private AdminCodeRepository adminCodeRepository;
 
@@ -114,14 +119,14 @@ public class MemberServiceImpl implements MemberService {
             UUID userToken = UUID.randomUUID();
 
             redisService.deleteByKey(userToken.toString());
-            redisService.setKeyAndValue(userToken.toString(), memberInfo.getId());
+            redisService.setKeyAndValue(userToken.toString(), memberInfo.getMemberId());
 
             Map<String, String> userInfo = new HashMap<>();
 
             userInfo.put("userToken", userToken.toString());
             userInfo.put("userEmail", memberInfo.getEmail());
             userInfo.put("userNickName", memberInfo.getNickname());
-            userInfo.put("userId", memberInfo.getId().toString());
+            userInfo.put("userId", memberInfo.getMemberId().toString());
 //            userInfo.put("authorityType", memberInfo.getAdminCheck());
 
             log.info("userProfile()" + userInfo);
@@ -136,4 +141,57 @@ public class MemberServiceImpl implements MemberService {
     public void deleteMember(Long id) {
         memberRepository.deleteById(id);
     }
+
+    //정보변경
+    @Override
+    public Boolean updateMemberInfo(Long memberId, MemberUpdateRequest memberUpdateRequest) {
+        Optional<Member> maybeMember = memberRepository.findByMemberId(memberId);
+        Optional<MemberUpdate> maybeMemberUpdate = memberUpdateRepository.findByMemberUpdateId(memberId);
+        Optional<Authentication> maybeAuthentication = authenticationRepository.findByMemberId(memberId);
+
+        if(maybeMember.isEmpty()) {
+            return false;
+        }
+
+        Member member = maybeMember.get();
+
+        memberRepository.save(member);
+
+        if (maybeMemberUpdate.isPresent()) {
+            // 기존 MemberUpdate 객체를 덮어쓰는 방식으로 업데이트
+            MemberUpdate newMemberUpdate = maybeMemberUpdate.get();
+            newMemberUpdate.setPhoneNumber(memberUpdateRequest.getNewPhoneNumber());
+            newMemberUpdate.getAddresses().clear();
+            if (memberUpdateRequest.getNewAddresses() != null && !memberUpdateRequest.getNewAddresses().isEmpty()) {
+                for (Address address : memberUpdateRequest.getNewAddresses()) {
+                    newMemberUpdate.addAddress(address);
+                }
+            }
+            memberUpdateRepository.save(newMemberUpdate);
+        } else {
+            // 새로운 MemberUpdate 레코드를 생성
+            MemberUpdate memberUpdate = memberUpdateRequest.toMemberUpdate(member);
+            memberUpdateRepository.save(memberUpdate);
+        }
+
+        if(!memberUpdateRequest.getNewPassword().equals("")) {
+            final BasicAuthentication authentication = new BasicAuthentication(
+                    member,
+                    Authentication.BASIC_AUTH,
+                    memberUpdateRequest.getNewPassword()
+            );
+
+            authentication.setId(maybeAuthentication.get().getId());
+            authenticationRepository.save(authentication);
+        }
+
+        return true;
+    }
+
+
+
+
+
+
+
 }

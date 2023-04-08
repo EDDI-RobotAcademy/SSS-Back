@@ -10,6 +10,7 @@ import lombok.ToString;
 import javax.persistence.*;
 
 @Entity
+@Setter
 @ToString(callSuper = true)
 @NoArgsConstructor
 @DiscriminatorValue(Authentication.BASIC_AUTH)
