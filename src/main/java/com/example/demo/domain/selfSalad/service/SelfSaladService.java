@@ -24,5 +24,5 @@ public interface SelfSaladService {
 
     void modifyIngredientAmount(Long ingredientId, IngredientAmountModifyRequest ingredientAmountModifyRequest);
 
-    void delete(Long ingredientId);
+    void delete(Long ingredientId) throws FileNotFoundException;
 }

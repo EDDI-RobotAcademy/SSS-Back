@@ -53,8 +53,9 @@ public class IngredientAmount {
         return amount;
     }
 
-    public void modifyIngredientAmount(Amount amount,
+    public void modifyIngredientAmount(Ingredient ingredient, Amount amount,
                                        Integer calorie, Integer unit, Integer max){
+        this.ingredient = ingredient;
         this.amount = amount;
         this.calorie = calorie;
         this.unit = unit;

@@ -32,6 +32,9 @@ public class IngredientCategory {
         return category;
     }
 
-    public void setCategory(Category category){this.category = category;}
+    public void setCategory(Ingredient ingredient, Category category){
+        this.ingredient = ingredient;
+        this.category = category;
+    }
 
 }
