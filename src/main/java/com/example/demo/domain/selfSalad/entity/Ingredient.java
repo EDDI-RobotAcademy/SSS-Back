@@ -1,15 +1,11 @@
 package com.example.demo.domain.selfSalad.entity;
 
-import com.example.demo.domain.selfSalad.Controller.response.IngredientInfoReadResponse;
-import com.example.demo.domain.selfSalad.Controller.response.IngredientListResponse;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
-import java.io.FileNotFoundException;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Set;
 
 @Entity
@@ -19,6 +15,7 @@ public class Ingredient {
     /**
      * Aggregate Root
      * name : 재료명 (ex. 양파)
+     * price : 재료 단위당 가격 (unit= 20g 일때 1000원)
      * ingredientImage : 재료 이미지
      */
 
@@ -28,6 +25,9 @@ public class Ingredient {
 
     @Column(nullable = false)
     private String name;
+
+    @Column // 재료 최소 단위당 가격
+    private Integer price;
 
     @OneToOne(mappedBy = "ingredient", fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
     private IngredientImg ingredientImg;
@@ -43,9 +43,10 @@ public class Ingredient {
      * @param name
      * @param ingredientImg
      */
-    public Ingredient(String name, IngredientImg ingredientImg) {
+    public Ingredient(String name, Integer price, IngredientImg ingredientImg) {
 
         this.name = name;
+        this.price = price;
         this.ingredientImg = ingredientImg;
 
         ingredientImg.setIngredient(this);
@@ -56,6 +57,10 @@ public class Ingredient {
      */
     public void setName(String modifyName) {
         this.name = modifyName;
+    }
+
+    public void setPrice(Integer modifyPrice) {
+        this.price = modifyPrice;
     }
 
 }

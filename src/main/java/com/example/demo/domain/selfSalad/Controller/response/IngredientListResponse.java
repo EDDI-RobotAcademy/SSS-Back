@@ -13,15 +13,15 @@ public class IngredientListResponse {
     final private Long id;
     final private String name;
 
+    final private Integer price;
+
     final private String editedImg;
 
     // IngredientAmount
     final private String amountType;
     final private Integer max;
-    final private Integer min;
     final private Integer unit;
 
-    final private Integer price;
     final private Integer calorie;
 
 }

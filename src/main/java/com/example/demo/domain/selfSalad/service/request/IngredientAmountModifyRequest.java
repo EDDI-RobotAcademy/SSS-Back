@@ -14,9 +14,9 @@ public class IngredientAmountModifyRequest {
     final private AmountType amountType;
 
     final private Integer max;
-    final private Integer min;
     final private Integer unit;
     final private Integer price;
+
     final private Integer calorie;
 
 
