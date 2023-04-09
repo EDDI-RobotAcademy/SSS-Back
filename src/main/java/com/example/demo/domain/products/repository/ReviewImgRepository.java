@@ -15,4 +15,8 @@ public interface ReviewImgRepository extends JpaRepository<ReviewImg, Long> {
     @Query("select ri.reviewImgId as reviewImgId, ri.editedImg as editedImg from ReviewImg ri join ri.review r where r.reviewId = :reviewId")
     List<ReviewImgResponse> findReviewImgById(@Param("reviewId") Long reviewId);
 
+    @Modifying
+    @Transactional
+    @Query("delete from ReviewImg ri where ri.review.reviewId = :reviewId")
+    void deleteReviewImgById(@Param("reviewId") Long reviewId);
 }
