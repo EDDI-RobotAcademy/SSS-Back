@@ -20,4 +20,5 @@ public interface ReviewService {
 
     void modify(Long reviewId, List<MultipartFile> reviewImgList, ReviewRequest request);
 
+    void delete(Long reviewId);
 }
