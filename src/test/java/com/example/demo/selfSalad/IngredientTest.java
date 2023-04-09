@@ -1,6 +1,7 @@
 package com.example.demo.selfSalad;
 
 import com.example.demo.domain.selfSalad.Controller.request.IngredientRegisterForm;
+import com.example.demo.domain.selfSalad.Controller.response.IngredientListResponse;
 import com.example.demo.domain.selfSalad.entity.*;
 import com.example.demo.domain.selfSalad.repository.*;
 import com.example.demo.domain.selfSalad.service.SelfSaladServiceImpl;
@@ -15,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.WebApplicationContext;
 
 import java.io.File;
@@ -22,6 +24,8 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -171,5 +175,33 @@ public class IngredientTest {
         System.out.println("재료 등록 성공 : "+ingredient.getId());
     }
 
+    @Test
+    @Transactional
+    public void 재료_리스트_반환_테스트(){
+
+        Category category =  categoryRepository.findByCategoryType( CategoryType.valueOf("VEGETABLE")).get();
+        System.out.println(("카테고리 아이디 : "+ category.getCategoryId()));
+
+        List<Ingredient> ingredientList = ingredientRepository.findByCategoryId(category.getCategoryId());
+        List<IngredientListResponse> listResponse =  new ArrayList<>();
+
+        for(Ingredient ingredient : ingredientList){
+            for (IngredientAmount responseAmount : ingredient.getIngredientAmounts()) {
+                listResponse.add( new IngredientListResponse(
+
+                        ingredient.getId(),
+                        ingredient.getName(),
+                        ingredient.getPrice(),
+                        ingredient.getIngredientImg().getEditedImg(),
+                        responseAmount.getAmount().getAmountType().toString(),
+                        responseAmount.getMax(),
+                        responseAmount.getUnit(),
+                        responseAmount.getCalorie()
+                ));
+            }
+        }
+
+        System.out.println("등록된 재료 출력"+ listResponse.toArray().toString());
+    }
 
 }
