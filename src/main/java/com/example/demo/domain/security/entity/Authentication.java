@@ -1,12 +1,16 @@
 package com.example.demo.domain.security.entity;
 
 import com.example.demo.domain.member.entity.Member;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.ToString;
 
 import javax.persistence.*;
 
 @Entity
+@Getter
+@Setter
 @ToString(exclude = "member")
 @NoArgsConstructor
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
