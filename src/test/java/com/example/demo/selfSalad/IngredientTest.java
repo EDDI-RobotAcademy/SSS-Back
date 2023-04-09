@@ -1,6 +1,7 @@
 package com.example.demo.selfSalad;
 
 import com.example.demo.domain.selfSalad.Controller.request.IngredientRegisterForm;
+import com.example.demo.domain.selfSalad.Controller.response.IngredientAmountReadResponse;
 import com.example.demo.domain.selfSalad.Controller.response.IngredientInfoReadResponse;
 import com.example.demo.domain.selfSalad.Controller.response.IngredientListResponse;
 import com.example.demo.domain.selfSalad.entity.*;
@@ -229,6 +230,32 @@ public class IngredientTest {
 
     }
 
+    @Test
+    @Transactional
+    public void 재료_수량_읽기_테스트(){
 
+        Optional<Ingredient> maybeIngredient = ingredientRepository.findById(1L);
+
+        if(maybeIngredient.isEmpty()){
+            System.out.println("선택한 재료가 없습니다.");
+        }
+        Ingredient ingredient = maybeIngredient.get();
+
+        final IngredientAmount ingredientAmount =
+                ingredientAmountRepository.findByIngredientId(1L);
+
+        IngredientAmountReadResponse amountReadResponse =
+                new IngredientAmountReadResponse(
+                        ingredient.getName(),
+                        ingredient.getPrice(),
+                        ingredientAmount.getCalorie(),
+                        ingredientAmount.getUnit(),
+                        ingredientAmount.getMax(),
+                        ingredientAmount.getAmount().getAmountType().toString()
+                );
+
+        System.out.println("재료 이름, 가격, 칼로리, 수랑 읽기 : "+ amountReadResponse);
+
+    }
 
 }
