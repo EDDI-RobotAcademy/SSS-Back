@@ -1,5 +1,7 @@
 package com.example.demo.domain.products.entity;
 
+import com.example.demo.domain.member.entity.Member;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -23,17 +25,16 @@ public class Review {
     private Long reviewId;
 
     @Column(nullable = false)
-    private String writer;
-
-    @Column(nullable = false)
     private int rating;
 
     @Column(nullable = false, length = 300)
     private String content;
 
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm", timezone = "Asia/Seoul")
     @CreationTimestamp
     private Date regDate;
 
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm", timezone = "Asia/Seoul")
     @UpdateTimestamp
     private Date updDate;
 
@@ -45,4 +46,8 @@ public class Review {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id")
     private Product product;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id")
+    private Member member;
 }
