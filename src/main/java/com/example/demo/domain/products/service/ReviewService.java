@@ -15,4 +15,7 @@ public interface ReviewService {
 //    List<Review> memberReviewList(Long memberId);
 
     List<ReviewImgResponse> findReviewImg(Long productId);
+    void modify(Long reviewId, List<MultipartFile> reviewImgList, ReviewRequest request);
+
+    void delete(Long reviewId);
 }
