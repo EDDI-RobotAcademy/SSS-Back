@@ -12,6 +12,7 @@ import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.List;
 
@@ -111,7 +112,7 @@ public class SelfSaladController {
     }
 
     @DeleteMapping("/delete/{ingredientId}")
-    public void ingredientRemove(@PathVariable("ingredientId") Long ingredientId) {
+    public void ingredientRemove(@PathVariable("ingredientId") Long ingredientId) throws FileNotFoundException {
         log.info("ingredientRemove()");
 
         selfSaladService.delete(ingredientId);

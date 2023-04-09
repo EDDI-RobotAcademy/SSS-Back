@@ -134,7 +134,12 @@ public class SelfSaladServiceImpl implements SelfSaladService {
     @Override
     @Transactional
     public IngredientInfoReadResponse findIngredientInfo(Long ingredientId) {
-        final Ingredient ingredient = ingredientRepository.findById(ingredientId).get();
+        final Optional<Ingredient> maybeIngredient = ingredientRepository.findById(1L);
+
+        if(maybeIngredient.isEmpty()){
+            log.info("일치하는 재료가 없습니다.");
+        }
+        Ingredient ingredient = maybeIngredient.get();
 
         final IngredientCategory ingredientCategory =
                 ingredientCategoryRepository.findByIngredientId(ingredientId);
@@ -147,10 +152,7 @@ public class SelfSaladServiceImpl implements SelfSaladService {
     }
 
 
-    private void deleteImgFile(Long ingredientId)throws FileNotFoundException {
-
-        final IngredientImg ingredientImg
-                = ingredientImgRepository.findByIngredientId(ingredientId);
+    private void deleteImgFile(IngredientImg ingredientImg)throws FileNotFoundException {
 
         final String fixedStringPath = "../SSS-Front/src/assets/selfSalad/";
         Path filePath = Paths.get(fixedStringPath, ingredientImg.getEditedImg());
@@ -163,7 +165,7 @@ public class SelfSaladServiceImpl implements SelfSaladService {
         }
     }
 
-    private void modifyIngredientCategory( Long ingredientId, CategoryType categoryType) {
+    private void modifyIngredientCategory( Ingredient ingredient, Long ingredientId, CategoryType categoryType) {
 
         final Category category =
                 categoryRepository.findByCategoryType(categoryType).get();
@@ -171,52 +173,54 @@ public class SelfSaladServiceImpl implements SelfSaladService {
         final IngredientCategory ingredientCategory =
                 ingredientCategoryRepository.findByIngredientId( ingredientId);
 
-        ingredientCategory.setCategory(category);
+        ingredientCategory.setCategory(ingredient, category);
 
         ingredientCategoryRepository.save(ingredientCategory);
     }
 
-    private void modifyIngredientName( Long ingredientId, String ingredientName ){
-
-        final Ingredient ingredient =
-                ingredientRepository.findById(ingredientId).get();
-
-        ingredient.setName(ingredientName);
-        ingredientRepository.save(ingredient);
-
-    }
-    private void modifyIngredientImg( Long ingredientId, String modifyImg ){
+    private void modifyIngredientImg( Ingredient ingredient, Long ingredientId, String modifyImg ) throws FileNotFoundException {
 
         final IngredientImg ingredientImg =
                 ingredientImgRepository.findByIngredientId(ingredientId);
 
-        ingredientImg.setEditedImg(modifyImg);
-        ingredientImgRepository.save(ingredientImg);
+        // 수정 전 이미지 폴더에서 삭제
+        deleteImgFile(ingredientImg);
 
+        ingredientImg.setEditedImg(ingredient, modifyImg);
+
+        ingredientImgRepository.save(ingredientImg);
     }
 
     @Override
     public void modifyIngredientInfo(Long ingredientId,
                                      IngredientInfoModifyRequest modifyRequest) throws FileNotFoundException {
 
-        // 수정 전 이미지 파일을 폴더에서 삭제
-        if( ! modifyRequest.getModifyEditedImg().equals("notImgChange")){
-            deleteImgFile(ingredientId);
-            log.info("이미지 삭제 성공");
+        Optional<Ingredient> maybeIngredient =
+                ingredientRepository.findById(ingredientId);
 
-            modifyIngredientImg(ingredientId, modifyRequest.getModifyEditedImg());
-            log.info("이미지 수정 성공");
-
+        if(maybeIngredient.isEmpty()){
+            log.info("선택한 재료가 없습니다.");
         }
-        log.info("이미지 수정 요청 들어왔을까? "+modifyRequest.getModifyEditedImg());
-        // 이름 수정
-        modifyIngredientName(ingredientId, modifyRequest.getName());
-        log.info("수정 이미지명: "+modifyRequest.getModifyEditedImg());
-        log.info("이름 수정 성공");
+        Ingredient ingredient = maybeIngredient.get();
+
+        // 재료 이름 수정
+        ingredient.setName(modifyRequest.getName());
+
+        // 이미지 수정 요청이 들어온 경우
+        if( ! modifyRequest.getModifyEditedImg().equals("notImgChange")) {
+            modifyIngredientImg( ingredient, ingredientId,
+                                 modifyRequest.getModifyEditedImg());
+            log.info("이미지 수정 성공");
+        }
 
         // 카테고리 수정
-        modifyIngredientCategory(ingredientId, modifyRequest.getCategoryType());
+        CategoryType categoryType = modifyRequest.getCategoryType();
+        log.info("수정요청 들어온 카테고리 : "+categoryType.toString());
+
+        modifyIngredientCategory(ingredient, ingredientId, categoryType);
         log.info("카테고리 수정 성공");
+
+        ingredientRepository.save(ingredient);
 
     }
     @Override
@@ -245,6 +249,16 @@ public class SelfSaladServiceImpl implements SelfSaladService {
     }
 
     public void modifyIngredientAmount(Long ingredientId, IngredientAmountModifyRequest modifyRequest){
+
+        Optional<Ingredient> maybeIngredient =
+                ingredientRepository.findById(ingredientId);
+        if(maybeIngredient.isEmpty()){
+            log.info("선택한 재료가 없습니다.");
+        }
+        Ingredient ingredient = maybeIngredient.get();
+
+        ingredient.setPrice(modifyRequest.getPrice());
+
         final Amount amount =
                 amountRepository.findByAmountType(modifyRequest.getAmountType()).get();
 
@@ -252,19 +266,20 @@ public class SelfSaladServiceImpl implements SelfSaladService {
                 ingredientAmountRepository.findByIngredientId(ingredientId);
 
         ingredientAmount.modifyIngredientAmount(
+                ingredient,
                 amount,
                 modifyRequest.getCalorie(),
                 modifyRequest.getUnit(),
                 modifyRequest.getMax()
         );
         ingredientAmountRepository.save(ingredientAmount);
+        ingredientRepository.save(ingredient);
     }
 
     public void delete(Long ingredientId) throws FileNotFoundException {
 
         final IngredientImg ingredientImg
                 = ingredientImgRepository.findByIngredientId(ingredientId);
-        
         deleteImgFile(ingredientImg);
 
         ingredientRepository.deleteById(ingredientId);
