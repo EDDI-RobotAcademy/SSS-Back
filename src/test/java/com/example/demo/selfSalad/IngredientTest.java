@@ -1,6 +1,7 @@
 package com.example.demo.selfSalad;
 
 import com.example.demo.domain.selfSalad.Controller.request.IngredientRegisterForm;
+import com.example.demo.domain.selfSalad.Controller.response.IngredientInfoReadResponse;
 import com.example.demo.domain.selfSalad.Controller.response.IngredientListResponse;
 import com.example.demo.domain.selfSalad.entity.*;
 import com.example.demo.domain.selfSalad.repository.*;
@@ -26,6 +27,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -203,5 +205,30 @@ public class IngredientTest {
 
         System.out.println("등록된 재료 출력"+ listResponse.toArray().toString());
     }
+
+    @Test
+    @Transactional
+    public void 재료_정보_읽기_테스트(){
+        final Optional<Ingredient> ingredient = ingredientRepository.findById(1L);
+
+        if(ingredient.isEmpty()){
+            System.out.println("일치하는 재료가 없습니다.");
+        }
+
+        final IngredientCategory ingredientCategory =
+                ingredientCategoryRepository.findByIngredientId(1L);
+
+        IngredientInfoReadResponse infoReadResponse =
+                new IngredientInfoReadResponse(
+                        ingredient.get().getName(),
+                        ingredient.get().getIngredientImg().getEditedImg(),
+                        ingredientCategory.getCategory().getCategoryType().toString()
+        );
+
+        System.out.println("재료 이름, 이미지, 카티고리 읽기 : "+ infoReadResponse);
+
+    }
+
+
 
 }
