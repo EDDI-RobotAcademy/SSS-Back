@@ -40,7 +40,7 @@ public class IngredientRegisterForm {
         UUID randomName = UUID.randomUUID();
         String editedImg = randomName + imageFile.getOriginalFilename();
 
-        final String fixedStringPath = "../SSS-Front/frontend/src/assets/selfSalad/";
+        final String fixedStringPath = "../SSS-Front/src/assets/selfSalad/";
         FileOutputStream writer = new FileOutputStream(
                 fixedStringPath + editedImg
         );

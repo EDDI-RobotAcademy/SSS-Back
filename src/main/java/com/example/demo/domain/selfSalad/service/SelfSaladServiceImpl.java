@@ -155,7 +155,7 @@ public class SelfSaladServiceImpl implements SelfSaladService {
         final IngredientImg ingredientImg
                 = ingredientImgRepository.findByIngredientId(ingredientId);
 
-        final String fixedStringPath = "../SSS-Front/frontend/src/assets/selfSalad/";
+        final String fixedStringPath = "../SSS-Front/src/assets/selfSalad/";
         Path filePath = Paths.get(fixedStringPath, ingredientImg.getEditedImg());
         //File 객체로 변환
         File file = filePath.toFile();
@@ -259,6 +259,10 @@ public class SelfSaladServiceImpl implements SelfSaladService {
                 modifyRequest.getMin()
         );
         ingredientAmountRepository.save(ingredientAmount);
+    }
+
+    public void delete(Long ingredientId){
+        ingredientRepository.deleteById(ingredientId);
     }
 
 }
