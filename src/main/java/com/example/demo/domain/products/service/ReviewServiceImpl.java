@@ -117,6 +117,11 @@ public class ReviewServiceImpl implements ReviewService {
     @Override
     public List<ReviewImgResponse> reviewImgList(Long reviewId) {
         List<ReviewImgResponse> reviewImgList = reviewImgRepository.findReviewImgById(reviewId);
+
+        for(ReviewImgResponse reviewImgResponse: reviewImgList) {
+            System.out.println("으악: " + reviewImgResponse.getEditedImg());
+        }
+
         return reviewImgList;
     }
 
@@ -180,4 +185,25 @@ public class ReviewServiceImpl implements ReviewService {
         reviewImgRepository.saveAll(imgList);
     }
 
+    @Override
+    public void delete(Long reviewId) {
+        List<ReviewImgResponse> removeImgs = reviewImgRepository.findReviewImgById(reviewId);
+        final String imgPath = "../SSS-Front/src/assets/review/";
+
+        for(int i = 0; i < removeImgs.size(); i++) {
+            String fileName = removeImgs.get(i).getEditedImg();
+            System.out.println(fileName);
+
+            File file = new File(imgPath + fileName);
+
+            if(file.exists()) {
+                file.delete();
+            } else {
+                System.out.println("삭제 실패");
+            }
+        }
+
+        reviewImgRepository.deleteReviewImgById(reviewId);
+        reviewRepository.deleteById(reviewId);
+    }
 }
