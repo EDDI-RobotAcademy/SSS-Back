@@ -8,6 +8,7 @@ import com.example.demo.domain.selfSalad.Controller.response.IngredientListRespo
 import com.example.demo.domain.selfSalad.entity.*;
 import com.example.demo.domain.selfSalad.repository.*;
 import com.example.demo.domain.selfSalad.service.SelfSaladServiceImpl;
+import com.example.demo.domain.selfSalad.service.request.IngredientAmountModifyRequest;
 import com.example.demo.domain.selfSalad.service.request.IngredientInfoModifyRequest;
 import com.example.demo.domain.selfSalad.service.request.IngredientRegisterRequest;
 import org.junit.jupiter.api.BeforeEach;
@@ -333,6 +334,40 @@ public class IngredientTest {
         } else {
             throw new FileNotFoundException("이미지 파일이 존재하지 않습니다.");
         }
+    }
+
+    @Test
+    public void 재료_수량_가격_수정_테스트() throws IOException {
+        IngredientAmountModifyRequest modifyRequest =
+                new IngredientAmountModifyRequest(AmountType.COUNT,500, 100, 2000, 20);
+
+        Optional<Ingredient> maybeIngredient =
+                ingredientRepository.findById(1L);
+        if(maybeIngredient.isEmpty()){
+            System.out.println(("선택한 재료가 없습니다."));
+        }
+
+        Ingredient ingredient = maybeIngredient.get();
+
+        ingredient.setPrice(modifyRequest.getPrice());
+
+        final Amount amount =
+                amountRepository.findByAmountType(modifyRequest.getAmountType()).get();
+
+        final IngredientAmount ingredientAmount =
+                ingredientAmountRepository.findByIngredientId(1L);
+
+        ingredientAmount.modifyIngredientAmount(
+                ingredient,
+                amount,
+                modifyRequest.getCalorie(),
+                modifyRequest.getUnit(),
+                modifyRequest.getMax()
+        );
+        ingredientAmountRepository.save(ingredientAmount);
+        ingredientRepository.save(ingredient);
+
+        System.out.println("재료 가격, 수량, 칼로리 수정 성공 : "+ ingredientAmount);
     }
 
 
