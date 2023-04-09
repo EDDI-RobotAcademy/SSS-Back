@@ -1,5 +1,6 @@
 package com.example.demo.domain.products.service;
 
+import com.example.demo.domain.products.controller.form.ReviewImgResponse;
 import com.example.demo.domain.products.entity.Review;
 import com.example.demo.domain.products.service.request.ReviewRegisterRequest;
 import org.springframework.web.multipart.MultipartFile;
@@ -15,4 +16,5 @@ public interface ReviewService {
 //    List<Review> memberReviewList(Long memberId);
 
     List<ReviewImgResponse> findReviewImg(Long productId);
+    List<ReviewImgResponse> reviewImgList(Long reviewId);
 }

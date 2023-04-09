@@ -1,5 +1,6 @@
 package com.example.demo.domain.products.service;
 
+import com.example.demo.domain.products.controller.form.ReviewImgResponse;
 import com.example.demo.domain.products.entity.Product;
 import com.example.demo.domain.products.entity.Review;
 import com.example.demo.domain.products.entity.ReviewImg;
@@ -52,7 +53,6 @@ public class ReviewServiceImpl implements ReviewService {
         List<ReviewImg> imgList = new ArrayList<>();
         Review review = new Review();
 
-        review.setWriter(request.getWriter());
         review.setRating(request.getRating());
         review.setContent(request.getContent());
 
@@ -68,7 +68,7 @@ public class ReviewServiceImpl implements ReviewService {
             UUID uuid = UUID.randomUUID();
             String originImg = multipartFile.getOriginalFilename();
             String editedImg = uuid + originImg;
-            String imgPath = "../SSS-Front/frontend/src/assets/review/";
+            String imgPath = "../SSS-Front/src/assets/review/";
 
             ReviewImg reviewImg = new ReviewImg();
             reviewImg.setOriginImg(originImg);
@@ -104,7 +104,7 @@ public class ReviewServiceImpl implements ReviewService {
         List<Review> reviewList = reviewRepository.findByProductId(productId);
         return reviewList;
     }
-
+// 회원별 자신이 작성한 후기 목록 반환
 //    @Override
 //    public List<Review> memberReviewList(Long memberId) {
 //        List<Review> reviewList = reviewRepository.findByMemberId(memberId);
@@ -112,7 +112,7 @@ public class ReviewServiceImpl implements ReviewService {
 //    }
 
     @Override
-    public List<ReviewImgResponse> findReviewImg(Long reviewId) {
+    public List<ReviewImgResponse> reviewImgList(Long reviewId) {
         List<ReviewImgResponse> reviewImgList = reviewImgRepository.findReviewImgById(reviewId);
         return reviewImgList;
     }

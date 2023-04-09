@@ -1,8 +1,10 @@
 package com.example.demo.domain.products.controller;
 
+import com.example.demo.domain.products.controller.form.ReviewImgResponse;
 import com.example.demo.domain.products.entity.Review;
 import com.example.demo.domain.products.service.ReviewService;
 import com.example.demo.domain.products.service.request.ReviewRegisterRequest;
+import com.example.demo.domain.products.service.request.ReviewRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
@@ -32,4 +34,11 @@ public class ReviewController {
         log.info("productReviewList()");
         return reviewService.productReviewList(productId);
     }
+
+    @GetMapping("/image/{reviewId}")
+    public List<ReviewImgResponse> reviewImg(@PathVariable("reviewId") Long reviewId) {
+        log.info("reviewImage(): " + reviewId);
+        return reviewService.reviewImgList(reviewId);
+    }
+
 }
