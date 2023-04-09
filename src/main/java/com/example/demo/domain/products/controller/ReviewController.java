@@ -32,11 +32,4 @@ public class ReviewController {
         log.info("productReviewList()");
         return reviewService.productReviewList(productId);
     }
-
-    @GetMapping("/image/{reviewId}")
-    public List<ReviewImgResponse> reviewImg(@PathVariable("reviewId") Long reviewId) {
-        log.info("reviewImage(): " + reviewId);
-        return reviewService.reviewImgList(reviewId);
-    }
-
 }
