@@ -1,5 +1,6 @@
 package com.example.demo.selfSalad;
 
+import com.example.demo.domain.selfSalad.Controller.request.IngredientInfoModifyForm;
 import com.example.demo.domain.selfSalad.Controller.request.IngredientRegisterForm;
 import com.example.demo.domain.selfSalad.Controller.response.IngredientAmountReadResponse;
 import com.example.demo.domain.selfSalad.Controller.response.IngredientInfoReadResponse;
@@ -7,6 +8,7 @@ import com.example.demo.domain.selfSalad.Controller.response.IngredientListRespo
 import com.example.demo.domain.selfSalad.entity.*;
 import com.example.demo.domain.selfSalad.repository.*;
 import com.example.demo.domain.selfSalad.service.SelfSaladServiceImpl;
+import com.example.demo.domain.selfSalad.service.request.IngredientInfoModifyRequest;
 import com.example.demo.domain.selfSalad.service.request.IngredientRegisterRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -23,8 +25,10 @@ import org.springframework.web.context.WebApplicationContext;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
@@ -257,5 +261,80 @@ public class IngredientTest {
         System.out.println("재료 이름, 가격, 칼로리, 수랑 읽기 : "+ amountReadResponse);
 
     }
+
+    @Test
+    public void 재료_이름_이미지_수정_테스트() throws IOException {
+        IngredientInfoModifyForm infoModifyForm =
+                new IngredientInfoModifyForm("육식양파", CategoryType.MEAT);
+
+        prepareFileInputTest();
+        System.out.println("수정할 파일 이름 : "+mockImgFile.getOriginalFilename());
+
+        IngredientInfoModifyRequest modifyRequest =
+                infoModifyForm.modifyEditedImg(mockImgFile);
+
+        Optional<Ingredient> maybeIngredient =
+                ingredientRepository.findById(1L);
+
+        if(maybeIngredient.isEmpty()){
+            System.out.println(("선택한 재료가 없습니다."));
+        }
+        Ingredient ingredient = maybeIngredient.get();
+
+        // 재료 이름 수정
+        ingredient.setName(modifyRequest.getName());
+
+
+        // 이미지 수정 요청이 들어온 경우
+        if( ! modifyRequest.getModifyEditedImg().equals("notImgChange")) {
+
+            final IngredientImg ingredientImg =
+                    ingredientImgRepository.findByIngredientId(1L);
+
+            // 수정 전 이미지 파일 폴더에서 삭제
+            이미지_파일_삭제(ingredientImg);
+
+            ingredientImg.setEditedImg(ingredient,  modifyRequest.getModifyEditedImg());
+
+            ingredientImgRepository.save(ingredientImg);
+            System.out.println(("이미지 수정 성공"));
+        }
+
+        // 카테고리 수정
+        CategoryType categoryType = modifyRequest.getCategoryType();
+        System.out.println(("수정요청 들어온 카테고리 : "+categoryType.toString()));
+
+        final Category category =
+                categoryRepository.findByCategoryType(categoryType).get();
+
+        IngredientCategory ingredientCategory =
+                ingredientCategoryRepository.findByIngredientId( 1L);
+
+        ingredientCategory.setCategory(ingredient, category);
+
+        ingredientCategoryRepository.save(ingredientCategory);
+        System.out.println(("카테고리 수정 성공"));
+
+        ingredientRepository.save(ingredient);
+
+        System.out.println("재료 이름, 이미지, 카테고리 수정 성공 : "+ ingredient);
+
+    }
+
+    @Test
+    private void 이미지_파일_삭제(IngredientImg ingredientImg)throws FileNotFoundException {
+
+        final String fixedStringPath = "../SSS-Front/src/assets/selfSalad/";
+        Path filePath = Paths.get(fixedStringPath, ingredientImg.getEditedImg());
+        //File 객체로 변환
+        File file = filePath.toFile();
+        if (file.exists()) {
+            file.delete();
+        } else {
+            throw new FileNotFoundException("이미지 파일이 존재하지 않습니다.");
+        }
+    }
+
+
 
 }
