@@ -370,6 +370,17 @@ public class IngredientTest {
         System.out.println("재료 가격, 수량, 칼로리 수정 성공 : "+ ingredientAmount);
     }
 
+    @Test
+    public void 재료_삭제_테스트() throws FileNotFoundException {
+
+        final IngredientImg ingredientImg
+                = ingredientImgRepository.findByIngredientId(1L);
+        이미지_파일_삭제(ingredientImg);
+
+        ingredientRepository.deleteById(1L);
+
+        System.out.println("재료 삭제 : "+ ingredientImg.getEditedImg());
+    }
 
 
 }
