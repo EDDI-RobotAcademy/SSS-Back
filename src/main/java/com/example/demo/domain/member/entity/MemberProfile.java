@@ -1,7 +1,6 @@
 package com.example.demo.domain.member.entity;
 
 
-import com.example.demo.domain.member.service.request.MemberUpdateRequest;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -14,20 +13,21 @@ import java.util.Set;
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
-public class MemberUpdate {
+
+public class MemberProfile {
 
 
     @Id
     @Getter
-    @Column(name = "member_update_id")
+    @Column(name = "member_profile_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long memberUpdateId = null;
+    private Long memberProfileId = null;
 
     @Getter
     @Column(nullable = true)
     private String phoneNumber;
 
-    @OneToMany(mappedBy = "memberUpdate", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "memberProfile", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private Set<Address> addresses = new HashSet<>();
 
     @Getter
@@ -35,7 +35,7 @@ public class MemberUpdate {
     @JoinColumn(name = "member_id", unique = true)
     private Member member;
 
-    public MemberUpdate(String phoneNumber, Set<Address> addresses, Member member) {
+    public MemberProfile(String phoneNumber, Set<Address> addresses, Member member) {
         this.phoneNumber = phoneNumber;
         if (addresses != null && !addresses.isEmpty()) {
             setAddresses(addresses);
@@ -44,14 +44,8 @@ public class MemberUpdate {
     }
 
 
-    public MemberUpdate(Member member, MemberUpdateRequest memberUpdateRequest, Long memberUpdateId) {
-        this.memberUpdateId = memberUpdateId;
-        this.phoneNumber = memberUpdateRequest.getNewPhoneNumber();
-        this.member = member;
-    }
-
     public void addAddress(Address address) {
-        address.setMemberUpdate(this);
+        address.setMemberProfile(this);
         this.addresses.add(address);
     }
 

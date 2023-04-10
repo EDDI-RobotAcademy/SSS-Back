@@ -2,13 +2,13 @@ package com.example.demo.domain.member.service;
 
 import com.example.demo.domain.member.entity.Address;
 import com.example.demo.domain.member.entity.AdminCode;
-import com.example.demo.domain.member.entity.MemberUpdate;
+import com.example.demo.domain.member.entity.MemberProfile;
 import com.example.demo.domain.member.repository.AdminCodeRepository;
 import com.example.demo.domain.member.repository.MemberRepository;
-import com.example.demo.domain.member.repository.MemberUpdateRepository;
+import com.example.demo.domain.member.repository.MemberProfileRepository;
 import com.example.demo.domain.member.service.request.MemberSignInRequest;
 import com.example.demo.domain.member.service.request.MemberSignUpRequest;
-import com.example.demo.domain.member.service.request.MemberUpdateRequest;
+import com.example.demo.domain.member.service.request.MemberProfileRequest;
 import com.example.demo.domain.security.entity.Authentication;
 import com.example.demo.domain.security.entity.BasicAuthentication;
 import com.example.demo.domain.security.repository.AuthenticationRepository;
@@ -18,6 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import com.example.demo.domain.member.entity.Member;
 
+import javax.transaction.Transactional;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -29,7 +30,7 @@ import java.util.UUID;
 public class MemberServiceImpl implements MemberService {
 
     final private MemberRepository memberRepository;
-    final private MemberUpdateRepository memberUpdateRepository;
+    final private MemberProfileRepository memberProfileRepository;
 
     final private AdminCodeRepository adminCodeRepository;
 
@@ -143,10 +144,14 @@ public class MemberServiceImpl implements MemberService {
     }
 
     //정보변경
+
+
+
     @Override
-    public Boolean updateMemberInfo(Long memberId, MemberUpdateRequest memberUpdateRequest) {
+    @Transactional
+    public Boolean updateMemberInfo(Long memberId, MemberProfileRequest memberProfileRequest) {
         Optional<Member> maybeMember = memberRepository.findByMemberId(memberId);
-        Optional<MemberUpdate> maybeMemberUpdate = memberUpdateRepository.findByMemberUpdateId(memberId);
+        Optional<MemberProfile> maybeMemberUpdate = memberProfileRepository.findByMemberProfileId(memberId);
         Optional<Authentication> maybeAuthentication = authenticationRepository.findByMemberId(memberId);
 
         if(maybeMember.isEmpty()) {
@@ -159,29 +164,28 @@ public class MemberServiceImpl implements MemberService {
 
         if (maybeMemberUpdate.isPresent()) {
             // 기존 MemberUpdate 객체를 덮어쓰는 방식으로 업데이트
-            MemberUpdate newMemberUpdate = maybeMemberUpdate.get();
-            newMemberUpdate.setPhoneNumber(memberUpdateRequest.getNewPhoneNumber());
-            newMemberUpdate.getAddresses().clear();
-            if (memberUpdateRequest.getNewAddresses() != null && !memberUpdateRequest.getNewAddresses().isEmpty()) {
-                for (Address address : memberUpdateRequest.getNewAddresses()) {
-                    newMemberUpdate.addAddress(address);
+            MemberProfile newMemberProfile = maybeMemberUpdate.get();
+            newMemberProfile.setPhoneNumber(memberProfileRequest.getNewPhoneNumber());
+            newMemberProfile.getAddresses().clear();
+            if (memberProfileRequest.getNewAddresses() != null && !memberProfileRequest.getNewAddresses().isEmpty()) {
+                for (Address address : memberProfileRequest.getNewAddresses()) {
+                    newMemberProfile.addAddress(address);
                 }
             }
-            memberUpdateRepository.save(newMemberUpdate);
+            memberProfileRepository.save(newMemberProfile);
         } else {
             // 새로운 MemberUpdate 레코드를 생성
-            MemberUpdate memberUpdate = memberUpdateRequest.toMemberUpdate(member);
-            memberUpdateRepository.save(memberUpdate);
+            MemberProfile memberProfile = memberProfileRequest.toMemberUpdate(member);
+            memberProfileRepository.save(memberProfile);
         }
 
-        if(!memberUpdateRequest.getNewPassword().equals("")) {
+        if(!memberProfileRequest.getNewPassword().equals("")) {
             final BasicAuthentication authentication = new BasicAuthentication(
                     member,
                     Authentication.BASIC_AUTH,
-                    memberUpdateRequest.getNewPassword()
+                    memberProfileRequest.getNewPassword()
             );
 
-            authentication.setId(maybeAuthentication.get().getId());
             authenticationRepository.save(authentication);
         }
 
