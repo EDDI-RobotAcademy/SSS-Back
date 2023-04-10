@@ -17,37 +17,37 @@ public class Address {
     private Long id;
 
     @Column(nullable = true)
-    private String postCode;
+    private String city;
 
     @Column(nullable = true)
-    private String roadAddress;
+    private String street;
 
     @Column(nullable = true)
-    private String numberAddress;
+    private String addressDetail;
 
     @Column(nullable = true)
-    private String detailAddress;
+    private String zipcode;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "member_update_id")
-    private MemberUpdate memberUpdate;
+    @JoinColumn(name = "member_profile_id")
+    private MemberProfile memberProfile;
 
 
-    public Address(String postCode, String roadAddress, String numberAddress, String detailAddress) {
-        this.postCode = postCode;
-        this.roadAddress = roadAddress;
-        this.numberAddress = numberAddress;
-        this.detailAddress = detailAddress;
+    public Address(String city, String street, String addressDetail, String zipcode) {
+        this.city = city;
+        this.street = street;
+        this.addressDetail = addressDetail;
+        this.zipcode = zipcode;
     }
 
 
 
-    public static Address of(String postCode, String roadAddress, String numberAddress, String detailAddress) {
-        return new Address(postCode, roadAddress, numberAddress, detailAddress);
+    public static Address of(String city, String street, String addressDetail, String zipcode) {
+        return new Address(city, street, addressDetail, zipcode);
     }
 
-    public void setMemberUpdate(MemberUpdate memberUpdate) {
-        this.memberUpdate = memberUpdate;
+    public void setMemberProfile(MemberProfile memberProfile) {
+        this.memberProfile = memberProfile;
     }
 
 }

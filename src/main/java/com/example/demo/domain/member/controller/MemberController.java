@@ -3,7 +3,7 @@ package com.example.demo.domain.member.controller;
 import com.example.demo.domain.member.controller.form.MemberSignInForm;
 import com.example.demo.domain.member.controller.form.MemberSignUpForm;
 import com.example.demo.domain.member.service.MemberService;
-import com.example.demo.domain.member.service.request.MemberUpdateRequest;
+import com.example.demo.domain.member.service.request.MemberProfileRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
@@ -59,12 +59,12 @@ public class MemberController {
 
 
 
-    @PostMapping("/member-update")
+    @PostMapping("/member-profile")
     public Boolean updateMemberInfo(@PathVariable("memberId") Long memberId,
-                                    @RequestBody MemberUpdateRequest memberUpdateRequest) {
-        log.info("/member-update"+ memberId +", "+ memberUpdateRequest);
+                                    @RequestBody MemberProfileRequest memberProfileRequest) {
+        log.info("/member-profile"+ memberId +", "+ memberProfileRequest);
 
-        return memberService.updateMemberInfo(memberId, memberUpdateRequest);
+        return memberService.updateMemberInfo(memberId, memberProfileRequest);
     }
 
 }
