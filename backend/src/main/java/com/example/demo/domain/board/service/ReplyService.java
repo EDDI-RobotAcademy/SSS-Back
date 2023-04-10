@@ -18,11 +18,6 @@ public interface ReplyService {
     List<Reply> replyList(Long boarId);
 
     /**
-     * 댓글 읽기
-     */
-    Reply replyRead(Long replyId);
-
-    /**
      * 댓글 삭제
      */
     void replyRemove(Long replyId);
@@ -37,8 +32,4 @@ public interface ReplyService {
      */
     Long getCount();
 
-    /**
-     * 마지막 엔티티 id번호
-     */
-    Long getLastEntityId();
 }

@@ -4,7 +4,9 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import lombok.Data;
 
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -13,22 +15,21 @@ import java.time.LocalDateTime;
 import javax.persistence.*;
 import java.util.Date;
 
-
-@Data
+@Getter
+@Setter
 @Entity
-@NoArgsConstructor
 public class Reply {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long replyId;
 
+    @Lob
     private String replyContent;
 
     @Column(length = 32, nullable = false)
     private String replyWriter;
 
-    @JsonBackReference
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name= "board_id")
     private Board board;
@@ -40,5 +41,11 @@ public class Reply {
     @UpdateTimestamp
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd", timezone = "Asia/Seoul")
     private LocalDateTime updDate = LocalDateTime.now();
+
+    public void update(String replyContent) {
+
+        this.replyContent = replyContent;
+    }
+
 
 }

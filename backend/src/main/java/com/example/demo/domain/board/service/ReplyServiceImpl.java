@@ -5,17 +5,14 @@ import com.example.demo.domain.board.entity.Board;
 import com.example.demo.domain.board.entity.Reply;
 import com.example.demo.domain.board.repository.BoardRepository;
 import com.example.demo.domain.board.repository.ReplyRepository;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
 
 @Slf4j
 @Service
-@RequiredArgsConstructor
 public class ReplyServiceImpl implements ReplyService {
 
     @Autowired
@@ -23,17 +20,6 @@ public class ReplyServiceImpl implements ReplyService {
 
     @Autowired
     BoardRepository boardRepository;
-
-//    public Reply register(ReplyRequest replyRequest) {
-//        Reply reply = new Reply();
-////        reply.setReplyId(replyRequest.getReplyId());
-//        reply.setReplyWriter(replyRequest.getReplyWriter());
-//        reply.setReplyContent(replyRequest.getReplyContent());
-//
-//        replyRepository.save(reply);
-//
-//        return reply;
-//    }
 
     @Override
     public void replyRegister(ReplyRequest replyRequest) {
@@ -53,55 +39,25 @@ public class ReplyServiceImpl implements ReplyService {
     }
 
     @Override
-    public Reply replyRead(Long replyId) {
-        Optional<Reply> maybeReply = replyRepository.findById(replyId);
-
-        if (maybeReply.isEmpty()) {
-            log.info("읽을 수 없습니다!");
-            return null;
-        }
-
-        return maybeReply.get();
-    }
-
-    @Override
     public void replyRemove(Long replyId) {
         replyRepository.deleteById(replyId);
     }
 
     @Override
     public Reply replyModify(Long replyId, ReplyRequest replyRequest) {
-        Optional<Reply> maybeReply = replyRepository.findById(replyId);
+        Reply reply = replyRepository.findById(replyId).orElseThrow(()->
+        new IllegalArgumentException("해당 댓글이 존재하지 않습니다.." + replyId));
 
-        if (maybeReply.isEmpty()) {
-            System.out.println("reply 정보를 찾지 못했습니다: " + replyId);
-            return null;
-        }
-
-        Reply reply = maybeReply.get();
-//        reply.setReplyId(replyRequest.getReplyId());
-        reply.setReplyContent(replyRequest.getReplyContent());
+        reply.update(replyRequest.getReplyContent());
 
         replyRepository.save(reply);
-
         return reply;
     }
 
-
-/*
-    @Override
-    public List<reply> bigMisstake(Long replyId, replyRequest replyRequest) {
-        return replyRepository.findByreplyIdAndWriter(replyId, replyRequest.getWriter());
-    }
-*/
     @Override
     public Long getCount() {
         return replyRepository.countBy();
     }
 
-    @Override
-    public Long getLastEntityId() {
-        Reply reply = replyRepository.findFirstByOrderByReplyIdDesc();
-        return reply.getReplyId();
-    }
+
 }

@@ -14,25 +14,28 @@ import java.util.Optional;
 
 @Slf4j
 @Service
-@RequiredArgsConstructor
 public class BoardServiceImpl implements BoardService {
 
     final private BoardRepository boardRepository;
 
-    public Board register(BoardRequest boardRequest) {
+    public BoardServiceImpl(BoardRepository boardRepository){
+        this.boardRepository = boardRepository;
+    }
+
+
+    public void register(BoardRequest boardRequest) {
         Board board = new Board();
         board.setTitle(boardRequest.getTitle());
         board.setWriter(boardRequest.getWriter());
         board.setContent(boardRequest.getContent());
 
         boardRepository.save(board);
-
-        return board;
     }
 
     @Override
     public List<Board> list() {
-        return boardRepository.findAll(Sort.by(Sort.Direction.DESC, "boardId"));
+
+        return boardRepository.findAll(Sort.by(Sort.Direction.DESC, "BoardId"));
     }
 
     @Override
@@ -43,7 +46,6 @@ public class BoardServiceImpl implements BoardService {
             log.info("읽을 수 없습니다!");
             return null;
         }
-
         return maybeBoard.get();
     }
 
@@ -69,12 +71,6 @@ public class BoardServiceImpl implements BoardService {
 
         return board;
     }
-/*
-    @Override
-    public List<Board> bigMisstake(Long boardId, BoardRequest boardRequest) {
-        return boardRepository.findByBoardIdAndWriter(boardId, boardRequest.getWriter());
-    }
-*/
     @Override
     public Long getCount() {
         return boardRepository.countBy();

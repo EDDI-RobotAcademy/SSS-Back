@@ -32,7 +32,6 @@ public class Board {
     @Column(length = 32, nullable = false)
     private String writer;
 
-    @Lob
     private String content;
 
     @CreationTimestamp
