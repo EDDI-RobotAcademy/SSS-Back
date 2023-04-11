@@ -26,7 +26,6 @@ import org.springframework.web.context.WebApplicationContext;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -323,7 +322,7 @@ public class IngredientTest {
     }
 
     @Test
-    private void 이미지_파일_삭제(IngredientImg ingredientImg)throws FileNotFoundException {
+    private void 이미지_파일_삭제(IngredientImg ingredientImg){
 
         final String fixedStringPath = "../SSS-Front/src/assets/selfSalad/";
         Path filePath = Paths.get(fixedStringPath, ingredientImg.getEditedImg());
@@ -331,8 +330,6 @@ public class IngredientTest {
         File file = filePath.toFile();
         if (file.exists()) {
             file.delete();
-        } else {
-            throw new FileNotFoundException("이미지 파일이 존재하지 않습니다.");
         }
     }
 
@@ -371,7 +368,7 @@ public class IngredientTest {
     }
 
     @Test
-    public void 재료_삭제_테스트() throws FileNotFoundException {
+    public void 재료_삭제_테스트()  {
 
         final IngredientImg ingredientImg
                 = ingredientImgRepository.findByIngredientId(1L);

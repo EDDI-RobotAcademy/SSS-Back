@@ -152,7 +152,7 @@ public class SelfSaladServiceImpl implements SelfSaladService {
     }
 
 
-    private void deleteImgFile(IngredientImg ingredientImg)throws FileNotFoundException {
+    private void deleteImgFile(IngredientImg ingredientImg) {
 
         final String fixedStringPath = "../SSS-Front/src/assets/selfSalad/";
         Path filePath = Paths.get(fixedStringPath, ingredientImg.getEditedImg());
@@ -160,8 +160,6 @@ public class SelfSaladServiceImpl implements SelfSaladService {
         File file = filePath.toFile();
         if (file.exists()) {
             file.delete();
-        } else {
-            throw new FileNotFoundException("이미지 파일이 존재하지 않습니다.");
         }
     }
 
@@ -276,7 +274,7 @@ public class SelfSaladServiceImpl implements SelfSaladService {
         ingredientRepository.save(ingredient);
     }
 
-    public void delete(Long ingredientId) throws FileNotFoundException {
+    public void delete(Long ingredientId) {
 
         final IngredientImg ingredientImg
                 = ingredientImgRepository.findByIngredientId(ingredientId);
