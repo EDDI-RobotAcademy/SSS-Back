@@ -1,17 +1,12 @@
 package com.example.demo.domain.products.service.request;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 
 @Getter
-@Setter
-@ToString
-@NoArgsConstructor
 @AllArgsConstructor
-public class ReviewRegisterRequest {
+public class FavoriteInfoRequest {
 
     private Long memberId;
     private Long productId;
-    private int rating;
-    private String content;
-
 }
