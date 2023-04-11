@@ -81,7 +81,7 @@ public class SideProductsServiceImpl implements SideProductsService {
             writer.close();
 
             SideProductImg sideProductImg = new SideProductImg(
-                    sideProductImgList.getOriginalFilename(),
+//                    sideProductImgList.getOriginalFilename(),
                     fileRandomName,
                     sideProduct
             );
@@ -176,7 +176,7 @@ public class SideProductsServiceImpl implements SideProductsService {
             writer.close();
 
             SideProductImg sideProductImg = new SideProductImg(
-                    sideProductImgList.getOriginalFilename(),
+//                    sideProductImgList.getOriginalFilename(),
                     fileRandomName,
                     sideProduct
             );
