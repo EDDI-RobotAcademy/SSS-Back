@@ -3,18 +3,30 @@ package com.example.demo.domain.order.service;
 import com.example.demo.domain.member.entity.Member;
 import com.example.demo.domain.member.repository.MemberRepository;
 import com.example.demo.domain.order.controller.CartRegisterRequest;
+import com.example.demo.domain.order.controller.response.CartItemListResponse;
 import com.example.demo.domain.order.entity.ProductCart;
+import com.example.demo.domain.order.entity.SideProductCart;
 import com.example.demo.domain.order.entity.items.ItemCategoryType;
 import com.example.demo.domain.order.entity.items.ProductItem;
+import com.example.demo.domain.order.entity.items.SideProductItem;
 import com.example.demo.domain.order.repository.ProductCartRepository;
 import com.example.demo.domain.order.repository.ProductItemRepository;
+import com.example.demo.domain.order.repository.SideProductCartRepository;
+import com.example.demo.domain.order.repository.SideProductItemRepository;
 import com.example.demo.domain.products.entity.Product;
 import com.example.demo.domain.products.repository.ProductsRepository;
+import com.example.demo.domain.sideProducts.entity.SideProduct;
+import com.example.demo.domain.sideProducts.repository.SideProductsRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static java.util.Objects.requireNonNull;
 
@@ -24,10 +36,13 @@ import static java.util.Objects.requireNonNull;
 public class CartServiceImpl implements CartService{
 
     final private ProductCartRepository productCartRepository;
+    final private SideProductCartRepository sideProductCartRepository;
 
     final private ProductItemRepository productItemRepository;
+    final private SideProductItemRepository sideProductItemRepository;
 
     final private ProductsRepository productsRepository;
+    final private SideProductsRepository sideProductsRepository;
 
     final private MemberRepository memberRepository;
 
@@ -56,14 +71,29 @@ public class CartServiceImpl implements CartService{
         log.info("해당 Product 상품이 없습니다.");
         return null;
     }
+    private SideProduct checkSideProduct(Long sideProductId ){
+        Optional<SideProduct> maybeSideProduct =
+                sideProductsRepository.findById(sideProductId);
+        if(maybeSideProduct.isPresent()){
+            log.info("SideProduct "+maybeSideProduct.get().getSideProductId()+" 번의 상품이 존재합니다.");
+
+            return maybeSideProduct.get();
+        }
+
+        log.info("해당 SideProduct 상품이 없습니다.");
+        return null;
+    }
 
     public void classifyItemCategory(CartRegisterRequest item){
 
         Member member = requireNonNull(checkMember(item.getMemberId()));
         Product requestProduct = requireNonNull(checkProduct(item.getItemId()));
+        SideProduct requestSideProduct = requireNonNull(checkSideProduct(item.getItemId()));
 
         Optional<ProductCart> memberProductCart =
                 productCartRepository.findByMember_memberId(member.getMemberId());
+        Optional<SideProductCart> memberSideProductCart =
+                sideProductCartRepository.findByMember_memberId(member.getMemberId());
 
         if (item.getItemCategoryType() == ItemCategoryType.PRODUCT) {
             if(memberProductCart.isEmpty()){
@@ -71,6 +101,13 @@ public class CartServiceImpl implements CartService{
             }
             log.info(member.getNickname()+" 님의 product 카트는 이미 생성되어 있습니다.");
             AddProductItem(memberProductCart.get(), item, requestProduct);
+
+        } else if (item.getItemCategoryType() == ItemCategoryType.SIDE) {
+            if(memberSideProductCart.isEmpty()){
+                CreateSideProductCart(member, item, requestSideProduct);
+            }
+            log.info(member.getNickname()+" 님의 sideProduct 카트는 이미 생성되어 있습니다.");
+            AddSideProductItem(memberSideProductCart.get(), item, requestSideProduct);
         }
     }
 
@@ -107,5 +144,37 @@ public class CartServiceImpl implements CartService{
         }
     }
 
+    private void CreateSideProductCart(Member member, CartRegisterRequest item, SideProduct requestProduct ){
+
+        SideProductCart firstCart = SideProductCart.builder().member(member).build();
+
+        sideProductCartRepository.save(firstCart);
+        log.info(member.getNickname()+" 님의 sideProduct 카트를 생성하였습니다.");
+
+        SideProductItem newSideProductItem = item.toSideProductItem(requestProduct, firstCart);
+        sideProductItemRepository.save(newSideProductItem);
+
+        log.info(member.getNickname()+" 님의 sideProduct 카트에 첫 상품을 추가하였습니다.");
+    }
+
+    private void AddSideProductItem(SideProductCart memberCart, CartRegisterRequest item, SideProduct requestProduct){
+
+        Optional<SideProductItem> maybeSideProductItem =
+                sideProductItemRepository.findBySideProduct_sideProductIdAndSideProductCart_Id(memberCart.getId(), item.getItemId());
+
+        if (maybeSideProductItem.isPresent()) {
+            SideProductItem sideProductItem = maybeSideProductItem.get();
+
+            sideProductItem.setQuantity(sideProductItem.getQuantity() + item.getQuantity());
+            sideProductItemRepository.save(sideProductItem);
+            log.info(requestProduct.getTitle() + " 상품의 수량을 sideProduct 카트에 추가하였습니다.");
+
+        } else {
+            SideProductItem newProductItem = item.toSideProductItem(requestProduct, memberCart);
+
+            sideProductItemRepository.save(newProductItem);
+            log.info(requestProduct.getTitle() + " 상품을 sideProduct 카트에 추가하였습니다.");
+        }
+    }
 
 }
