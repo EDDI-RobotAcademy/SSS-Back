@@ -18,8 +18,6 @@ public class SideProductImg {
     private Long imgId;
 
     @Column
-    private String originImg;
-    @Column
     private String editedImg;
 
     @JsonIgnore
@@ -27,8 +25,7 @@ public class SideProductImg {
     @JoinColumn(name = "side_product_id")
     private SideProduct sideProduct;
 
-    public SideProductImg (String originImg, String editedImg, SideProduct sideProduct) {
-        this.originImg = originImg;
+    public SideProductImg (String editedImg, SideProduct sideProduct) {
         this.editedImg = editedImg;
         this.sideProduct = sideProduct;
     }
