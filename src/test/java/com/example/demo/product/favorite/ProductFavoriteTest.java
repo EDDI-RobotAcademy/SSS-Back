@@ -24,4 +24,8 @@ public class ProductFavoriteTest {
         System.out.println(favoriteService.likeStatus(request));
     }
 
+    @Test
+    void 찜_목록() {
+        System.out.println("목록: " + favoriteService.favoriteList(1L));
+    }
 }
