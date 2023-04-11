@@ -9,7 +9,7 @@ import lombok.ToString;
 @RequiredArgsConstructor
 public class ReviewRequest {
 
-    final private Long id;
+    final private Long memberId;
     final private Long productId;
     final private int rating;
     final private String content;
