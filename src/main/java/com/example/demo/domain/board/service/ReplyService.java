@@ -10,35 +10,26 @@ public interface ReplyService {
     /**
      * 댓글 저장
      */
-    public Reply register(ReplyRequest replyRequest);
+    void replyRegister(ReplyRequest replyRequest);
 
     /**
      * 댓글 리스트
      */
-    List<Reply> list();
-
-    /**
-     * 댓글 읽기
-     */
-    Reply read(Long replyId);
+    List<Reply> replyList(Long boarId);
 
     /**
      * 댓글 삭제
      */
-    void remove(Long replyId);
+    void replyRemove(Long replyId);
 
     /**
      * 댓글 수정
      */
-    Reply modify(Long replyId, ReplyRequest replyRequest);
+    Reply replyModify(Long replyId, ReplyRequest replyRequest);
 
     /**
      * 게시물 개수
      */
     Long getCount();
 
-    /**
-     * 마지막 엔티티 id번호
-     */
-    Long getLastEntityId();
 }
