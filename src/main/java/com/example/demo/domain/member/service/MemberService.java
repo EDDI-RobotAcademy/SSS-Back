@@ -2,7 +2,7 @@ package com.example.demo.domain.member.service;
 
 import com.example.demo.domain.member.service.request.MemberSignInRequest;
 import com.example.demo.domain.member.service.request.MemberSignUpRequest;
-import com.example.demo.domain.member.service.request.MemberUpdateRequest;
+import com.example.demo.domain.member.service.request.MemberProfileRequest;
 
 import java.util.Map;
 
@@ -20,6 +20,6 @@ public interface MemberService {
 
     void deleteMember(Long id);
 
-    Boolean updateMemberInfo(Long memberId, MemberUpdateRequest memberUpdateRequest);
+    Boolean updateMemberInfo(Long memberId, MemberProfileRequest memberProfileRequest);
 
 }

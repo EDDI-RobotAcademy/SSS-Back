@@ -5,7 +5,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
-import javax.swing.text.html.Option;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
@@ -36,7 +35,7 @@ public class Member {
 
 
     @OneToOne(mappedBy = "member", cascade = CascadeType.ALL)
-    private MemberUpdate memberUpdate;
+    private MemberProfile memberProfile;
 
     @OneToMany(mappedBy = "member", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
     private Set<Authentication> authentications = new HashSet<>();
