@@ -83,4 +83,8 @@ public class FavoriteServiceImpl implements FavoriteService {
         throw new RuntimeException("찜 없음");
     }
 
+    @Override
+    public List<Favorite> favoriteList (Long memberId) {
+        return favoriteRepository.findFavoriteByMemberId(memberId);
+    }
 }

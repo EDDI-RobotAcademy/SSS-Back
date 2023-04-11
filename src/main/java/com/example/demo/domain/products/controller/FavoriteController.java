@@ -29,4 +29,8 @@ public class FavoriteController {
         return favoriteService.likeStatus(request);
     }
 
+    @PostMapping("/myFavorite")
+    public List<Favorite> favoriteList(@PathVariable("memberId") Long memberId) {
+        return favoriteService.favoriteList(memberId);
+    }
 }

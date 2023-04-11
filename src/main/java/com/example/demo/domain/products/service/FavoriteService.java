@@ -10,4 +10,5 @@ public interface FavoriteService {
 
     Boolean likeStatus(FavoriteInfoRequest request);
 
+    List<Favorite> favoriteList(Long memberId);
 }
