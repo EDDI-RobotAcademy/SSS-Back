@@ -9,8 +9,8 @@ import lombok.*;
 @AllArgsConstructor
 public class ReviewRegisterRequest {
 
+    private Long memberId;
     private Long productId;
-    private String writer;
     private int rating;
     private String content;
 
