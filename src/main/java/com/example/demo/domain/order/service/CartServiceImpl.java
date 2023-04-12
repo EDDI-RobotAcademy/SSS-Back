@@ -177,4 +177,27 @@ public class CartServiceImpl implements CartService{
         }
     }
 
+    public List<CartItemListResponse> cartItemList(Long memberId){
+    // repo 에서 items 를 찾기 > 컬렉션 객체를 스트림으로 처리 > 스트림의 각 요소를 다른 형대로 변환
+        List<CartItemListResponse> cartItems =
+            productItemRepository.findByProductCart_Member_memberId(memberId)
+                // 컬렉션 객체를 스트림으로 처리
+                .stream()
+                // 스트림의 각 요소를 다른 형태의 요소로 변환 > productItem 의 필드를 이용해 CartItemListResponse 객체 생성
+                .map(productItem -> new CartItemListResponse(productItem.getId(), productItem.getQuantity()))
+                .collect(Collectors.toList());
+
+        cartItems.addAll(
+            sideProductItemRepository.findBySideProductCart_Member_memberId(memberId)
+                .stream()
+                .map(sideProductItem -> new CartItemListResponse(sideProductItem.getId(), sideProductItem.getQuantity()))
+                .collect(Collectors.toList()));
+
+        return cartItems;
+    }
+
+    private void changeCartItemQuantity(){
+
+    }
+
 }
