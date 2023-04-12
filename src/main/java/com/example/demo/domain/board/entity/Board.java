@@ -18,20 +18,20 @@ public class Board {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name="board_id")
     private Long boardId;
 
     @Column(length = 128, nullable = false)
     private String title;
 
-
-    @OneToMany(mappedBy = "board", fetch=FetchType.EAGER)
-    @JsonManagedReference
-    private List<Reply> replyList = new ArrayList<>();
+//
+//    @OneToMany(mappedBy = "board", fetch=FetchType.LAZY)
+//    @JsonManagedReference
+//    private List<Reply> replyList = new ArrayList<>();
 
     @Column(length = 32, nullable = false)
     private String writer;
 
-    @Lob
     private String content;
 
     @CreationTimestamp
