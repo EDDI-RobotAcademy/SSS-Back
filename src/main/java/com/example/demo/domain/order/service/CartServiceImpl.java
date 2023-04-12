@@ -2,7 +2,8 @@ package com.example.demo.domain.order.service;
 
 import com.example.demo.domain.member.entity.Member;
 import com.example.demo.domain.member.repository.MemberRepository;
-import com.example.demo.domain.order.controller.CartRegisterRequest;
+import com.example.demo.domain.order.controller.request.CartItemQuantityModifyRequest;
+import com.example.demo.domain.order.controller.request.CartRegisterRequest;
 import com.example.demo.domain.order.controller.response.CartItemListResponse;
 import com.example.demo.domain.order.entity.ProductCart;
 import com.example.demo.domain.order.entity.SideProductCart;
@@ -86,33 +87,30 @@ public class CartServiceImpl implements CartService{
     public void classifyItemCategory(CartRegisterRequest item){
 
         Member member = requireNonNull(checkMember(item.getMemberId()));
+
+        if (item.getItemCategoryType() == ItemCategoryType.PRODUCT) {
+            productCartRegister(item, member);
+
+        } else if (item.getItemCategoryType() == ItemCategoryType.SIDE) {
+            sideProductCartRegister(item, member);
+        }
+    }
+    private void productCartRegister(CartRegisterRequest item, Member member){
+
         Product requestProduct = requireNonNull(checkProduct(item.getItemId()));
-        SideProduct requestSideProduct = requireNonNull(checkSideProduct(item.getItemId()));
 
         Optional<ProductCart> myProductCart =
                 productCartRepository.findByMember_memberId(member.getMemberId());
-        Optional<SideProductCart> mySideProductCart =
-                sideProductCartRepository.findByMember_memberId(member.getMemberId());
 
-        if (item.getItemCategoryType() == ItemCategoryType.PRODUCT) {
-            if(myProductCart.isEmpty()){
-                CreateProductCart(member, item, requestProduct);
-            }else{
-                log.info(member.getNickname()+" 님의 product 카트는 이미 생성되어 있습니다.");
-                AddProductItem(myProductCart.get(), item, requestProduct);
-            }
-        } else if (item.getItemCategoryType() == ItemCategoryType.SIDE) {
-            if(mySideProductCart.isEmpty()){
-                CreateSideProductCart(member, item, requestSideProduct);
-            }else{
-                log.info(member.getNickname()+" 님의 sideProduct 카트는 이미 생성되어 있습니다.");
-                AddSideProductItem(mySideProductCart.get(), item, requestSideProduct);
-            }
-
+        if(myProductCart.isEmpty()){
+            createProductCart(member, item, requestProduct);
+        }else{
+            log.info(member.getNickname()+" 님의 product 카트는 이미 생성되어 있습니다.");
+            addProductItem(myProductCart.get(), item, requestProduct);
         }
     }
 
-    private void CreateProductCart(Member member, CartRegisterRequest cartItem, Product requestProduct ){
+    private void createProductCart(Member member, CartRegisterRequest cartItem, Product requestProduct ){
 
         ProductCart firstCart = ProductCart.builder().member(member).build();
 
@@ -125,7 +123,7 @@ public class CartServiceImpl implements CartService{
         log.info(member.getNickname()+" 님의 product 카트에 첫 상품을 추가하였습니다.");
     }
 
-    private void AddProductItem(ProductCart myCart, CartRegisterRequest cartItem, Product requestProduct){
+    private void addProductItem(ProductCart myCart, CartRegisterRequest cartItem, Product requestProduct){
 
         Optional<ProductItem> maybeProductItem =
                 productItemRepository.findByProduct_productIdAndProductCart_Id(cartItem.getItemId(),myCart.getId());
@@ -145,7 +143,22 @@ public class CartServiceImpl implements CartService{
         }
     }
 
-    private void CreateSideProductCart(Member member, CartRegisterRequest cartItem, SideProduct requestProduct ){
+    private void sideProductCartRegister(CartRegisterRequest item, Member member){
+
+        SideProduct requestSideProduct = requireNonNull(checkSideProduct(item.getItemId()));
+
+        Optional<SideProductCart> mySideProductCart =
+                sideProductCartRepository.findByMember_memberId(member.getMemberId());
+
+        if(mySideProductCart.isEmpty()){
+            createSideProductCart(member, item, requestSideProduct);
+        }else{
+            log.info(member.getNickname()+" 님의 sideProduct 카트는 이미 생성되어 있습니다.");
+            addSideProductItem(mySideProductCart.get(), item, requestSideProduct);
+        }
+    }
+
+    private void createSideProductCart(Member member, CartRegisterRequest cartItem, SideProduct requestProduct ){
 
         SideProductCart firstCart = SideProductCart.builder().member(member).build();
 
@@ -158,7 +171,7 @@ public class CartServiceImpl implements CartService{
         log.info(member.getNickname()+" 님의 sideProduct 카트에 첫 상품을 추가하였습니다.");
     }
 
-    private void AddSideProductItem(SideProductCart myCart, CartRegisterRequest cartItem, SideProduct requestProduct){
+    private void addSideProductItem(SideProductCart myCart, CartRegisterRequest cartItem, SideProduct requestProduct){
 
         Optional<SideProductItem> maybeSideProductItem =
                 sideProductItemRepository.findBySideProduct_sideProductIdAndSideProductCart_Id(cartItem.getItemId(),myCart.getId());
@@ -177,6 +190,7 @@ public class CartServiceImpl implements CartService{
             log.info(requestProduct.getTitle() + " 상품을 sideProduct 카트에 추가하였습니다.");
         }
     }
+
     public List<CartItemListResponse> cartItemList(Long memberId){
 
         List<ProductItem> productItems = productItemRepository.findByProductCart_Member_memberId(memberId);
