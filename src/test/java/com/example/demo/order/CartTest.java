@@ -7,10 +7,17 @@ import com.example.demo.domain.order.controller.response.CartItemListResponse;
 import com.example.demo.domain.order.entity.ProductCart;
 import com.example.demo.domain.order.entity.items.ItemCategoryType;
 import com.example.demo.domain.order.entity.items.ProductItem;
+import com.example.demo.domain.order.entity.items.SideProductItem;
 import com.example.demo.domain.order.repository.ProductCartRepository;
 import com.example.demo.domain.order.repository.ProductItemRepository;
+import com.example.demo.domain.order.repository.SideProductCartRepository;
+import com.example.demo.domain.order.repository.SideProductItemRepository;
 import com.example.demo.domain.products.entity.Product;
+import com.example.demo.domain.products.repository.ProductsImgRepository;
 import com.example.demo.domain.products.repository.ProductsRepository;
+import com.example.demo.domain.sideProducts.entity.SideProduct;
+import com.example.demo.domain.sideProducts.entity.SideProductImg;
+import com.example.demo.domain.sideProducts.repository.SideProductsRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -24,6 +31,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static java.util.Objects.requireNonNull;
 
@@ -32,24 +40,36 @@ import static java.util.Objects.requireNonNull;
 public class CartTest {
     @Autowired
     private ProductCartRepository productCartRepository;
+    @Autowired
+    private SideProductCartRepository sideProductCartRepository;
 
     @Autowired
     private ProductItemRepository productItemRepository;
+    @Autowired
+    private SideProductItemRepository sideProductItemRepository;
 
     @Autowired
     private ProductsRepository productsRepository;
+    @Autowired
+    private SideProductsRepository sideProductsRepository;
 
     @Autowired
     private MemberRepository memberRepository;
 
     @Mock
     private ProductCartRepository mockProductCartRepository;
+    @Mock
+    private SideProductCartRepository mockSideProductCartRepository;
 
     @Mock
     private ProductItemRepository mockProductItemRepository;
+    @Mock
+    private SideProductItemRepository mockSideProductItemRepository;
 
     @Mock
-    private ProductsRepository mockPproductsRepository;
+    private ProductsRepository mockProductRepository;
+    @Mock
+    private SideProductsRepository mockSideProductRepository;
 
     @Mock
     private MemberRepository mockMemberRepository;
@@ -158,6 +178,40 @@ public class CartTest {
             productItemRepository.save(newProductItem);
             System.out.println(requestProduct.getTitle() + " 상품을 카트에 추가하였습니다.");
         }
+    }
+
+    @Autowired
+    private ProductsImgRepository productsImgRepository;
+    @Test
+    @Transactional
+    public void 카트아이템_리스트(){
+        Long memberId = 1L;
+
+        List<ProductItem> productItems = productItemRepository.findByProductCart_Member_memberId(memberId);
+        List<SideProductItem> sideProductItems = sideProductItemRepository.findBySideProductCart_Member_memberId(memberId);
+        // repo 에서 items 를 찾기 > 컬렉션 객체를 스트림으로 처리 > 스트림의 각 요소를 다른 형대로 변환
+        // 컬렉션 객체를 스트림으로 처리
+        // 스트림의 각 요소를 다른 형태의 요소로 변환 > productItem 의 필드를 이용해 CartItemListResponse 객체 생성
+        List<CartItemListResponse> cartItems = Stream.concat(
+                    productItems.stream().map(productItem -> new CartItemListResponse(
+                            productItem.getId(),
+                            productItem.getQuantity(),
+                            productItem.getAddedDate(),
+                            productItem.getProduct().getProductId(),
+                            productItem.getProduct().getTitle(),
+                            "editedImg",
+                            productItem.getProduct().getPrice())),
+                    sideProductItems.stream().map(sideProductItem -> new CartItemListResponse(
+                            sideProductItem.getId(),
+                            sideProductItem.getQuantity(),
+                            sideProductItem.getAddedDate(),
+                            sideProductItem.getSideProduct().getSideProductId(),
+                            sideProductItem.getSideProduct().getTitle(),
+                            "editedImg",
+                            sideProductItem.getSideProduct().getPrice())))
+                .sorted(Comparator.comparing(CartItemListResponse::getAddedDate).reversed())
+                .collect(Collectors.toList());
+        System.out.println("CartItem List 출력 : "+cartItems);
     }
 
 }
