@@ -1,4 +1,4 @@
-package com.example.demo.domain.order.controller;
+package com.example.demo.domain.order.controller.request;
 
 import com.example.demo.domain.order.entity.ProductCart;
 import com.example.demo.domain.order.entity.SideProductCart;
