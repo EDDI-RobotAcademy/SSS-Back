@@ -2,6 +2,7 @@ package com.example.demo.domain.order.service;
 
 import com.example.demo.domain.member.entity.Member;
 import com.example.demo.domain.member.repository.MemberRepository;
+import com.example.demo.domain.order.controller.request.CartItemDeleteRequest;
 import com.example.demo.domain.order.controller.request.CartItemQuantityModifyRequest;
 import com.example.demo.domain.order.controller.request.CartRegisterRequest;
 import com.example.demo.domain.order.controller.response.CartItemListResponse;
@@ -84,6 +85,7 @@ public class CartServiceImpl implements CartService{
         return null;
     }
 
+    @Override
     public void classifyItemCategory(CartRegisterRequest item){
 
         Member member = requireNonNull(checkMember(item.getMemberId()));
@@ -219,6 +221,7 @@ public class CartServiceImpl implements CartService{
         return cartItems;
     }
 
+    @Override
     public void modifyCartItemQuantity(CartItemQuantityModifyRequest itemRequest){
         if (itemRequest.getItemCategoryType() == ItemCategoryType.PRODUCT) {
             ProductItem productItem =
@@ -235,6 +238,20 @@ public class CartServiceImpl implements CartService{
             sideProductItem.setQuantity(itemRequest.getQuantity());
             sideProductItemRepository.save(sideProductItem);
             log.info(sideProductItem.getId()+" 번의 SideProduct Item 의 수량이 변경되었습니다.");
+        }
+    }
+    @Override
+    public void deleteCartItem(CartItemDeleteRequest itemDelete){
+
+        if (itemDelete.getItemCategoryType() == ItemCategoryType.PRODUCT) {
+
+            productItemRepository.deleteById(itemDelete.getItemId());
+            log.info(itemDelete.getItemId()+" 번 product Item 이 삭제되었습니다.");
+
+        } else if (itemDelete.getItemCategoryType() == ItemCategoryType.SIDE) {
+
+            sideProductItemRepository.deleteById(itemDelete.getItemId());
+            log.info(itemDelete.getItemId()+" 번 SideProduct Item 이 삭제되었습니다.");
         }
     }
 

@@ -1,5 +1,6 @@
 package com.example.demo.domain.order.controller;
 
+import com.example.demo.domain.order.controller.request.CartItemDeleteRequest;
 import com.example.demo.domain.order.controller.request.CartItemQuantityModifyRequest;
 import com.example.demo.domain.order.controller.request.CartRegisterRequest;
 import com.example.demo.domain.order.controller.response.CartItemListResponse;
@@ -19,7 +20,7 @@ public class CartController {
     final private CartService cartService;
 
     @PostMapping(value = "/register")
-    public void productRegister (@RequestBody CartRegisterRequest cartItem) {
+    public void CartRegister (@RequestBody CartRegisterRequest cartItem) {
         log.info("cartRegister()");
         cartService.classifyItemCategory(cartItem);
     }
@@ -36,5 +37,11 @@ public class CartController {
         cartService.modifyCartItemQuantity(itemRequest);
     }
 
+    @DeleteMapping("/delete")
+    public void cartItemRemove(@RequestBody CartItemDeleteRequest itemDelete){
+        log.info("cartItemRemove()");
+
+        cartService.deleteCartItem(itemDelete);
+    }
 
 }
