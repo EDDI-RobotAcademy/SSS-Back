@@ -5,8 +5,10 @@ import com.example.demo.domain.products.entity.Product;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
 
 import javax.persistence.*;
+import java.util.Date;
 
 @Entity
 @Getter
@@ -32,6 +34,9 @@ public class ProductItem {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_cart_id")
     private ProductCart productCart;
+
+    @CreationTimestamp
+    private Date addedDate;
 
     public ProductItem(Integer quantity, Product product, ProductCart productCart) {
         this.quantity = quantity;
