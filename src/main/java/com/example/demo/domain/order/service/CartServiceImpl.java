@@ -219,4 +219,23 @@ public class CartServiceImpl implements CartService{
         return cartItems;
     }
 
+    public void modifyCartItemQuantity(CartItemQuantityModifyRequest itemRequest){
+        if (itemRequest.getItemCategoryType() == ItemCategoryType.PRODUCT) {
+            ProductItem productItem =
+                    productItemRepository.findById(itemRequest.getItemId()).get();
+
+            productItem.setQuantity(productItem.getQuantity() + itemRequest.getQuantity());
+            productItemRepository.save(productItem);
+            log.info(productItem.getId()+" 번의 product Item 의 수량이 변경되었습니다.");
+
+        } else if (itemRequest.getItemCategoryType() == ItemCategoryType.SIDE) {
+            SideProductItem sideProductItem =
+                    sideProductItemRepository.findById(itemRequest.getItemId()).get();
+
+            sideProductItem.setQuantity(itemRequest.getQuantity());
+            sideProductItemRepository.save(sideProductItem);
+            log.info(sideProductItem.getId()+" 번의 SideProduct Item 의 수량이 변경되었습니다.");
+        }
+    }
+
 }

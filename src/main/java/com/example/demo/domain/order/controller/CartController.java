@@ -1,5 +1,7 @@
 package com.example.demo.domain.order.controller;
 
+import com.example.demo.domain.order.controller.request.CartItemQuantityModifyRequest;
+import com.example.demo.domain.order.controller.request.CartRegisterRequest;
 import com.example.demo.domain.order.controller.response.CartItemListResponse;
 import com.example.demo.domain.order.service.CartService;
 import lombok.RequiredArgsConstructor;
@@ -26,6 +28,12 @@ public class CartController {
     public List<CartItemListResponse> cartItemList(@PathVariable("memberId") Long memberId) {
         log.info("cartItemList()");
         return cartService.cartItemList(memberId);
+    }
+
+    @PutMapping("/modify")
+    public void cartItemModify(@RequestBody CartItemQuantityModifyRequest itemRequest) {
+        log.info("cartItemModify()");
+        cartService.modifyCartItemQuantity(itemRequest);
     }
 
 
