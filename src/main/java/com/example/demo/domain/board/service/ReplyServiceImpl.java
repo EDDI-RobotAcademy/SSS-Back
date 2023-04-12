@@ -1,10 +1,13 @@
 package com.example.demo.domain.board.service;
 
 import com.example.demo.domain.board.dto.request.ReplyRequest;
+import com.example.demo.domain.board.entity.Board;
 import com.example.demo.domain.board.entity.Reply;
+import com.example.demo.domain.board.repository.BoardRepository;
 import com.example.demo.domain.board.repository.ReplyRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import java.util.List;
@@ -12,45 +15,38 @@ import java.util.Optional;
 
 @Slf4j
 @Service
-@RequiredArgsConstructor
 public class ReplyServiceImpl implements ReplyService {
 
-    final private ReplyRepository replyRepository;
+    @Autowired
+    ReplyRepository replyRepository;
 
-    public Reply register(ReplyRequest replyRequest) {
+    @Autowired
+    BoardRepository boardRepository;
+
+    @Override
+    public void replyRegister(ReplyRequest replyRequest) {
+        Optional<Board> maybeBoard = boardRepository.findById(replyRequest.getBoardId());
+
         Reply reply = new Reply();
-        reply.setReplyId(replyRequest.getReplyId());
+        reply.setBoard(maybeBoard.get());
+        reply.setReplyWriter(replyRequest.getReplyWriter());
         reply.setReplyContent(replyRequest.getReplyContent());
 
         replyRepository.save(reply);
-
-        return reply;
     }
 
     @Override
-    public List<Reply> list() {
-        return replyRepository.findAll(Sort.by(Sort.Direction.DESC, "replyId"));
+    public List<Reply> replyList(Long boardId) {
+        return replyRepository.findAll(boardId);
     }
 
     @Override
-    public Reply read(Long replyId) {
-        Optional<Reply> maybeReply = replyRepository.findById(replyId);
-
-        if (maybeReply.isEmpty()) {
-            log.info("읽을 수 없습니다!");
-            return null;
-        }
-
-        return maybeReply.get();
-    }
-
-    @Override
-    public void remove(Long replyId) {
+    public void replyRemove(Long replyId) {
         replyRepository.deleteById(replyId);
     }
 
     @Override
-    public Reply modify(Long replyId, ReplyRequest replyRequest) {
+    public Reply replyModify(Long replyId, ReplyRequest replyRequest) {
         Optional<Reply> maybeReply = replyRepository.findById(replyId);
 
         if (maybeReply.isEmpty()) {
@@ -67,21 +63,10 @@ public class ReplyServiceImpl implements ReplyService {
         return reply;
     }
 
-
-/*
-    @Override
-    public List<reply> bigMisstake(Long replyId, replyRequest replyRequest) {
-        return replyRepository.findByreplyIdAndWriter(replyId, replyRequest.getWriter());
-    }
-*/
     @Override
     public Long getCount() {
         return replyRepository.countBy();
     }
 
-    @Override
-    public Long getLastEntityId() {
-        Reply reply = replyRepository.findFirstByOrderByReplyIdDesc();
-        return reply.getReplyId();
-    }
+
 }

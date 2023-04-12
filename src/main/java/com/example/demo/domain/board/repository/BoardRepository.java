@@ -7,11 +7,7 @@ import java.util.List;
 
 public interface BoardRepository extends JpaRepository<Board, Long> {
 
-    List<Board> findByBoardIdAndWriter(Long boardId, String writer);
-
     Long countBy();
-
-    Board findBoardByBoardId(Long boardId);
 
     Board findFirstByOrderByBoardIdDesc();
 }
