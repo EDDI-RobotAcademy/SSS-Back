@@ -214,4 +214,19 @@ public class CartTest {
         System.out.println("CartItem List 출력 : "+cartItems);
     }
 
+    @Test
+    void modifyCartItemQuantity(){
+        CartItemQuantityModifyRequest itemRequest =
+                new CartItemQuantityModifyRequest(2L, -1, ItemCategoryType.PRODUCT);
+
+        if (itemRequest.getItemCategoryType() == ItemCategoryType.PRODUCT) {
+            ProductItem productItem =
+                    productItemRepository.findById(itemRequest.getItemId()).get();
+
+            productItem.setQuantity(productItem.getQuantity() + itemRequest.getQuantity());
+            productItemRepository.save(productItem);
+            System.out.println((productItem.getId()+" 번의 product Item 의 수량이 변경되었습니다."));
+        }
+    }
+
 }
