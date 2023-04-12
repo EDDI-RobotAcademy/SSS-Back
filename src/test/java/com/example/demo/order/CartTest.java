@@ -3,6 +3,7 @@ package com.example.demo.order;
 import com.example.demo.domain.member.entity.Member;
 import com.example.demo.domain.member.repository.MemberRepository;
 import com.example.demo.domain.order.controller.CartRegisterRequest;
+import com.example.demo.domain.order.controller.response.CartItemListResponse;
 import com.example.demo.domain.order.entity.ProductCart;
 import com.example.demo.domain.order.entity.items.ItemCategoryType;
 import com.example.demo.domain.order.entity.items.ProductItem;
@@ -17,8 +18,12 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Comparator;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static java.util.Objects.requireNonNull;
 
@@ -109,9 +114,11 @@ public class CartTest {
 
             if(memberCart.isEmpty()){
                 새료운_카트생성(member, item, requestProduct);
+            }else{
+                System.out.println(member.getNickname()+" 님의 product 카트는 이미 생성되어 있습니다.");
+                기존카트_아이템_추가(memberCart.get(), item, requestProduct);
             }
-            System.out.println(member.getNickname()+" 님의 product 카트는 이미 생성되어 있습니다.");
-            기존카트_아이템_추가(memberCart.get(), item, requestProduct);
+
         }
 
     }
@@ -132,9 +139,9 @@ public class CartTest {
     @Test
     private void 기존카트_아이템_추가(ProductCart memberCart, CartRegisterRequest item, Product requestProduct) {
 
-        // 회원의 카트와 상품의 아이디로 product item 찾기
+        // 회원의 카트에서 상품의 아이디와 일치하는 product item 찾기
         Optional<ProductItem> maybeProductItem =
-                productItemRepository.findByProduct_productIdAndProductCart_Id(memberCart.getId(), item.getItemId());
+                productItemRepository.findByProduct_productIdAndProductCart_Id(item.getItemId(),memberCart.getId());
 
         // product item 있다 = 카트에 해당 item 있다. = 수량 추가
         if (maybeProductItem.isPresent()) {
