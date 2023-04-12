@@ -21,9 +21,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static java.util.Objects.requireNonNull;
 
@@ -174,6 +176,33 @@ public class CartServiceImpl implements CartService{
             sideProductItemRepository.save(newProductItem);
             log.info(requestProduct.getTitle() + " 상품을 sideProduct 카트에 추가하였습니다.");
         }
+    }
+    public List<CartItemListResponse> cartItemList(Long memberId){
+
+        List<ProductItem> productItems = productItemRepository.findByProductCart_Member_memberId(memberId);
+        List<SideProductItem> sideProductItems = sideProductItemRepository.findBySideProductCart_Member_memberId(memberId);
+
+        List<CartItemListResponse> cartItems = Stream.concat(
+                productItems.stream().map(productItem -> new CartItemListResponse(
+                        productItem.getId(),
+                        productItem.getQuantity(),
+                        productItem.getAddedDate(),
+                        productItem.getProduct().getProductId(),
+                        productItem.getProduct().getTitle(),
+                        productItem.getProduct().getProductImgs().get(0).getEditedImg(),
+                        productItem.getProduct().getPrice())),
+                sideProductItems.stream().map(sideProductItem -> new CartItemListResponse(
+                        sideProductItem.getId(),
+                        sideProductItem.getQuantity(),
+                        sideProductItem.getAddedDate(),
+                        sideProductItem.getSideProduct().getSideProductId(),
+                        sideProductItem.getSideProduct().getTitle(),
+                        sideProductItem.getSideProduct().getSideProductImg().getEditedImg(),
+                        sideProductItem.getSideProduct().getPrice())))
+            .sorted(Comparator.comparing(CartItemListResponse::getAddedDate).reversed())
+            .collect(Collectors.toList());
+
+        return cartItems;
     }
 
 }
