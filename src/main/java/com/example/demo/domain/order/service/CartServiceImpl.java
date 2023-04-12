@@ -19,11 +19,8 @@ import com.example.demo.domain.sideProducts.entity.SideProduct;
 import com.example.demo.domain.sideProducts.repository.SideProductsRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -90,114 +87,93 @@ public class CartServiceImpl implements CartService{
         Product requestProduct = requireNonNull(checkProduct(item.getItemId()));
         SideProduct requestSideProduct = requireNonNull(checkSideProduct(item.getItemId()));
 
-        Optional<ProductCart> memberProductCart =
+        Optional<ProductCart> myProductCart =
                 productCartRepository.findByMember_memberId(member.getMemberId());
-        Optional<SideProductCart> memberSideProductCart =
+        Optional<SideProductCart> mySideProductCart =
                 sideProductCartRepository.findByMember_memberId(member.getMemberId());
 
         if (item.getItemCategoryType() == ItemCategoryType.PRODUCT) {
-            if(memberProductCart.isEmpty()){
+            if(myProductCart.isEmpty()){
                 CreateProductCart(member, item, requestProduct);
+            }else{
+                log.info(member.getNickname()+" 님의 product 카트는 이미 생성되어 있습니다.");
+                AddProductItem(myProductCart.get(), item, requestProduct);
             }
-            log.info(member.getNickname()+" 님의 product 카트는 이미 생성되어 있습니다.");
-            AddProductItem(memberProductCart.get(), item, requestProduct);
-
         } else if (item.getItemCategoryType() == ItemCategoryType.SIDE) {
-            if(memberSideProductCart.isEmpty()){
+            if(mySideProductCart.isEmpty()){
                 CreateSideProductCart(member, item, requestSideProduct);
+            }else{
+                log.info(member.getNickname()+" 님의 sideProduct 카트는 이미 생성되어 있습니다.");
+                AddSideProductItem(mySideProductCart.get(), item, requestSideProduct);
             }
-            log.info(member.getNickname()+" 님의 sideProduct 카트는 이미 생성되어 있습니다.");
-            AddSideProductItem(memberSideProductCart.get(), item, requestSideProduct);
+
         }
     }
 
-    private void CreateProductCart(Member member, CartRegisterRequest item, Product requestProduct ){
+    private void CreateProductCart(Member member, CartRegisterRequest cartItem, Product requestProduct ){
 
         ProductCart firstCart = ProductCart.builder().member(member).build();
 
         productCartRepository.save(firstCart);
         log.info(member.getNickname()+" 님의 product 카트를 생성하였습니다.");
 
-        ProductItem newProductItem = item.toProductItem(requestProduct, firstCart);
+        ProductItem newProductItem = cartItem.toProductItem(requestProduct, firstCart);
         productItemRepository.save(newProductItem);
 
         log.info(member.getNickname()+" 님의 product 카트에 첫 상품을 추가하였습니다.");
     }
 
-    private void AddProductItem(ProductCart memberCart, CartRegisterRequest item, Product requestProduct){
+    private void AddProductItem(ProductCart myCart, CartRegisterRequest cartItem, Product requestProduct){
 
         Optional<ProductItem> maybeProductItem =
-                productItemRepository.findByProduct_productIdAndProductCart_Id(memberCart.getId(), item.getItemId());
+                productItemRepository.findByProduct_productIdAndProductCart_Id(cartItem.getItemId(),myCart.getId());
 
         if (maybeProductItem.isPresent()) {
             ProductItem productItem = maybeProductItem.get();
 
-            productItem.setQuantity(productItem.getQuantity() + item.getQuantity());
+            productItem.setQuantity(productItem.getQuantity() + cartItem.getQuantity());
             productItemRepository.save(productItem);
             log.info(requestProduct.getTitle() + " 상품의 수량을 카트에 추가하였습니다.");
 
         } else {
-            ProductItem newProductItem = item.toProductItem(requestProduct, memberCart);
+            ProductItem newProductItem = cartItem.toProductItem(requestProduct, myCart);
 
             productItemRepository.save(newProductItem);
             log.info(requestProduct.getTitle() + " 상품을 카트에 추가하였습니다.");
         }
     }
 
-    private void CreateSideProductCart(Member member, CartRegisterRequest item, SideProduct requestProduct ){
+    private void CreateSideProductCart(Member member, CartRegisterRequest cartItem, SideProduct requestProduct ){
 
         SideProductCart firstCart = SideProductCart.builder().member(member).build();
 
         sideProductCartRepository.save(firstCart);
         log.info(member.getNickname()+" 님의 sideProduct 카트를 생성하였습니다.");
 
-        SideProductItem newSideProductItem = item.toSideProductItem(requestProduct, firstCart);
+        SideProductItem newSideProductItem = cartItem.toSideProductItem(requestProduct, firstCart);
         sideProductItemRepository.save(newSideProductItem);
 
         log.info(member.getNickname()+" 님의 sideProduct 카트에 첫 상품을 추가하였습니다.");
     }
 
-    private void AddSideProductItem(SideProductCart memberCart, CartRegisterRequest item, SideProduct requestProduct){
+    private void AddSideProductItem(SideProductCart myCart, CartRegisterRequest cartItem, SideProduct requestProduct){
 
         Optional<SideProductItem> maybeSideProductItem =
-                sideProductItemRepository.findBySideProduct_sideProductIdAndSideProductCart_Id(memberCart.getId(), item.getItemId());
+                sideProductItemRepository.findBySideProduct_sideProductIdAndSideProductCart_Id(cartItem.getItemId(),myCart.getId());
 
         if (maybeSideProductItem.isPresent()) {
             SideProductItem sideProductItem = maybeSideProductItem.get();
 
-            sideProductItem.setQuantity(sideProductItem.getQuantity() + item.getQuantity());
+            sideProductItem.setQuantity(sideProductItem.getQuantity() + cartItem.getQuantity());
             sideProductItemRepository.save(sideProductItem);
             log.info(requestProduct.getTitle() + " 상품의 수량을 sideProduct 카트에 추가하였습니다.");
 
         } else {
-            SideProductItem newProductItem = item.toSideProductItem(requestProduct, memberCart);
+            SideProductItem newProductItem = cartItem.toSideProductItem(requestProduct, myCart);
 
             sideProductItemRepository.save(newProductItem);
             log.info(requestProduct.getTitle() + " 상품을 sideProduct 카트에 추가하였습니다.");
         }
-    }
-
-    public List<CartItemListResponse> cartItemList(Long memberId){
-    // repo 에서 items 를 찾기 > 컬렉션 객체를 스트림으로 처리 > 스트림의 각 요소를 다른 형대로 변환
-        List<CartItemListResponse> cartItems =
-            productItemRepository.findByProductCart_Member_memberId(memberId)
-                // 컬렉션 객체를 스트림으로 처리
-                .stream()
-                // 스트림의 각 요소를 다른 형태의 요소로 변환 > productItem 의 필드를 이용해 CartItemListResponse 객체 생성
-                .map(productItem -> new CartItemListResponse(productItem.getId(), productItem.getQuantity()))
-                .collect(Collectors.toList());
-
-        cartItems.addAll(
-            sideProductItemRepository.findBySideProductCart_Member_memberId(memberId)
-                .stream()
-                .map(sideProductItem -> new CartItemListResponse(sideProductItem.getId(), sideProductItem.getQuantity()))
-                .collect(Collectors.toList()));
-
-        return cartItems;
-    }
-
-    private void changeCartItemQuantity(){
-
     }
 
 }
