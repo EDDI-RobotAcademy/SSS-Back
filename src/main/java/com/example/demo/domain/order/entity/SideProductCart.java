@@ -1,7 +1,7 @@
 package com.example.demo.domain.order.entity;
 
 import com.example.demo.domain.member.entity.Member;
-import com.example.demo.domain.order.entity.items.ProductItem;
+import com.example.demo.domain.order.entity.items.SideProductItem;
 import lombok.*;
 
 import javax.persistence.*;
@@ -13,31 +13,22 @@ import java.util.List;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Builder
 @AllArgsConstructor
-public class ProductCart {
+public class SideProductCart {
     /**
      * Order : 주문 테이블
      *
-     * productItem : 완제품 메뉴 (수량포함)
+     * sideProductItem : 사이드 메뉴 (수량포함)
      * member : 로그인한 사용자
      */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToMany(mappedBy = "productCart",fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
-    private List<ProductItem> productItemList;
+    @OneToMany(mappedBy = "sideProductCart",fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
+    private List<SideProductItem> sideProductItemList;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
     private Member member;
 
 }
-
-/**
-
- *     item : Many / Member : One
- 1)       고구마 5       ㄱ
- 2)       단호박 4       ㄱ
- 3)       단호박 12      ㄱ
-
- */

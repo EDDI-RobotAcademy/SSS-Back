@@ -1,9 +1,12 @@
-package com.example.demo.domain.order.controller;
+package com.example.demo.domain.order.controller.request;
 
 import com.example.demo.domain.order.entity.ProductCart;
-import com.example.demo.domain.order.entity.items.ProductItem;
+import com.example.demo.domain.order.entity.SideProductCart;
 import com.example.demo.domain.order.entity.items.ItemCategoryType;
+import com.example.demo.domain.order.entity.items.ProductItem;
+import com.example.demo.domain.order.entity.items.SideProductItem;
 import com.example.demo.domain.products.entity.Product;
+import com.example.demo.domain.sideProducts.entity.SideProduct;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -34,6 +37,11 @@ public class CartRegisterRequest {
     public ProductItem toProductItem(Product product, ProductCart productCart){
         return new ProductItem(
                 quantity, product, productCart
+        );
+    }
+    public SideProductItem toSideProductItem(SideProduct sideproduct, SideProductCart sideProductCart){
+        return new SideProductItem(
+                quantity, sideproduct, sideProductCart
         );
     }
 }

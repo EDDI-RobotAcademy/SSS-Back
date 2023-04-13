@@ -2,14 +2,24 @@ package com.example.demo.order;
 
 import com.example.demo.domain.member.entity.Member;
 import com.example.demo.domain.member.repository.MemberRepository;
-import com.example.demo.domain.order.controller.CartRegisterRequest;
+import com.example.demo.domain.order.controller.request.CartItemDeleteRequest;
+import com.example.demo.domain.order.controller.request.CartItemQuantityModifyRequest;
+import com.example.demo.domain.order.controller.request.CartRegisterRequest;
+import com.example.demo.domain.order.controller.response.CartItemListResponse;
 import com.example.demo.domain.order.entity.ProductCart;
 import com.example.demo.domain.order.entity.items.ItemCategoryType;
 import com.example.demo.domain.order.entity.items.ProductItem;
+import com.example.demo.domain.order.entity.items.SideProductItem;
 import com.example.demo.domain.order.repository.ProductCartRepository;
 import com.example.demo.domain.order.repository.ProductItemRepository;
+import com.example.demo.domain.order.repository.SideProductCartRepository;
+import com.example.demo.domain.order.repository.SideProductItemRepository;
 import com.example.demo.domain.products.entity.Product;
+import com.example.demo.domain.products.repository.ProductsImgRepository;
 import com.example.demo.domain.products.repository.ProductsRepository;
+import com.example.demo.domain.sideProducts.entity.SideProduct;
+import com.example.demo.domain.sideProducts.entity.SideProductImg;
+import com.example.demo.domain.sideProducts.repository.SideProductsRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -17,8 +27,13 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Comparator;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static java.util.Objects.requireNonNull;
 
@@ -27,24 +42,36 @@ import static java.util.Objects.requireNonNull;
 public class CartTest {
     @Autowired
     private ProductCartRepository productCartRepository;
+    @Autowired
+    private SideProductCartRepository sideProductCartRepository;
 
     @Autowired
     private ProductItemRepository productItemRepository;
+    @Autowired
+    private SideProductItemRepository sideProductItemRepository;
 
     @Autowired
     private ProductsRepository productsRepository;
+    @Autowired
+    private SideProductsRepository sideProductsRepository;
 
     @Autowired
     private MemberRepository memberRepository;
 
     @Mock
     private ProductCartRepository mockProductCartRepository;
+    @Mock
+    private SideProductCartRepository mockSideProductCartRepository;
 
     @Mock
     private ProductItemRepository mockProductItemRepository;
+    @Mock
+    private SideProductItemRepository mockSideProductItemRepository;
 
     @Mock
-    private ProductsRepository mockPproductsRepository;
+    private ProductsRepository mockProductRepository;
+    @Mock
+    private SideProductsRepository mockSideProductRepository;
 
     @Mock
     private MemberRepository mockMemberRepository;
@@ -109,9 +136,11 @@ public class CartTest {
 
             if(memberCart.isEmpty()){
                 새료운_카트생성(member, item, requestProduct);
+            }else{
+                System.out.println(member.getNickname()+" 님의 product 카트는 이미 생성되어 있습니다.");
+                기존카트_아이템_추가(memberCart.get(), item, requestProduct);
             }
-            System.out.println(member.getNickname()+" 님의 product 카트는 이미 생성되어 있습니다.");
-            기존카트_아이템_추가(memberCart.get(), item, requestProduct);
+
         }
 
     }
@@ -132,9 +161,9 @@ public class CartTest {
     @Test
     private void 기존카트_아이템_추가(ProductCart memberCart, CartRegisterRequest item, Product requestProduct) {
 
-        // 회원의 카트와 상품의 아이디로 product item 찾기
+        // 회원의 카트에서 상품의 아이디와 일치하는 product item 찾기
         Optional<ProductItem> maybeProductItem =
-                productItemRepository.findByProduct_productIdAndProductCart_Id(memberCart.getId(), item.getItemId());
+                productItemRepository.findByProduct_productIdAndProductCart_Id(item.getItemId(),memberCart.getId());
 
         // product item 있다 = 카트에 해당 item 있다. = 수량 추가
         if (maybeProductItem.isPresent()) {
@@ -150,6 +179,71 @@ public class CartTest {
 
             productItemRepository.save(newProductItem);
             System.out.println(requestProduct.getTitle() + " 상품을 카트에 추가하였습니다.");
+        }
+    }
+
+    @Autowired
+    private ProductsImgRepository productsImgRepository;
+    @Test
+    @Transactional
+    public void 카트아이템_리스트(){
+        Long memberId = 1L;
+
+        List<ProductItem> productItems = productItemRepository.findByProductCart_Member_memberId(memberId);
+        List<SideProductItem> sideProductItems = sideProductItemRepository.findBySideProductCart_Member_memberId(memberId);
+        // repo 에서 items 를 찾기 > 컬렉션 객체를 스트림으로 처리 > 스트림의 각 요소를 다른 형대로 변환
+        // 컬렉션 객체를 스트림으로 처리
+        // 스트림의 각 요소를 다른 형태의 요소로 변환 > productItem 의 필드를 이용해 CartItemListResponse 객체 생성
+        List<CartItemListResponse> cartItems = Stream.concat(
+                    productItems.stream().map(productItem -> new CartItemListResponse(
+                            productItem.getId(),
+                            productItem.getQuantity(),
+                            productItem.getAddedDate(),
+                            productItem.getProduct().getProductId(),
+                            productItem.getProduct().getTitle(),
+                            "editedImg",
+                            productItem.getProduct().getPrice())),
+                    sideProductItems.stream().map(sideProductItem -> new CartItemListResponse(
+                            sideProductItem.getId(),
+                            sideProductItem.getQuantity(),
+                            sideProductItem.getAddedDate(),
+                            sideProductItem.getSideProduct().getSideProductId(),
+                            sideProductItem.getSideProduct().getTitle(),
+                            "editedImg",
+                            sideProductItem.getSideProduct().getPrice())))
+                .sorted(Comparator.comparing(CartItemListResponse::getAddedDate).reversed())
+                .collect(Collectors.toList());
+        System.out.println("CartItem List 출력 : "+cartItems);
+    }
+
+    @Test
+    void modifyCartItemQuantity(){
+        CartItemQuantityModifyRequest itemRequest =
+                new CartItemQuantityModifyRequest(2L, -1, ItemCategoryType.PRODUCT);
+
+        if (itemRequest.getItemCategoryType() == ItemCategoryType.PRODUCT) {
+            ProductItem productItem =
+                    productItemRepository.findById(itemRequest.getItemId()).get();
+
+            productItem.setQuantity(productItem.getQuantity() + itemRequest.getQuantity());
+            productItemRepository.save(productItem);
+            System.out.println((productItem.getId()+" 번의 product Item 의 수량이 변경되었습니다."));
+        }
+    }
+
+    @Test
+    void deleteCartItem(){
+        CartItemDeleteRequest itemDelete =
+                new CartItemDeleteRequest(3L, ItemCategoryType.PRODUCT);
+        if (itemDelete.getItemCategoryType() == ItemCategoryType.PRODUCT) {
+
+            productItemRepository.deleteById(itemDelete.getItemId());
+            System.out.println((itemDelete.getItemId()+" 번 product Item 이 삭제되었습니다."));
+
+        } else if (itemDelete.getItemCategoryType() == ItemCategoryType.SIDE) {
+
+            sideProductItemRepository.deleteById(itemDelete.getItemId());
+            System.out.println((itemDelete.getItemId()+" 번 SideProduct Item 이 삭제되었습니다."));
         }
     }
 
