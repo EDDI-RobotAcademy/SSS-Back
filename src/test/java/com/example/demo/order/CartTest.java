@@ -5,18 +5,20 @@ import com.example.demo.domain.member.repository.MemberRepository;
 import com.example.demo.domain.order.controller.request.CartItemDeleteRequest;
 import com.example.demo.domain.order.controller.request.CartItemQuantityModifyRequest;
 import com.example.demo.domain.order.controller.request.CartRegisterRequest;
+import com.example.demo.domain.order.controller.request.SelfSaladCartRegisterForm;
 import com.example.demo.domain.order.controller.response.CartItemListResponse;
 import com.example.demo.domain.order.entity.ProductCart;
-import com.example.demo.domain.order.entity.items.ItemCategoryType;
-import com.example.demo.domain.order.entity.items.ProductItem;
-import com.example.demo.domain.order.entity.items.SideProductItem;
-import com.example.demo.domain.order.repository.ProductCartRepository;
-import com.example.demo.domain.order.repository.ProductItemRepository;
-import com.example.demo.domain.order.repository.SideProductCartRepository;
-import com.example.demo.domain.order.repository.SideProductItemRepository;
+import com.example.demo.domain.order.entity.SelfSaladCart;
+import com.example.demo.domain.order.entity.items.*;
+import com.example.demo.domain.order.repository.*;
+import com.example.demo.domain.order.service.request.SelfSaladRequest;
 import com.example.demo.domain.products.entity.Product;
-import com.example.demo.domain.products.repository.ProductsImgRepository;
 import com.example.demo.domain.products.repository.ProductsRepository;
+import com.example.demo.domain.selfSalad.entity.*;
+import com.example.demo.domain.selfSalad.repository.AmountRepository;
+import com.example.demo.domain.selfSalad.repository.IngredientRepository;
+import com.example.demo.domain.selfSalad.repository.SelfSaladIngredientRepository;
+import com.example.demo.domain.selfSalad.repository.SelfSaladRepository;
 import com.example.demo.domain.sideProducts.entity.SideProduct;
 import com.example.demo.domain.sideProducts.entity.SideProductImg;
 import com.example.demo.domain.sideProducts.repository.SideProductsRepository;
@@ -29,9 +31,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -44,16 +44,28 @@ public class CartTest {
     private ProductCartRepository productCartRepository;
     @Autowired
     private SideProductCartRepository sideProductCartRepository;
+    @Autowired
+    private SelfSaladCartRepository selfSaladCartRepository;
 
     @Autowired
     private ProductItemRepository productItemRepository;
     @Autowired
     private SideProductItemRepository sideProductItemRepository;
+    @Autowired
+    private SelfSaladItemRepository selfSaladItemRepository;
 
     @Autowired
     private ProductsRepository productsRepository;
     @Autowired
     private SideProductsRepository sideProductsRepository;
+    @Autowired
+    private IngredientRepository ingredientRepository;
+    @Autowired
+    private AmountRepository amountRepository;
+    @Autowired
+    private SelfSaladIngredientRepository selfSaladIngredientRepository;
+    @Autowired
+    private SelfSaladRepository selfSaladRepository;
 
     @Autowired
     private MemberRepository memberRepository;
@@ -182,8 +194,6 @@ public class CartTest {
         }
     }
 
-    @Autowired
-    private ProductsImgRepository productsImgRepository;
     @Test
     @Transactional
     public void 카트아이템_리스트(){
@@ -245,6 +255,93 @@ public class CartTest {
             sideProductItemRepository.deleteById(itemDelete.getItemId());
             System.out.println((itemDelete.getItemId()+" 번 SideProduct Item 이 삭제되었습니다."));
         }
+    }
+
+    @Test
+    void 셀프샐러드_카트등록(){
+
+        List<SelfSaladRequest> saladRequest = new ArrayList<>();
+            saladRequest.add(new SelfSaladRequest(1L, 1000L, AmountType.GRAM));
+            //saladRequest.add(new SelfSaladRequest(3L, 200L, AmountType.GRAM));
+
+        SelfSaladCartRegisterForm reqForm = new SelfSaladCartRegisterForm(
+              "창주샐러드", 3, 10000L, 360L, 1L,saladRequest
+        );
+        Member member = requireNonNull(멤버_아이디_확인(reqForm.getMemberId()));
+        Map<Long, Ingredient> ingredientMap = requireNonNull(재료아이디_확인(reqForm));
+
+        Optional<SelfSaladCart> mySelfSaladCart =
+                selfSaladCartRepository.findByMember_memberId(member.getMemberId());
+
+        if(mySelfSaladCart.isEmpty()){
+            SelfSaladCart firstCart = 셀프샐러드_카트생성(member);
+            셀프샐러드_아이템_추가(firstCart, reqForm, ingredientMap);
+        }else{
+            System.out.println((member.getNickname()+" 님의 SelfSalad 카트는 이미 생성되어 있습니다."));
+
+            셀프샐러드_아이템_추가(mySelfSaladCart.get(), reqForm, ingredientMap);
+            System.out.println((member.getNickname()+" 님의 SelfSalad 카트에 상품을 추가하였습니다."));
+        }
+    }
+    @Test
+    private Map<Long, Ingredient> 재료아이디_확인(SelfSaladCartRegisterForm requestForm){
+
+        List<Long> ingredientIds = new ArrayList<>();
+        for(SelfSaladRequest ingredient : requestForm.getSelfSaladRequestList()){
+
+            ingredientIds.add(ingredient.getIngredientId());
+        }
+        Optional <List<Ingredient>> maybeIngredients =
+                ingredientRepository.findByIdIn(ingredientIds);
+
+        if(maybeIngredients.isPresent()){
+            System.out.println(("Ingredients "+ingredientIds+" 번의 재료들이 존재합니다."));
+
+            Map<Long, Ingredient> ingredientMap = new HashMap<>();
+
+            for (Ingredient ingredient : maybeIngredients.get()) {
+                ingredientMap.put(ingredient.getId(), ingredient);
+            }
+            return ingredientMap;
+        }
+        return null;
+    }
+
+    @Test
+    private SelfSaladCart 셀프샐러드_카트생성(Member member){
+        SelfSaladCart firstCart = SelfSaladCart.builder()
+                .member(member)
+                .build();
+        selfSaladCartRepository.save(firstCart);
+        System.out.println((member.getNickname()+" 님의 SelfSalad 카트를 생성하였습니다."));
+        return firstCart;
+    }
+
+    @Test
+    private void 셀프샐러드_아이템_추가(SelfSaladCart myCart, SelfSaladCartRegisterForm reqForm,
+                                  Map<Long, Ingredient> ingredientMap){
+        // SelfSalad 저장
+        SelfSalad selfSalad = reqForm.toSelfSalad();
+        System.out.println("샐러드 출력 가즈아!"+ selfSalad);
+        selfSaladRepository.save(selfSalad);
+
+        // SelfSaladIngredient 저장
+        List<SelfSaladIngredient> saladIngredients = new ArrayList<>();
+        //List<Amount> amounts = new ArrayList<>();
+
+        for (SelfSaladRequest request : reqForm.getSelfSaladRequestList()) {
+            Amount amount =
+                    amountRepository.findByAmountType(request.getAmountType()).get();
+            Ingredient ingredient =
+                    ingredientMap.get(request.getIngredientId());
+
+            saladIngredients.add( request.toSelfSaladIngredient( selfSalad,ingredient, amount) );
+        }
+        selfSaladIngredientRepository.saveAll(saladIngredients);
+
+        // SelfSalad Item
+        SelfSaladItem newSelfSaladitem = reqForm.toSelfSaladItem(myCart, selfSalad);
+        selfSaladItemRepository.save(newSelfSaladitem);
     }
 
 }
