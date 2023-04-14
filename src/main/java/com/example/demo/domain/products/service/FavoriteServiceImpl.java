@@ -7,11 +7,11 @@ import com.example.demo.domain.products.entity.Product;
 import com.example.demo.domain.products.repository.FavoriteRepository;
 import com.example.demo.domain.products.repository.ProductsRepository;
 import com.example.demo.domain.products.service.request.FavoriteInfoRequest;
+import com.example.demo.domain.security.service.RedisService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import javax.swing.text.html.Option;
 import java.util.List;
 import java.util.Optional;
 
@@ -23,6 +23,7 @@ public class FavoriteServiceImpl implements FavoriteService {
     final private FavoriteRepository favoriteRepository;
     final private ProductsRepository productsRepository;
     final private MemberRepository memberRepository;
+    final private RedisService redisService;
 
     public Boolean changeLike(FavoriteInfoRequest request) {
         Optional<Member> maybeMember = memberRepository.findById(request.getMemberId());
@@ -36,12 +37,12 @@ public class FavoriteServiceImpl implements FavoriteService {
                 Boolean isLike = maybeFavorite.get().isLike();
 
                 if(isLike) {
-                    log.info("찜한상태");
+                    log.info("찜O->찜X");
                     maybeFavorite.get().setIsLike(false);
                     favoriteRepository.save(maybeFavorite.get());
                     return false;
                 } else {
-                    log.info("찜안한상태");
+                    log.info("찜X->찜O");
                     maybeFavorite.get().setIsLike(true);
                     favoriteRepository.save(maybeFavorite.get());
                     return true;
