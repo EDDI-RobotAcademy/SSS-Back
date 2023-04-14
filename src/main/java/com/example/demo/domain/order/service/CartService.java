@@ -8,7 +8,7 @@ import com.example.demo.domain.order.controller.response.CartItemListResponse;
 import java.util.List;
 
 public interface CartService {
-    void classifyItemCategory(CartRegisterRequest item);
+    Integer classifyItemCategory(CartRegisterRequest item);
 
     List<CartItemListResponse> cartItemList(Long memberId);
 
