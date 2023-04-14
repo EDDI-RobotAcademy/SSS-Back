@@ -258,6 +258,25 @@ public class CartTest {
     }
 
     @Test
+    void 셀프샐러드_카트_제한(){
+
+        //Member member = requireNonNull(멤버_아이디_확인(1L));
+        Optional<SelfSaladCart> mySelfSaladCart =
+                selfSaladCartRepository.findByMember_memberId(1L);
+
+        if(mySelfSaladCart.isPresent()){
+            Integer selfSaladItemCount =
+                    selfSaladItemRepository.countBySelfSaladCart_id(mySelfSaladCart.get().getId());
+
+            if(selfSaladItemCount == CartItemLimit.SELF_SALAD.getMaxCount()){
+                System.out.println(("SelfSalad 카트가 꽉 찼습니다."));;
+            }else{
+                System.out.println(("SelfSalad 카트 공간이 남았습니다."));;
+            }
+        }
+    }
+
+    @Test
     void 셀프샐러드_카트등록(){
 
         List<SelfSaladRequest> saladRequest = new ArrayList<>();
