@@ -31,7 +31,7 @@ public class SelfSalad {
     @Column
     private Long totalCalorie;
 
-    
+
     public SelfSalad(String title, Long totalPrice, Long totalCalorie) {
         this.title = title;
         this.totalPrice = totalPrice;

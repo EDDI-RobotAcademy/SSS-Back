@@ -26,6 +26,11 @@ public class CartController {
         return cartService.classifyItemCategory(cartItem);
     }
 
+    @PostMapping(value = "/selfsalad/limit")
+    public Integer selfSaladCartCount (@PathVariable("memberId") Long memberId) {
+        log.info("checkSelfSaladCartCount()");
+        return cartService.checkSelfSaladCartLimit(memberId);
+    }
     @PostMapping(value = "/selfsalad/register")
     public void SelfSaladCartRegister (@RequestBody SelfSaladCartRegisterForm selfSaladItem) {
         log.info("cartRegister()");

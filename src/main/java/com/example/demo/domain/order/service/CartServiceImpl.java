@@ -280,6 +280,26 @@ public class CartServiceImpl implements CartService{
     }
 
 
+    @Override
+    public Integer checkSelfSaladCartLimit(Long memberId){
+
+        Member member = requireNonNull(checkMember(memberId));
+
+        Optional<SelfSaladCart> mySelfSaladCart =
+                selfSaladCartRepository.findByMember_memberId(member.getMemberId());
+
+        if(mySelfSaladCart.isPresent()){
+            Integer selfSaladItemCount =
+                    selfSaladItemRepository.countBySelfSaladCart_id(mySelfSaladCart.get().getId());
+
+            if(selfSaladItemCount == CartItemLimit.SELF_SALAD.getMaxCount()){
+                log.info("SelfSalad 카트가 꽉 찼습니다.");
+                return 1;
+            }
+        }
+        return 0;
+    }
+
     private Map<Long, Ingredient> checkIngredients(SelfSaladCartRegisterForm requestForm ){
 
         List<Long> ingredientIds = new ArrayList<>();
