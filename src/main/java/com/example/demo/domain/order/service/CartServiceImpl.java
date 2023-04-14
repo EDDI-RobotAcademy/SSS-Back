@@ -5,27 +5,31 @@ import com.example.demo.domain.member.repository.MemberRepository;
 import com.example.demo.domain.order.controller.request.CartItemDeleteRequest;
 import com.example.demo.domain.order.controller.request.CartItemQuantityModifyRequest;
 import com.example.demo.domain.order.controller.request.CartRegisterRequest;
+import com.example.demo.domain.order.controller.request.SelfSaladCartRegisterForm;
 import com.example.demo.domain.order.controller.response.CartItemListResponse;
 import com.example.demo.domain.order.entity.ProductCart;
+import com.example.demo.domain.order.entity.SelfSaladCart;
 import com.example.demo.domain.order.entity.SideProductCart;
-import com.example.demo.domain.order.entity.items.ItemCategoryType;
-import com.example.demo.domain.order.entity.items.ProductItem;
-import com.example.demo.domain.order.entity.items.SideProductItem;
-import com.example.demo.domain.order.repository.ProductCartRepository;
-import com.example.demo.domain.order.repository.ProductItemRepository;
-import com.example.demo.domain.order.repository.SideProductCartRepository;
-import com.example.demo.domain.order.repository.SideProductItemRepository;
+import com.example.demo.domain.order.entity.items.*;
+import com.example.demo.domain.order.repository.*;
+import com.example.demo.domain.order.service.request.SelfSaladRequest;
 import com.example.demo.domain.products.entity.Product;
 import com.example.demo.domain.products.repository.ProductsRepository;
+import com.example.demo.domain.selfSalad.entity.Amount;
+import com.example.demo.domain.selfSalad.entity.Ingredient;
+import com.example.demo.domain.selfSalad.entity.SelfSalad;
+import com.example.demo.domain.selfSalad.entity.SelfSaladIngredient;
+import com.example.demo.domain.selfSalad.repository.AmountRepository;
+import com.example.demo.domain.selfSalad.repository.IngredientRepository;
+import com.example.demo.domain.selfSalad.repository.SelfSaladIngredientRepository;
+import com.example.demo.domain.selfSalad.repository.SelfSaladRepository;
 import com.example.demo.domain.sideProducts.entity.SideProduct;
 import com.example.demo.domain.sideProducts.repository.SideProductsRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -38,12 +42,18 @@ public class CartServiceImpl implements CartService{
 
     final private ProductCartRepository productCartRepository;
     final private SideProductCartRepository sideProductCartRepository;
+    final private SelfSaladCartRepository  selfSaladCartRepository;
 
     final private ProductItemRepository productItemRepository;
     final private SideProductItemRepository sideProductItemRepository;
+    final private SelfSaladItemRepository selfSaladItemRepository;
 
     final private ProductsRepository productsRepository;
     final private SideProductsRepository sideProductsRepository;
+    final private IngredientRepository ingredientRepository;
+    final private AmountRepository amountRepository;
+    final private SelfSaladIngredientRepository selfSaladIngredientRepository;
+    final private SelfSaladRepository selfSaladRepository;
 
     final private MemberRepository memberRepository;
 
@@ -86,18 +96,20 @@ public class CartServiceImpl implements CartService{
     }
 
     @Override
-    public void classifyItemCategory(CartRegisterRequest item){
+    public Integer classifyItemCategory(CartRegisterRequest item){
 
         Member member = requireNonNull(checkMember(item.getMemberId()));
 
         if (item.getItemCategoryType() == ItemCategoryType.PRODUCT) {
-            productCartRegister(item, member);
+
+            if(productCartRegister(item, member)){return 1;}
 
         } else if (item.getItemCategoryType() == ItemCategoryType.SIDE) {
-            sideProductCartRegister(item, member);
+            if(sideProductCartRegister(item, member)){{return 1;}};
         }
+        return 0;
     }
-    private void productCartRegister(CartRegisterRequest item, Member member){
+    private Boolean productCartRegister(CartRegisterRequest item, Member member){
 
         Product requestProduct = requireNonNull(checkProduct(item.getItemId()));
 
@@ -108,8 +120,12 @@ public class CartServiceImpl implements CartService{
             createProductCart(member, item, requestProduct);
         }else{
             log.info(member.getNickname()+" 님의 product 카트는 이미 생성되어 있습니다.");
-            addProductItem(myProductCart.get(), item, requestProduct);
+            if(addProductItemOrPlusQuantity(myProductCart.get(), item, requestProduct)){
+                log.info(requestProduct.getTitle() + " 상품에 수량을 더하였습니다.");
+                return true;
+            }
         }
+        return false;
     }
 
     private void createProductCart(Member member, CartRegisterRequest cartItem, Product requestProduct ){
@@ -125,7 +141,7 @@ public class CartServiceImpl implements CartService{
         log.info(member.getNickname()+" 님의 product 카트에 첫 상품을 추가하였습니다.");
     }
 
-    private void addProductItem(ProductCart myCart, CartRegisterRequest cartItem, Product requestProduct){
+    private Boolean addProductItemOrPlusQuantity(ProductCart myCart, CartRegisterRequest cartItem, Product requestProduct){
 
         Optional<ProductItem> maybeProductItem =
                 productItemRepository.findByProduct_productIdAndProductCart_Id(cartItem.getItemId(),myCart.getId());
@@ -135,17 +151,18 @@ public class CartServiceImpl implements CartService{
 
             productItem.setQuantity(productItem.getQuantity() + cartItem.getQuantity());
             productItemRepository.save(productItem);
-            log.info(requestProduct.getTitle() + " 상품의 수량을 카트에 추가하였습니다.");
+            return true;
 
         } else {
             ProductItem newProductItem = cartItem.toProductItem(requestProduct, myCart);
 
             productItemRepository.save(newProductItem);
             log.info(requestProduct.getTitle() + " 상품을 카트에 추가하였습니다.");
+            return false;
         }
     }
 
-    private void sideProductCartRegister(CartRegisterRequest item, Member member){
+    private Boolean sideProductCartRegister(CartRegisterRequest item, Member member){
 
         SideProduct requestSideProduct = requireNonNull(checkSideProduct(item.getItemId()));
 
@@ -156,8 +173,12 @@ public class CartServiceImpl implements CartService{
             createSideProductCart(member, item, requestSideProduct);
         }else{
             log.info(member.getNickname()+" 님의 sideProduct 카트는 이미 생성되어 있습니다.");
-            addSideProductItem(mySideProductCart.get(), item, requestSideProduct);
+            if(addSideProductItemOrPlusQuantity(mySideProductCart.get(), item, requestSideProduct)){
+                log.info(requestSideProduct.getTitle() + " 상품에 수량을 더하였습니다.");
+                return true;
+            }
         }
+        return false;
     }
 
     private void createSideProductCart(Member member, CartRegisterRequest cartItem, SideProduct requestProduct ){
@@ -173,7 +194,7 @@ public class CartServiceImpl implements CartService{
         log.info(member.getNickname()+" 님의 sideProduct 카트에 첫 상품을 추가하였습니다.");
     }
 
-    private void addSideProductItem(SideProductCart myCart, CartRegisterRequest cartItem, SideProduct requestProduct){
+    private Boolean addSideProductItemOrPlusQuantity(SideProductCart myCart, CartRegisterRequest cartItem, SideProduct requestProduct){
 
         Optional<SideProductItem> maybeSideProductItem =
                 sideProductItemRepository.findBySideProduct_sideProductIdAndSideProductCart_Id(cartItem.getItemId(),myCart.getId());
@@ -183,16 +204,19 @@ public class CartServiceImpl implements CartService{
 
             sideProductItem.setQuantity(sideProductItem.getQuantity() + cartItem.getQuantity());
             sideProductItemRepository.save(sideProductItem);
-            log.info(requestProduct.getTitle() + " 상품의 수량을 sideProduct 카트에 추가하였습니다.");
+            return true;
 
         } else {
             SideProductItem newProductItem = cartItem.toSideProductItem(requestProduct, myCart);
 
             sideProductItemRepository.save(newProductItem);
             log.info(requestProduct.getTitle() + " 상품을 sideProduct 카트에 추가하였습니다.");
+            return false;
         }
     }
 
+
+    @Override
     public List<CartItemListResponse> cartItemList(Long memberId){
 
         List<ProductItem> productItems = productItemRepository.findByProductCart_Member_memberId(memberId);
@@ -254,5 +278,105 @@ public class CartServiceImpl implements CartService{
             log.info(itemDelete.getItemId()+" 번 SideProduct Item 이 삭제되었습니다.");
         }
     }
+
+
+    @Override
+    public Integer checkSelfSaladCartLimit(Long memberId){
+
+        Member member = requireNonNull(checkMember(memberId));
+
+        Optional<SelfSaladCart> mySelfSaladCart =
+                selfSaladCartRepository.findByMember_memberId(member.getMemberId());
+
+        if(mySelfSaladCart.isPresent()){
+            Integer selfSaladItemCount =
+                    selfSaladItemRepository.countBySelfSaladCart_id(mySelfSaladCart.get().getId());
+
+            if(selfSaladItemCount == CartItemLimit.SELF_SALAD.getMaxCount()){
+                log.info("SelfSalad 카트가 꽉 찼습니다.");
+                return 1;
+            }
+        }
+        return 0;
+    }
+
+    private Map<Long, Ingredient> checkIngredients(SelfSaladCartRegisterForm requestForm ){
+
+        List<Long> ingredientIds = new ArrayList<>();
+        for(SelfSaladRequest ingredient : requestForm.getSelfSaladRequestList()){
+
+            ingredientIds.add(ingredient.getIngredientId());
+        }
+        Optional <List<Ingredient>> maybeIngredients =
+                ingredientRepository.findByIdIn(ingredientIds);
+
+        if(maybeIngredients.isPresent()){
+            log.info("Ingredients "+ingredientIds+" 번의 재료들이 존재합니다.");
+
+            Map<Long, Ingredient> ingredientMap = new HashMap<>();
+
+            for (Ingredient ingredient : maybeIngredients.get()) {
+                ingredientMap.put(ingredient.getId(), ingredient);
+            }
+            return ingredientMap;
+        }
+        return null;
+    }
+    @Override
+    public void selfSaladCartRegister(SelfSaladCartRegisterForm reqForm){
+
+        Member member = requireNonNull(checkMember(reqForm.getMemberId()));
+        Map<Long, Ingredient> ingredientMap = requireNonNull(checkIngredients(reqForm));
+
+        Optional<SelfSaladCart> mySelfSaladCart =
+                selfSaladCartRepository.findByMember_memberId(member.getMemberId());
+
+        if(mySelfSaladCart.isEmpty()){
+            SelfSaladCart firstCart =
+                    createSelfSaladCart(member);
+            addSelfSaladItem(firstCart, reqForm, ingredientMap);
+            log.info(member.getNickname()+" 님의 SelfSalad 카트에 첫 상품을 추가하였습니다.");
+        }else{
+            log.info(member.getNickname()+" 님의 SelfSalad 카트는 이미 생성되어 있습니다.");
+
+            addSelfSaladItem(mySelfSaladCart.get(), reqForm, ingredientMap);
+            log.info(member.getNickname()+" 님의 SelfSalad 카트에 상품을 추가하였습니다.");
+        }
+    }
+
+    private SelfSaladCart createSelfSaladCart(Member member){
+        SelfSaladCart firstCart = SelfSaladCart.builder()
+                .member(member)
+                .build();
+        selfSaladCartRepository.save(firstCart);
+        log.info(member.getNickname()+" 님의 SelfSalad 카트를 생성하였습니다.");
+        return firstCart;
+    }
+
+    private void addSelfSaladItem(SelfSaladCart myCart, SelfSaladCartRegisterForm reqForm,
+                                  Map<Long, Ingredient> ingredientMap){
+        // SelfSalad 저장
+        SelfSalad selfSalad = reqForm.toSelfSalad();
+        System.out.println("샐러드 출력 가즈아!"+ selfSalad);
+        selfSaladRepository.save(selfSalad);
+
+        // SelfSaladIngredient 저장
+        List<SelfSaladIngredient> saladIngredients = new ArrayList<>();
+
+        for (SelfSaladRequest request : reqForm.getSelfSaladRequestList()) {
+            Amount amount =
+                    amountRepository.findByAmountType(request.getAmountType()).get();
+            Ingredient ingredient =
+                    ingredientMap.get(request.getIngredientId());
+
+            saladIngredients.add( request.toSelfSaladIngredient( selfSalad,ingredient, amount) );
+        }
+        selfSaladIngredientRepository.saveAll(saladIngredients);
+
+        // SelfSalad Item
+        SelfSaladItem newSelfSaladitem = reqForm.toSelfSaladItem(myCart, selfSalad);
+        selfSaladItemRepository.save(newSelfSaladitem);
+    }
+
 
 }

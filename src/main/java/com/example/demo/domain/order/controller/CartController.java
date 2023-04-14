@@ -1,5 +1,6 @@
 package com.example.demo.domain.order.controller;
 
+import com.example.demo.domain.order.controller.request.SelfSaladCartRegisterForm;
 import com.example.demo.domain.order.controller.request.CartItemDeleteRequest;
 import com.example.demo.domain.order.controller.request.CartItemQuantityModifyRequest;
 import com.example.demo.domain.order.controller.request.CartRegisterRequest;
@@ -20,9 +21,20 @@ public class CartController {
     final private CartService cartService;
 
     @PostMapping(value = "/register")
-    public void CartRegister (@RequestBody CartRegisterRequest cartItem) {
+    public Integer CartRegister (@RequestBody CartRegisterRequest cartItem) {
         log.info("cartRegister()");
-        cartService.classifyItemCategory(cartItem);
+        return cartService.classifyItemCategory(cartItem);
+    }
+
+    @PostMapping(value = "/selfsalad/limit")
+    public Integer selfSaladCartCount (@PathVariable("memberId") Long memberId) {
+        log.info("checkSelfSaladCartCount()");
+        return cartService.checkSelfSaladCartLimit(memberId);
+    }
+    @PostMapping(value = "/selfsalad/register")
+    public void SelfSaladCartRegister (@RequestBody SelfSaladCartRegisterForm selfSaladItem) {
+        log.info("cartRegister()");
+        cartService.selfSaladCartRegister(selfSaladItem);
     }
 
     @GetMapping("/list")
