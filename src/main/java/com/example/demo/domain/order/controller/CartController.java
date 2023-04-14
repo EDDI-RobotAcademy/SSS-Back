@@ -26,6 +26,10 @@ public class CartController {
         return cartService.classifyItemCategory(cartItem);
     }
 
+    @PostMapping(value = "/selfsalad/register")
+    public void SelfSaladCartRegister (@RequestBody SelfSaladCartRegisterForm selfSaladItem) {
+        log.info("cartRegister()");
+        cartService.selfSaladCartRegister(selfSaladItem);
     }
 
     @GetMapping("/list")
