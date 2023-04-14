@@ -262,6 +262,14 @@ public class CartServiceImpl implements CartService{
             sideProductItem.setQuantity(itemRequest.getQuantity());
             sideProductItemRepository.save(sideProductItem);
             log.info(sideProductItem.getId()+" 번의 SideProduct Item 의 수량이 변경되었습니다.");
+
+        } else if (itemRequest.getItemCategoryType() == ItemCategoryType.SELF_SALAD) {
+            SelfSaladItem selfSaladItem =
+                    selfSaladItemRepository.findById(itemRequest.getItemId()).get();
+
+            selfSaladItem.setQuantity(itemRequest.getQuantity());
+            selfSaladItemRepository.save(selfSaladItem);
+            log.info(selfSaladItem.getId()+" 번의 SelfSalad Item 의 수량이 변경되었습니다.");
         }
     }
     @Override
