@@ -1,5 +1,10 @@
 package com.example.demo.product.review;
 
+import com.example.demo.domain.member.entity.Member;
+import com.example.demo.domain.member.repository.MemberRepository;
+import com.example.demo.domain.products.entity.Product;
+import com.example.demo.domain.products.entity.Review;
+import com.example.demo.domain.products.repository.ProductsRepository;
 import com.example.demo.domain.products.repository.ReviewImgRepository;
 import com.example.demo.domain.products.repository.ReviewRepository;
 import com.example.demo.domain.products.service.ReviewService;
@@ -15,6 +20,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 
 @SpringBootTest
@@ -24,14 +30,14 @@ public class ProductReviewTest {
     @Autowired
     private ReviewService reviewService;
 
-//    @Autowired
-//    private ReviewRepository reviewRepository;
-//
-//    @Autowired
-//    private ReviewImgRepository reviewImgRepository;
+    @Autowired
+    private ReviewRepository reviewRepository;
+
+    @Autowired
+    private ReviewImgRepository reviewImgRepository;
 
     @Test
-    void 상품_구매후기_등록() throws IOException {
+    void 상품_구매후기_등록_이미지포함() throws IOException {
         List<MultipartFile> fileList = new ArrayList<>() {};
         MockMultipartFile file1 = new MockMultipartFile(
                 "image1", "ss.png", "image/png", new FileInputStream("C:/khproj/ss.png")
@@ -42,8 +48,7 @@ public class ProductReviewTest {
         fileList.add(file1);
         fileList.add(file2);
 
-        ReviewRegisterRequest request = new ReviewRegisterRequest(
-                1L, "yoonji", 5, "리뷰등록테스트");
+        ReviewRegisterRequest request = new ReviewRegisterRequest(1L,4L,3,"리뷰나옴?");
 
 
         System.out.println("file :  " + fileList);
@@ -51,4 +56,5 @@ public class ProductReviewTest {
 
         reviewService.register(fileList, request);
     }
+
 }
