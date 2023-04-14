@@ -1,6 +1,7 @@
 package com.example.demo.domain.member.entity;
 
 import com.example.demo.domain.security.entity.BasicAuthentication;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -42,6 +43,7 @@ public class Member {
     private Set<Authentication> authentications = new HashSet<>();
 
     @Getter
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
     @JoinColumn(name = "authority_id")
     private Authority authority;
