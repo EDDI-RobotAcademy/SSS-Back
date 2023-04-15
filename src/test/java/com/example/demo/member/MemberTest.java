@@ -3,6 +3,7 @@ package com.example.demo.member;
 import com.example.demo.domain.member.entity.Address;
 import com.example.demo.domain.member.entity.AuthorityType;
 import com.example.demo.domain.member.service.MemberService;
+import com.example.demo.domain.member.service.request.MemberPasswordCheckRequest;
 import com.example.demo.domain.member.service.request.MemberSignInRequest;
 import com.example.demo.domain.member.service.request.MemberSignUpRequest;
 import com.example.demo.domain.member.service.request.MemberProfileRequest;
@@ -62,6 +63,13 @@ public class MemberTest {
         //변경할 전화번호 / 주소 (우편번호, 지역명, 지역주소, 상세주소)
         Long memberId = 1L; // 테스트할 회원 ID 선택
         assertTrue(memberService.updateMemberInfo(memberId, memberProfileRequest));
+    }
+
+    @Test
+    public void 비밀번호_검증_확인() {
+        MemberPasswordCheckRequest request = new MemberPasswordCheckRequest(1L, "1234");
+        boolean result = memberService.passwordValidation(request);
+        assertTrue(result);
     }
 
 }

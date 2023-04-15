@@ -13,6 +13,7 @@ import java.util.Set;
 import com.example.demo.domain.security.entity.Authentication;
 import lombok.Setter;
 
+@Getter
 @Entity
 @NoArgsConstructor
 public class Member {

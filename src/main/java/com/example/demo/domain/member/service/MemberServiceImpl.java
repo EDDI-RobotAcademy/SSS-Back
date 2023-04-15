@@ -6,6 +6,7 @@ import com.example.demo.domain.member.entity.MemberProfile;
 import com.example.demo.domain.member.repository.AdminCodeRepository;
 import com.example.demo.domain.member.repository.MemberRepository;
 import com.example.demo.domain.member.repository.MemberProfileRepository;
+import com.example.demo.domain.member.service.request.MemberPasswordCheckRequest;
 import com.example.demo.domain.member.service.request.MemberSignInRequest;
 import com.example.demo.domain.member.service.request.MemberSignUpRequest;
 import com.example.demo.domain.member.service.request.MemberProfileRequest;
@@ -148,6 +149,8 @@ public class MemberServiceImpl implements MemberService {
 
 
 
+
+    //회원정보변경
     @Override
     @Transactional
     public Boolean updateMemberInfo(Long memberId, MemberProfileRequest memberProfileRequest) {
@@ -205,6 +208,28 @@ public class MemberServiceImpl implements MemberService {
 
         return true;
     }
+
+
+    @Override
+    @Transactional
+    public Boolean passwordValidation(MemberPasswordCheckRequest memberRequest) {
+        Optional<Member> maybeMember = memberRepository.findByMemberId(memberRequest.getMemberId());
+
+        if(maybeMember.isEmpty()) {
+            System.out.println("memberId 에 해당하는 계정이 없습니다.");
+            return null;
+        }
+
+        Member member = maybeMember.get();
+        if(member.isRightPassword(memberRequest.getPassword())) {
+            return true;
+        }
+
+        return false;
+    }
+
+
+
 
 
 
