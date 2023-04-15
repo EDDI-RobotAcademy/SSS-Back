@@ -75,4 +75,8 @@ public class ProductsController {
         productsService.viewCntUp(productId);
     }
 
+    @PostMapping("/list/view")
+    public List<Product> listByView() {
+        return productsService.listByView();
+    }
 }

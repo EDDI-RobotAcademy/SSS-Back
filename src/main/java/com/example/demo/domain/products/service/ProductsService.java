@@ -23,4 +23,6 @@ public interface ProductsService {
     void delete(Long productId);
 
     void viewCntUp(Long productId);
+
+    List<Product> listByView();
 }

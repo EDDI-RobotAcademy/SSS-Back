@@ -211,4 +211,8 @@ public class ProductsServiceImpl implements ProductsService {
         productsRepository.save(product);
     }
 
+    @Override
+    public List<Product> listByView() {
+        return productsRepository.findAll(Sort.by(Sort.Direction.DESC, "viewCnt"));
+    }
 }
