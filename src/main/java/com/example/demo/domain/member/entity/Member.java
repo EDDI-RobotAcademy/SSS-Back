@@ -11,6 +11,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import com.example.demo.domain.security.entity.Authentication;
+import lombok.Setter;
 
 @Entity
 @NoArgsConstructor
@@ -27,6 +28,7 @@ public class Member {
     private String email;
 
     @Getter
+    @Setter
     @Column(nullable = false)
     private String nickname;
 

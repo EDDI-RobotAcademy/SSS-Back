@@ -59,10 +59,10 @@ public class MemberController {
 
 
 
-    @PostMapping("/member-profile")
-    public Boolean updateMemberInfo(@PathVariable("memberId") Long memberId,
+    @PutMapping("/member-profile/{userId}")
+    public Boolean updateMemberInfo(@PathVariable("userId") Long memberId,
                                     @RequestBody MemberProfileRequest memberProfileRequest) {
-        log.info("/member-profile"+ memberId +", "+ memberProfileRequest);
+        log.info("/member-profile/"+ memberId +", "+ memberProfileRequest);
 
         return memberService.updateMemberInfo(memberId, memberProfileRequest);
     }
