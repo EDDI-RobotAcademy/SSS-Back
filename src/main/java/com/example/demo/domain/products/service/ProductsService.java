@@ -21,4 +21,6 @@ public interface ProductsService {
     Product modifyWithoutImg(Long productId, ProductsInfoRequest request);
 
     void delete(Long productId);
+
+    void viewCntUp(Long productId);
 }

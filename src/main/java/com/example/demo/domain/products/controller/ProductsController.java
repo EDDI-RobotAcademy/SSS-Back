@@ -68,4 +68,11 @@ public class ProductsController {
     public void productDelete(@PathVariable("productId") Long productId) {
         productsService.delete(productId);
     }
+
+    @GetMapping("/viewUp/{productId}")
+    public void viewCntUp(@PathVariable("productId") Long productId) {
+        log.info("viewUp()");
+        productsService.viewCntUp(productId);
+    }
+
 }
