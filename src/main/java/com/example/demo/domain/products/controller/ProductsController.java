@@ -68,4 +68,15 @@ public class ProductsController {
     public void productDelete(@PathVariable("productId") Long productId) {
         productsService.delete(productId);
     }
+
+    @PostMapping("/viewUp/{productId}")
+    public void viewCntUp(@PathVariable("productId") Long productId) {
+        log.info("viewUp()");
+        productsService.viewCntUp(productId);
+    }
+
+    @PostMapping("/list/view")
+    public List<Product> listByView() {
+        return productsService.listByView();
+    }
 }

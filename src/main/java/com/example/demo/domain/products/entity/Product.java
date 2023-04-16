@@ -43,4 +43,7 @@ public class Product {
         this.content = content;
     }
 
+    public void updateViewCnt() {
+        this.viewCnt += 1;
+    }
 }

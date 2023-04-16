@@ -202,4 +202,17 @@ public class ProductsServiceImpl implements ProductsService {
         productsImgRepository.deleteProductImgByProductId(productId);
         productsRepository.deleteById(productId);
     }
+
+    @Override
+    public void viewCntUp(Long productId) {
+        Optional<Product> maybeProduct = productsRepository.findById(productId);
+        Product product = maybeProduct.get();
+        product.updateViewCnt();
+        productsRepository.save(product);
+    }
+
+    @Override
+    public List<Product> listByView() {
+        return productsRepository.findAll(Sort.by(Sort.Direction.DESC, "viewCnt"));
+    }
 }
