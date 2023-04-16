@@ -5,6 +5,7 @@ import com.example.demo.domain.order.controller.request.CartItemDeleteRequest;
 import com.example.demo.domain.order.controller.request.CartItemQuantityModifyRequest;
 import com.example.demo.domain.order.controller.request.CartRegisterRequest;
 import com.example.demo.domain.order.controller.response.CartItemListResponse;
+import com.example.demo.domain.order.controller.response.SelfSaladReadResponse;
 import com.example.demo.domain.order.service.CartService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -47,6 +48,12 @@ public class CartController {
     public void cartItemModify(@RequestBody CartItemQuantityModifyRequest itemRequest) {
         log.info("cartItemModify()");
         cartService.modifyCartItemQuantity(itemRequest);
+    }
+
+    @GetMapping("/selfsalad/read")
+    public List<SelfSaladReadResponse> selfSaladRead(@PathVariable("itemId") Long itemId){
+        log.info("selfSaladRead()");
+        return cartService.readSelfSaladIngredient(itemId);
     }
 
     @DeleteMapping("/delete")

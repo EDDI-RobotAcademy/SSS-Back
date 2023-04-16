@@ -7,6 +7,7 @@ import com.example.demo.domain.order.controller.request.CartItemQuantityModifyRe
 import com.example.demo.domain.order.controller.request.CartRegisterRequest;
 import com.example.demo.domain.order.controller.request.SelfSaladCartRegisterForm;
 import com.example.demo.domain.order.controller.response.CartItemListResponse;
+import com.example.demo.domain.order.controller.response.SelfSaladReadResponse;
 import com.example.demo.domain.order.entity.ProductCart;
 import com.example.demo.domain.order.entity.SelfSaladCart;
 import com.example.demo.domain.order.entity.SideProductCart;
@@ -409,5 +410,25 @@ public class CartServiceImpl implements CartService{
         selfSaladIngredientRepository.saveAll(saladIngredients);
     }
 
+    @Override
+    public List<SelfSaladReadResponse> readSelfSaladIngredient(Long itemId){
+        // 장바구니 수정 요청시 보낼 샐러드_재료 데이터
+        Optional<SelfSaladItem> maybeItem = selfSaladItemRepository.findById(itemId);
+        Long selfSaladId;
+        if(maybeItem.isPresent()){
+            // Self Salad 찾기
+            selfSaladId = maybeItem.get().getSelfSalad().getId();
+            List<SelfSaladIngredient> selfSaladIngredients =
+                    selfSaladIngredientRepository.findBySelfSalad_id(selfSaladId);
+            List<SelfSaladReadResponse> responseList = new ArrayList<>();
+            for(SelfSaladIngredient ingredient : selfSaladIngredients){
+                responseList.add(
+                        new SelfSaladReadResponse(ingredient.getIngredient().getId(),
+                                                  ingredient.getSelectedAmount()));
+            }
+            return responseList;
+        }
+        return null;
+    }
 
 }
