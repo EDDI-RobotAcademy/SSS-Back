@@ -3,6 +3,7 @@ package com.example.demo.domain.member.controller;
 import com.example.demo.domain.member.controller.form.MemberSignInForm;
 import com.example.demo.domain.member.controller.form.MemberSignUpForm;
 import com.example.demo.domain.member.service.MemberService;
+import com.example.demo.domain.member.service.request.MemberPasswordCheckRequest;
 import com.example.demo.domain.member.service.request.MemberProfileRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -59,12 +60,19 @@ public class MemberController {
 
 
 
-    @PostMapping("/member-profile")
-    public Boolean updateMemberInfo(@PathVariable("memberId") Long memberId,
+    @PutMapping("/member-profile/{userId}")
+    public Boolean updateMemberInfo(@PathVariable("userId") Long memberId,
                                     @RequestBody MemberProfileRequest memberProfileRequest) {
-        log.info("/member-profile"+ memberId +", "+ memberProfileRequest);
+        log.info("/member-profile/"+ memberId +", "+ memberProfileRequest);
 
         return memberService.updateMemberInfo(memberId, memberProfileRequest);
+    }
+
+    @PostMapping("/check-password")
+    public Boolean passwordValidation(@RequestBody MemberPasswordCheckRequest memberRequest) {
+        log.info("passwordValidation(): "+ memberRequest);
+
+        return memberService.passwordValidation(memberRequest);
     }
 
 }
