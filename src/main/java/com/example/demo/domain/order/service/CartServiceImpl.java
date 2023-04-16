@@ -325,13 +325,8 @@ public class CartServiceImpl implements CartService{
         return 0;
     }
 
-    private Map<Long, Ingredient> checkIngredients(SelfSaladCartRegisterForm requestForm ){
+    private Map<Long, Ingredient> checkIngredients( Set<Long> ingredientIds ){
 
-        List<Long> ingredientIds = new ArrayList<>();
-        for(SelfSaladRequest ingredient : requestForm.getSelfSaladRequestList()){
-
-            ingredientIds.add(ingredient.getIngredientId());
-        }
         Optional <List<Ingredient>> maybeIngredients =
                 ingredientRepository.findByIdIn(ingredientIds);
 
@@ -351,7 +346,13 @@ public class CartServiceImpl implements CartService{
     public void selfSaladCartRegister(SelfSaladCartRegisterForm reqForm){
 
         Member member = requireNonNull(checkMember(reqForm.getMemberId()));
-        Map<Long, Ingredient> ingredientMap = requireNonNull(checkIngredients(reqForm));
+
+        Set<Long> ingredientIds = new HashSet<>();
+        for(SelfSaladRequest ingredient : reqForm.getSelfSaladRequestList()){
+
+            ingredientIds.add(ingredient.getIngredientId());
+        }
+        Map<Long, Ingredient> ingredientMap = requireNonNull(checkIngredients(ingredientIds));
 
         Optional<SelfSaladCart> mySelfSaladCart =
                 selfSaladCartRepository.findByMember_memberId(member.getMemberId());
@@ -385,10 +386,19 @@ public class CartServiceImpl implements CartService{
         System.out.println("샐러드 출력 가즈아!"+ selfSalad);
         selfSaladRepository.save(selfSalad);
 
+        addSelfSaladIngredient(selfSalad, reqForm.getSelfSaladRequestList(), ingredientMap);
+
+        // SelfSalad Item
+        SelfSaladItem newSelfSaladitem = reqForm.toSelfSaladItem(myCart, selfSalad);
+        selfSaladItemRepository.save(newSelfSaladitem);
+    }
+
+    private void addSelfSaladIngredient(SelfSalad selfSalad, List<SelfSaladRequest> requestList,
+                                        Map<Long, Ingredient> ingredientMap){
         // SelfSaladIngredient 저장
         List<SelfSaladIngredient> saladIngredients = new ArrayList<>();
 
-        for (SelfSaladRequest request : reqForm.getSelfSaladRequestList()) {
+        for (SelfSaladRequest request : requestList) {
             Amount amount =
                     amountRepository.findByAmountType(request.getAmountType()).get();
             Ingredient ingredient =
@@ -397,6 +407,7 @@ public class CartServiceImpl implements CartService{
             saladIngredients.add( request.toSelfSaladIngredient( selfSalad,ingredient, amount) );
         }
         selfSaladIngredientRepository.saveAll(saladIngredients);
+    }
 
         // SelfSalad Item
         SelfSaladItem newSelfSaladitem = reqForm.toSelfSaladItem(myCart, selfSalad);
