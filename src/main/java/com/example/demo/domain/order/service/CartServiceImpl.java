@@ -30,10 +30,11 @@ import com.example.demo.domain.sideProducts.repository.SideProductsRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static java.util.Objects.requireNonNull;
 
@@ -442,6 +443,7 @@ public class CartServiceImpl implements CartService{
             modifySelfSalad(mySalad,
                             modifyForm.getTotalPrice(),
                             modifyForm.getTotalCalorie());
+            modifySelfSaladIngredient(mySalad, modifyForm.getSelfSaladRequestList());
         }
     }
 
@@ -449,6 +451,48 @@ public class CartServiceImpl implements CartService{
         // 수정
         mySalad.setTotal(price, calorie);
         selfSaladRepository.save(mySalad);
+    }
+
+    private void modifySelfSaladIngredient(SelfSalad mySalad, List<SelfSaladRequest> requestItems){
+        // 수정 전 재료들 [재료 id : 샐러드_재료]
+        Map<Long, SelfSaladIngredient> prevIngredients =
+                selfSaladIngredientRepository.findBySelfSalad_id(mySalad.getId()).stream()
+                        .collect(Collectors.toMap(
+                                selfSaladIngredient -> selfSaladIngredient.getIngredient().getId(),
+                                selfSaladIngredient -> selfSaladIngredient
+                        ));
+        // 수정 요청 [재료 id : 샐려드_재료 요청]
+        Map<Long, SelfSaladRequest> reqIngredients = requestItems.stream()
+                .collect(Collectors.toMap(SelfSaladRequest::getIngredientId,
+                                          Function.identity()));
+        // 1. 공통된 Ingredient ID 만 포함하는 Set (수량 수정)
+        Set<Long> commonIds = requestItems.stream()
+                .map(SelfSaladRequest::getIngredientId)
+                .collect(Collectors.toSet());
+        commonIds.retainAll(prevIngredients.keySet());
+
+        // 1. 수량 수정
+        if( ! commonIds.isEmpty()){
+            modifySelectedAmount(prevIngredients, reqIngredients, commonIds);
+        }
+    }
+
+    private boolean modifySelectedAmount (Map<Long, SelfSaladIngredient> prevIngredients,
+                                          Map<Long, SelfSaladRequest> reqIngredients,
+                                          Set<Long> commonIds){
+        log.info("수량 변경 요청 온 샐러드 재료 IDs : "+commonIds);
+        List<SelfSaladIngredient> modifies = new ArrayList<>();
+        for (Long commonId : commonIds) {
+            SelfSaladIngredient prevIngredient = prevIngredients.get(commonId);
+
+            SelfSaladRequest reqIngredient = reqIngredients.get(commonId);
+            if( prevIngredient.getSelectedAmount() != reqIngredient.getSelectedAmount()){
+                prevIngredient.setSelectedAmount(reqIngredient.getSelectedAmount());
+                modifies.add(prevIngredient);
+            }
+        }
+        selfSaladIngredientRepository.saveAll(modifies);
+        return true;
     }
 
 }

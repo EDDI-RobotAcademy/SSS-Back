@@ -39,4 +39,8 @@ public class SelfSaladIngredient {
         this.selectedAmount = selectedAmount;
         this.amount = amount;
     }
+
+    public void setSelectedAmount(Long selectedAmount) {
+        this.selectedAmount = selectedAmount;
+    }
 }
