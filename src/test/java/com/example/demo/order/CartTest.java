@@ -2,15 +2,18 @@ package com.example.demo.order;
 
 import com.example.demo.domain.member.entity.Member;
 import com.example.demo.domain.member.repository.MemberRepository;
+import com.example.demo.domain.order.controller.form.SelfSaladCartRegisterForm;
+import com.example.demo.domain.order.controller.form.SelfSaladModifyForm;
 import com.example.demo.domain.order.controller.request.CartItemDeleteRequest;
 import com.example.demo.domain.order.controller.request.CartItemQuantityModifyRequest;
 import com.example.demo.domain.order.controller.request.CartRegisterRequest;
-import com.example.demo.domain.order.controller.request.SelfSaladCartRegisterForm;
 import com.example.demo.domain.order.controller.response.CartItemListResponse;
+import com.example.demo.domain.order.controller.response.SelfSaladReadResponse;
 import com.example.demo.domain.order.entity.ProductCart;
 import com.example.demo.domain.order.entity.SelfSaladCart;
 import com.example.demo.domain.order.entity.items.*;
 import com.example.demo.domain.order.repository.*;
+import com.example.demo.domain.order.service.CartService;
 import com.example.demo.domain.order.service.request.SelfSaladRequest;
 import com.example.demo.domain.products.entity.Product;
 import com.example.demo.domain.products.repository.ProductsRepository;
@@ -24,7 +27,6 @@ import com.example.demo.domain.sideProducts.entity.SideProductImg;
 import com.example.demo.domain.sideProducts.repository.SideProductsRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -69,24 +71,27 @@ public class CartTest {
 
     @Autowired
     private MemberRepository memberRepository;
+    @Autowired
+    private CartService service;
 
-    @Mock
-    private ProductCartRepository mockProductCartRepository;
-    @Mock
-    private SideProductCartRepository mockSideProductCartRepository;
 
-    @Mock
-    private ProductItemRepository mockProductItemRepository;
-    @Mock
-    private SideProductItemRepository mockSideProductItemRepository;
-
-    @Mock
-    private ProductsRepository mockProductRepository;
-    @Mock
-    private SideProductsRepository mockSideProductRepository;
-
-    @Mock
-    private MemberRepository mockMemberRepository;
+//    @Mock
+//    private ProductCartRepository mockProductCartRepository;
+//    @Mock
+//    private SideProductCartRepository mockSideProductCartRepository;
+//
+//    @Mock
+//    private ProductItemRepository mockProductItemRepository;
+//    @Mock
+//    private SideProductItemRepository mockSideProductItemRepository;
+//
+//    @Mock
+//    private ProductsRepository mockProductRepository;
+//    @Mock
+//    private SideProductsRepository mockSideProductRepository;
+//
+//    @Mock
+//    private MemberRepository mockMemberRepository;
 
 
     @BeforeEach
@@ -126,16 +131,20 @@ public class CartTest {
     @Test
     public void 상품_카테고리_분류(){
 
-        CartRegisterRequest item = new CartRegisterRequest(
-                ItemCategoryType.PRODUCT,2L, 20, 1L
-        );
-
 //        Product testProduct =
 //                new Product("단호박 샐러드", 6000L, "상상도 못하게 비싸군요!");
 //        productsRepository.save(testProduct);
         Product testProduct =
                 new Product("고구마 샐러드", 4000L, "정말 싸군요!");
         productsRepository.save(testProduct);
+        SideProductImg imgs = new SideProductImg( );
+        SideProduct testSideProduct =
+                new SideProduct(1L, "고구마 주스", "정말 비싸군요!", 2000L, imgs);
+        productsRepository.save(testProduct);
+
+        CartRegisterRequest item = new CartRegisterRequest(
+                ItemCategoryType.PRODUCT,3L, 3, 1L
+        );
 
         Member member = requireNonNull(멤버_아이디_확인(item.getMemberId()));
         Product requestProduct = requireNonNull(상품_아이디_확인(item.getItemId()));
@@ -281,13 +290,19 @@ public class CartTest {
 
         List<SelfSaladRequest> saladRequest = new ArrayList<>();
             saladRequest.add(new SelfSaladRequest(1L, 1000L, AmountType.GRAM));
-            //saladRequest.add(new SelfSaladRequest(3L, 200L, AmountType.GRAM));
+            saladRequest.add(new SelfSaladRequest(3L, 1000L, AmountType.GRAM));
+            saladRequest.add(new SelfSaladRequest(4L, 200L, AmountType.COUNT));
 
         SelfSaladCartRegisterForm reqForm = new SelfSaladCartRegisterForm(
-              "창주샐러드", 3, 10000L, 360L, 1L,saladRequest
+              "진진샐러드", 2, 10000L, 360L, 1L,saladRequest
         );
         Member member = requireNonNull(멤버_아이디_확인(reqForm.getMemberId()));
-        Map<Long, Ingredient> ingredientMap = requireNonNull(재료아이디_확인(reqForm));
+        Set<Long> ingredientIds = new HashSet<>();
+        for(SelfSaladRequest ingredient : saladRequest){
+
+            ingredientIds.add(ingredient.getIngredientId());
+        }
+        Map<Long, Ingredient> ingredientMap = requireNonNull(재료아이디_확인(ingredientIds));
 
         Optional<SelfSaladCart> mySelfSaladCart =
                 selfSaladCartRepository.findByMember_memberId(member.getMemberId());
@@ -303,13 +318,8 @@ public class CartTest {
         }
     }
     @Test
-    private Map<Long, Ingredient> 재료아이디_확인(SelfSaladCartRegisterForm requestForm){
+    private Map<Long, Ingredient> 재료아이디_확인(Set<Long> ingredientIds){
 
-        List<Long> ingredientIds = new ArrayList<>();
-        for(SelfSaladRequest ingredient : requestForm.getSelfSaladRequestList()){
-
-            ingredientIds.add(ingredient.getIngredientId());
-        }
         Optional <List<Ingredient>> maybeIngredients =
                 ingredientRepository.findByIdIn(ingredientIds);
 
@@ -344,11 +354,19 @@ public class CartTest {
         System.out.println("샐러드 출력 가즈아!"+ selfSalad);
         selfSaladRepository.save(selfSalad);
 
+        셀프샐러드_재료_추가(selfSalad, reqForm.getSelfSaladRequestList(), ingredientMap);
+        // SelfSalad Item
+        SelfSaladItem newSelfSaladitem = reqForm.toSelfSaladItem(myCart, selfSalad);
+        selfSaladItemRepository.save(newSelfSaladitem);
+    }
+    @Test
+    private void 셀프샐러드_재료_추가(SelfSalad selfSalad, List<SelfSaladRequest> requestList,
+                                    Map<Long, Ingredient> ingredientMap){
         // SelfSaladIngredient 저장
         List<SelfSaladIngredient> saladIngredients = new ArrayList<>();
         //List<Amount> amounts = new ArrayList<>();
 
-        for (SelfSaladRequest request : reqForm.getSelfSaladRequestList()) {
+        for (SelfSaladRequest request : requestList) {
             Amount amount =
                     amountRepository.findByAmountType(request.getAmountType()).get();
             Ingredient ingredient =
@@ -357,10 +375,8 @@ public class CartTest {
             saladIngredients.add( request.toSelfSaladIngredient( selfSalad,ingredient, amount) );
         }
         selfSaladIngredientRepository.saveAll(saladIngredients);
+    }
 
-        // SelfSalad Item
-        SelfSaladItem newSelfSaladitem = reqForm.toSelfSaladItem(myCart, selfSalad);
-        selfSaladItemRepository.save(newSelfSaladitem);
     }
 
 }
