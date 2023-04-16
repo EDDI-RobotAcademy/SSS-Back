@@ -266,7 +266,7 @@ public class CartServiceImpl implements CartService{
             SideProductItem sideProductItem =
                     sideProductItemRepository.findById(itemRequest.getItemId()).get();
 
-            sideProductItem.setQuantity(itemRequest.getQuantity());
+            sideProductItem.setQuantity(itemRequest.getQuantity() + itemRequest.getQuantity());
             sideProductItemRepository.save(sideProductItem);
             log.info(sideProductItem.getId()+" 번의 SideProduct Item 의 수량이 변경되었습니다.");
 
@@ -274,7 +274,7 @@ public class CartServiceImpl implements CartService{
             SelfSaladItem selfSaladItem =
                     selfSaladItemRepository.findById(itemRequest.getItemId()).get();
 
-            selfSaladItem.setQuantity(itemRequest.getQuantity());
+            selfSaladItem.setQuantity(itemRequest.getQuantity() + itemRequest.getQuantity());
             selfSaladItemRepository.save(selfSaladItem);
             log.info(selfSaladItem.getId()+" 번의 SelfSalad Item 의 수량이 변경되었습니다.");
         }
