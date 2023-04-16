@@ -16,4 +16,8 @@ public class ProductTest {
         productsService.viewCntUp(3L);
     }
 
+    @Test
+    void 조회수별_목록() {
+        System.out.println("조회수순" + productsService.listByView());
+    }
 }
