@@ -475,6 +475,12 @@ public class CartServiceImpl implements CartService{
         Set<Long> newIngredientIds = new HashSet<>(reqIngredients.keySet());
         newIngredientIds.removeAll(commonIds);
 
+        // 3. 삭제해야 하는 Ingredient ID 만 포함하는 Set (수정 후 요청객체에 없는 수정전 샐러드_재료)
+        Set<Long> deleteIngredientIds = prevIngredients.values().stream()
+                .filter(ingredient -> !commonIds.contains(ingredient.getIngredient().getId()))
+                .map(ingredient -> ingredient.getIngredient().getId())
+                .collect(Collectors.toSet());
+
         // 1. 수량 수정
         if( ! commonIds.isEmpty()){
             modifySelectedAmount(prevIngredients, reqIngredients, commonIds);
@@ -482,6 +488,10 @@ public class CartServiceImpl implements CartService{
         // 2. 새로운 재료 추가
         if( ! newIngredientIds.isEmpty()){
             modifyAddSelfSaladIngredient(requestItems, newIngredientIds, mySalad);
+        }
+        // 3. 샐러드_재료 삭제
+        if( ! deleteIngredientIds.isEmpty()){
+            deleteSelfSaladIngredient(mySalad.getId(), deleteIngredientIds);
         }
     }
 
@@ -516,4 +526,12 @@ public class CartServiceImpl implements CartService{
         addSelfSaladIngredient(prevSalad, addIngredients, ingredientMap);
         return true;
     }
+
+    private boolean deleteSelfSaladIngredient(Long saladId, Set<Long> deleteIngredientIds){
+        log.info("삭제할 샐러드_재료 IDs: "+deleteIngredientIds);
+        selfSaladIngredientRepository.deleteAllBySelfSalad_IdAndIngredient_IdIn
+                (saladId, deleteIngredientIds);
+        return true;
+    }
+
 }
