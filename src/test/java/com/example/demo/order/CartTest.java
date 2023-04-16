@@ -254,9 +254,9 @@ public class CartTest {
     }
 
     @Test
-    void deleteCartItem(){
+    void 카트아이템_삭제(){
         CartItemDeleteRequest itemDelete =
-                new CartItemDeleteRequest(3L, ItemCategoryType.PRODUCT);
+                new CartItemDeleteRequest(2L, ItemCategoryType.SELF_SALAD);
         if (itemDelete.getItemCategoryType() == ItemCategoryType.PRODUCT) {
 
             productItemRepository.deleteById(itemDelete.getItemId());
@@ -266,6 +266,17 @@ public class CartTest {
 
             sideProductItemRepository.deleteById(itemDelete.getItemId());
             System.out.println((itemDelete.getItemId()+" 번 SideProduct Item 이 삭제되었습니다."));
+
+        }else if (itemDelete.getItemCategoryType() == ItemCategoryType.SELF_SALAD) {
+
+            SelfSalad deleteSalad =
+                    selfSaladItemRepository.findById(itemDelete.getItemId()).get().getSelfSalad();
+            selfSaladItemRepository.deleteById(itemDelete.getItemId());
+
+            System.out.println(itemDelete.getItemId()+" 번 SelfSalad Item 이 삭제되었습니다.");
+
+            selfSaladRepository.deleteById(deleteSalad.getId());
+            System.out.println(itemDelete.getItemId()+" 번 SelfSalad 가 삭제되었습니다.");
         }
     }
 
