@@ -409,10 +409,5 @@ public class CartServiceImpl implements CartService{
         selfSaladIngredientRepository.saveAll(saladIngredients);
     }
 
-        // SelfSalad Item
-        SelfSaladItem newSelfSaladitem = reqForm.toSelfSaladItem(myCart, selfSalad);
-        selfSaladItemRepository.save(newSelfSaladitem);
-    }
-
 
 }
