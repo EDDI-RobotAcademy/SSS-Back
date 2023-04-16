@@ -11,7 +11,7 @@ public class CartItemDeleteRequest {
 
     final private Long itemId;
 
-    @JsonProperty("itemCategory")
+    @JsonProperty("category")
     final private ItemCategoryType itemCategoryType;
 
 }

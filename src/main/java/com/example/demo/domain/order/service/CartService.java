@@ -1,10 +1,10 @@
 package com.example.demo.domain.order.service;
 
-import com.example.demo.domain.order.controller.request.CartItemDeleteRequest;
-import com.example.demo.domain.order.controller.request.CartItemQuantityModifyRequest;
-import com.example.demo.domain.order.controller.request.CartRegisterRequest;
-import com.example.demo.domain.order.controller.request.SelfSaladCartRegisterForm;
+import com.example.demo.domain.order.controller.form.SelfSaladCartRegisterForm;
+import com.example.demo.domain.order.controller.form.SelfSaladModifyForm;
+import com.example.demo.domain.order.controller.request.*;
 import com.example.demo.domain.order.controller.response.CartItemListResponse;
+import com.example.demo.domain.order.controller.response.SelfSaladReadResponse;
 
 import java.util.List;
 
@@ -20,4 +20,8 @@ public interface CartService {
     void selfSaladCartRegister(SelfSaladCartRegisterForm selfSaladItem);
 
     Integer checkSelfSaladCartLimit(Long memberId);
+
+    List<SelfSaladReadResponse> readSelfSaladIngredient(Long itemId);
+
+    void modifySelfSaladItem(Long itemId, SelfSaladModifyForm modifyForm);
 }

@@ -2,11 +2,13 @@ package com.example.demo.domain.order.service;
 
 import com.example.demo.domain.member.entity.Member;
 import com.example.demo.domain.member.repository.MemberRepository;
+import com.example.demo.domain.order.controller.form.SelfSaladCartRegisterForm;
+import com.example.demo.domain.order.controller.form.SelfSaladModifyForm;
 import com.example.demo.domain.order.controller.request.CartItemDeleteRequest;
 import com.example.demo.domain.order.controller.request.CartItemQuantityModifyRequest;
 import com.example.demo.domain.order.controller.request.CartRegisterRequest;
-import com.example.demo.domain.order.controller.request.SelfSaladCartRegisterForm;
 import com.example.demo.domain.order.controller.response.CartItemListResponse;
+import com.example.demo.domain.order.controller.response.SelfSaladReadResponse;
 import com.example.demo.domain.order.entity.ProductCart;
 import com.example.demo.domain.order.entity.SelfSaladCart;
 import com.example.demo.domain.order.entity.SideProductCart;
@@ -28,10 +30,11 @@ import com.example.demo.domain.sideProducts.repository.SideProductsRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static java.util.Objects.requireNonNull;
 
@@ -221,28 +224,35 @@ public class CartServiceImpl implements CartService{
 
         List<ProductItem> productItems = productItemRepository.findByProductCart_Member_memberId(memberId);
         List<SideProductItem> sideProductItems = sideProductItemRepository.findBySideProductCart_Member_memberId(memberId);
+        List<SelfSaladItem> selfSaladItems = selfSaladItemRepository.findBySelfSaladCart_Member_memberId(memberId);
 
-        List<CartItemListResponse> cartItems = Stream.concat(
-                productItems.stream().map(productItem -> new CartItemListResponse(
-                        productItem.getId(),
-                        productItem.getQuantity(),
-                        productItem.getAddedDate(),
-                        productItem.getProduct().getProductId(),
-                        productItem.getProduct().getTitle(),
-                        productItem.getProduct().getProductImgs().get(0).getEditedImg(),
-                        productItem.getProduct().getPrice())),
-                sideProductItems.stream().map(sideProductItem -> new CartItemListResponse(
-                        sideProductItem.getId(),
-                        sideProductItem.getQuantity(),
-                        sideProductItem.getAddedDate(),
-                        sideProductItem.getSideProduct().getSideProductId(),
-                        sideProductItem.getSideProduct().getTitle(),
-                        sideProductItem.getSideProduct().getSideProductImg().getEditedImg(),
-                        sideProductItem.getSideProduct().getPrice())))
-            .sorted(Comparator.comparing(CartItemListResponse::getAddedDate).reversed())
-            .collect(Collectors.toList());
+        List<CartItemListResponse> cartItems = new ArrayList<>();
+        if(!productItems.isEmpty()){
+            for (ProductItem productItem : productItems) {
+                cartItems.add(new CartItemListResponse(productItem));
+            }
+        }
+        if(!sideProductItems.isEmpty()){
+            for (SideProductItem sideProductItem : sideProductItems) {
+                cartItems.add(new CartItemListResponse(sideProductItem));
+            }
+        }
+        if(!selfSaladItems.isEmpty()){
+            for (SelfSaladItem selfSaladItem : selfSaladItems) {
+                cartItems.add(new CartItemListResponse(selfSaladItem));
+            }
+        }
+        if(!cartItems.isEmpty()){
+            // 2. Comparator 구현하여 Stream의 sorted() 메서드에 전달
+            Comparator<CartItemListResponse> byDate = Comparator.comparing(CartItemListResponse::getAddedDate);
+            // 3. Stream으로 변환 후 정렬
+            List<CartItemListResponse> sortedItems = cartItems.stream()
+                    .sorted(byDate)
+                    .collect(Collectors.toList());
 
-        return cartItems;
+            return sortedItems;
+        }
+        return null;
     }
 
     @Override
@@ -259,9 +269,17 @@ public class CartServiceImpl implements CartService{
             SideProductItem sideProductItem =
                     sideProductItemRepository.findById(itemRequest.getItemId()).get();
 
-            sideProductItem.setQuantity(itemRequest.getQuantity());
+            sideProductItem.setQuantity(itemRequest.getQuantity() + itemRequest.getQuantity());
             sideProductItemRepository.save(sideProductItem);
             log.info(sideProductItem.getId()+" 번의 SideProduct Item 의 수량이 변경되었습니다.");
+
+        } else if (itemRequest.getItemCategoryType() == ItemCategoryType.SELF_SALAD) {
+            SelfSaladItem selfSaladItem =
+                    selfSaladItemRepository.findById(itemRequest.getItemId()).get();
+
+            selfSaladItem.setQuantity(itemRequest.getQuantity() + itemRequest.getQuantity());
+            selfSaladItemRepository.save(selfSaladItem);
+            log.info(selfSaladItem.getId()+" 번의 SelfSalad Item 의 수량이 변경되었습니다.");
         }
     }
     @Override
@@ -276,6 +294,16 @@ public class CartServiceImpl implements CartService{
 
             sideProductItemRepository.deleteById(itemDelete.getItemId());
             log.info(itemDelete.getItemId()+" 번 SideProduct Item 이 삭제되었습니다.");
+
+        } else if (itemDelete.getItemCategoryType() == ItemCategoryType.SELF_SALAD) {
+            SelfSalad deleteSalad =
+                    selfSaladItemRepository.findById(itemDelete.getItemId()).get().getSelfSalad();
+
+            selfSaladItemRepository.deleteById(itemDelete.getItemId());
+            log.info(itemDelete.getItemId()+" 번 SelfSalad Item 이 삭제되었습니다.");
+            selfSaladRepository.deleteById(deleteSalad.getId());
+
+            log.info(itemDelete.getItemId()+" 번 SelfSalad 가 삭제되었습니다.");
         }
     }
 
@@ -300,13 +328,8 @@ public class CartServiceImpl implements CartService{
         return 0;
     }
 
-    private Map<Long, Ingredient> checkIngredients(SelfSaladCartRegisterForm requestForm ){
+    private Map<Long, Ingredient> checkIngredients( Set<Long> ingredientIds ){
 
-        List<Long> ingredientIds = new ArrayList<>();
-        for(SelfSaladRequest ingredient : requestForm.getSelfSaladRequestList()){
-
-            ingredientIds.add(ingredient.getIngredientId());
-        }
         Optional <List<Ingredient>> maybeIngredients =
                 ingredientRepository.findByIdIn(ingredientIds);
 
@@ -326,7 +349,13 @@ public class CartServiceImpl implements CartService{
     public void selfSaladCartRegister(SelfSaladCartRegisterForm reqForm){
 
         Member member = requireNonNull(checkMember(reqForm.getMemberId()));
-        Map<Long, Ingredient> ingredientMap = requireNonNull(checkIngredients(reqForm));
+
+        Set<Long> ingredientIds = new HashSet<>();
+        for(SelfSaladRequest ingredient : reqForm.getSelfSaladRequestList()){
+
+            ingredientIds.add(ingredient.getIngredientId());
+        }
+        Map<Long, Ingredient> ingredientMap = requireNonNull(checkIngredients(ingredientIds));
 
         Optional<SelfSaladCart> mySelfSaladCart =
                 selfSaladCartRepository.findByMember_memberId(member.getMemberId());
@@ -360,10 +389,19 @@ public class CartServiceImpl implements CartService{
         System.out.println("샐러드 출력 가즈아!"+ selfSalad);
         selfSaladRepository.save(selfSalad);
 
+        addSelfSaladIngredient(selfSalad, reqForm.getSelfSaladRequestList(), ingredientMap);
+
+        // SelfSalad Item
+        SelfSaladItem newSelfSaladitem = reqForm.toSelfSaladItem(myCart, selfSalad);
+        selfSaladItemRepository.save(newSelfSaladitem);
+    }
+
+    private void addSelfSaladIngredient(SelfSalad selfSalad, List<SelfSaladRequest> requestList,
+                                        Map<Long, Ingredient> ingredientMap){
         // SelfSaladIngredient 저장
         List<SelfSaladIngredient> saladIngredients = new ArrayList<>();
 
-        for (SelfSaladRequest request : reqForm.getSelfSaladRequestList()) {
+        for (SelfSaladRequest request : requestList) {
             Amount amount =
                     amountRepository.findByAmountType(request.getAmountType()).get();
             Ingredient ingredient =
@@ -372,11 +410,128 @@ public class CartServiceImpl implements CartService{
             saladIngredients.add( request.toSelfSaladIngredient( selfSalad,ingredient, amount) );
         }
         selfSaladIngredientRepository.saveAll(saladIngredients);
-
-        // SelfSalad Item
-        SelfSaladItem newSelfSaladitem = reqForm.toSelfSaladItem(myCart, selfSalad);
-        selfSaladItemRepository.save(newSelfSaladitem);
     }
 
+    @Override
+    public List<SelfSaladReadResponse> readSelfSaladIngredient(Long itemId){
+        // 장바구니 수정 요청시 보낼 샐러드_재료 데이터
+        Optional<SelfSaladItem> maybeItem = selfSaladItemRepository.findById(itemId);
+        Long selfSaladId;
+        if(maybeItem.isPresent()){
+            // Self Salad 찾기
+            selfSaladId = maybeItem.get().getSelfSalad().getId();
+            List<SelfSaladIngredient> selfSaladIngredients =
+                    selfSaladIngredientRepository.findBySelfSalad_id(selfSaladId);
+            List<SelfSaladReadResponse> responseList = new ArrayList<>();
+            for(SelfSaladIngredient ingredient : selfSaladIngredients){
+                responseList.add(
+                        new SelfSaladReadResponse(ingredient.getIngredient().getId(),
+                                                  ingredient.getSelectedAmount()));
+            }
+            return responseList;
+        }
+        return null;
+    }
+    @Override
+    @Transactional
+    public void modifySelfSaladItem(Long itemId, SelfSaladModifyForm modifyForm) {
+        // selfSalad item 확인
+        Optional<SelfSaladItem> maybeItem = selfSaladItemRepository.findById(itemId);
+        if(maybeItem.isPresent()){
+            // Self Salad 찾기
+            SelfSalad mySalad = maybeItem.get().getSelfSalad();
+            modifySelfSalad(mySalad,
+                            modifyForm.getTotalPrice(),
+                            modifyForm.getTotalCalorie());
+            modifySelfSaladIngredient(mySalad, modifyForm.getSelfSaladRequestList());
+        }
+    }
+
+    private void modifySelfSalad(SelfSalad mySalad, Long price, Long calorie){
+        // 수정
+        mySalad.setTotal(price, calorie);
+        selfSaladRepository.save(mySalad);
+    }
+
+    private void modifySelfSaladIngredient(SelfSalad mySalad, List<SelfSaladRequest> requestItems){
+        // 수정 전 재료들 [재료 id : 샐러드_재료]
+        Map<Long, SelfSaladIngredient> prevIngredients =
+                selfSaladIngredientRepository.findBySelfSalad_id(mySalad.getId()).stream()
+                        .collect(Collectors.toMap(
+                                selfSaladIngredient -> selfSaladIngredient.getIngredient().getId(),
+                                selfSaladIngredient -> selfSaladIngredient
+                        ));
+        // 수정 요청 [재료 id : 샐려드_재료 요청]
+        Map<Long, SelfSaladRequest> reqIngredients = requestItems.stream()
+                .collect(Collectors.toMap(SelfSaladRequest::getIngredientId,
+                                          Function.identity()));
+        // 1. 공통된 Ingredient ID 만 포함하는 Set (수량 수정)
+        Set<Long> commonIds = requestItems.stream()
+                .map(SelfSaladRequest::getIngredientId)
+                .collect(Collectors.toSet());
+        commonIds.retainAll(prevIngredients.keySet());
+
+        // 2. 새롭게 추가된 Ingredient ID 만 포함하는 Set - HashSet 은 중복된 값이 없는 집합을 저장
+        Set<Long> newIngredientIds = new HashSet<>(reqIngredients.keySet());
+        newIngredientIds.removeAll(commonIds);
+
+        // 3. 삭제해야 하는 Ingredient ID 만 포함하는 Set (수정 후 요청객체에 없는 수정전 샐러드_재료)
+        Set<Long> deleteIngredientIds = prevIngredients.values().stream()
+                .filter(ingredient -> !commonIds.contains(ingredient.getIngredient().getId()))
+                .map(ingredient -> ingredient.getIngredient().getId())
+                .collect(Collectors.toSet());
+
+        // 1. 수량 수정
+        if( ! commonIds.isEmpty()){
+            modifySelectedAmount(prevIngredients, reqIngredients, commonIds);
+        }
+        // 2. 새로운 재료 추가
+        if( ! newIngredientIds.isEmpty()){
+            modifyAddSelfSaladIngredient(requestItems, newIngredientIds, mySalad);
+        }
+        // 3. 샐러드_재료 삭제
+        if( ! deleteIngredientIds.isEmpty()){
+            deleteSelfSaladIngredient(mySalad.getId(), deleteIngredientIds);
+        }
+    }
+
+    private boolean modifySelectedAmount (Map<Long, SelfSaladIngredient> prevIngredients,
+                                          Map<Long, SelfSaladRequest> reqIngredients,
+                                          Set<Long> commonIds){
+        log.info("수량 변경 요청 온 샐러드 재료 IDs : "+commonIds);
+        List<SelfSaladIngredient> modifies = new ArrayList<>();
+        for (Long commonId : commonIds) {
+            SelfSaladIngredient prevIngredient = prevIngredients.get(commonId);
+
+            SelfSaladRequest reqIngredient = reqIngredients.get(commonId);
+            if( prevIngredient.getSelectedAmount() != reqIngredient.getSelectedAmount()){
+                prevIngredient.setSelectedAmount(reqIngredient.getSelectedAmount());
+                modifies.add(prevIngredient);
+            }
+        }
+        selfSaladIngredientRepository.saveAll(modifies);
+        return true;
+    }
+
+    private boolean modifyAddSelfSaladIngredient(List<SelfSaladRequest> requestItems,
+                                                 Set<Long> newIngredientIds,
+                                                 SelfSalad prevSalad){
+        log.info("새롭게 추가할 샐러드 재료 IDs : "+newIngredientIds);
+        List<SelfSaladRequest> addIngredients = requestItems.stream()
+                .filter(item -> newIngredientIds.contains(item.getIngredientId()))
+                .collect(Collectors.toList());
+
+        Map<Long, Ingredient> ingredientMap = checkIngredients(newIngredientIds);
+
+        addSelfSaladIngredient(prevSalad, addIngredients, ingredientMap);
+        return true;
+    }
+
+    private boolean deleteSelfSaladIngredient(Long saladId, Set<Long> deleteIngredientIds){
+        log.info("삭제할 샐러드_재료 IDs: "+deleteIngredientIds);
+        selfSaladIngredientRepository.deleteAllBySelfSalad_IdAndIngredient_IdIn
+                (saladId, deleteIngredientIds);
+        return true;
+    }
 
 }
