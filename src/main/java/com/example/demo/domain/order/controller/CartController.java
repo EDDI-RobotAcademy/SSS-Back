@@ -37,7 +37,7 @@ public class CartController {
         cartService.selfSaladCartRegister(selfSaladItem);
     }
 
-    @GetMapping("/list")
+    @GetMapping("/list/{memberId}")
     public List<CartItemListResponse> cartItemList(@PathVariable("memberId") Long memberId) {
         log.info("cartItemList()");
         return cartService.cartItemList(memberId);

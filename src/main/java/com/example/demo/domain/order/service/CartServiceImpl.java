@@ -222,27 +222,28 @@ public class CartServiceImpl implements CartService{
         List<ProductItem> productItems = productItemRepository.findByProductCart_Member_memberId(memberId);
         List<SideProductItem> sideProductItems = sideProductItemRepository.findBySideProductCart_Member_memberId(memberId);
 
-        List<CartItemListResponse> cartItems = Stream.concat(
-                productItems.stream().map(productItem -> new CartItemListResponse(
-                        productItem.getId(),
-                        productItem.getQuantity(),
-                        productItem.getAddedDate(),
-                        productItem.getProduct().getProductId(),
-                        productItem.getProduct().getTitle(),
-                        productItem.getProduct().getProductImgs().get(0).getEditedImg(),
-                        productItem.getProduct().getPrice())),
-                sideProductItems.stream().map(sideProductItem -> new CartItemListResponse(
-                        sideProductItem.getId(),
-                        sideProductItem.getQuantity(),
-                        sideProductItem.getAddedDate(),
-                        sideProductItem.getSideProduct().getSideProductId(),
-                        sideProductItem.getSideProduct().getTitle(),
-                        sideProductItem.getSideProduct().getSideProductImg().getEditedImg(),
-                        sideProductItem.getSideProduct().getPrice())))
-            .sorted(Comparator.comparing(CartItemListResponse::getAddedDate).reversed())
-            .collect(Collectors.toList());
+        List<CartItemListResponse> cartItems = new ArrayList<>();
+        if(!productItems.isEmpty()){
+            for (ProductItem productItem : productItems) {
+                cartItems.add(new CartItemListResponse(productItem));
+            }
+        }
+        if(!sideProductItems.isEmpty()){
+            for (SideProductItem sideProductItem : sideProductItems) {
+                cartItems.add(new CartItemListResponse(sideProductItem));
+            }
+        }
+        if(!cartItems.isEmpty()){
+            // 2. Comparator 구현하여 Stream의 sorted() 메서드에 전달
+            Comparator<CartItemListResponse> byDate = Comparator.comparing(CartItemListResponse::getAddedDate);
+            // 3. Stream으로 변환 후 정렬
+            List<CartItemListResponse> sortedItems = cartItems.stream()
+                    .sorted(byDate)
+                    .collect(Collectors.toList());
 
-        return cartItems;
+            return sortedItems;
+        }
+        return null;
     }
 
     @Override
