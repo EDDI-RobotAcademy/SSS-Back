@@ -207,32 +207,35 @@ public class CartTest {
     @Transactional
     public void 카트아이템_리스트(){
         Long memberId = 1L;
-
         List<ProductItem> productItems = productItemRepository.findByProductCart_Member_memberId(memberId);
         List<SideProductItem> sideProductItems = sideProductItemRepository.findBySideProductCart_Member_memberId(memberId);
-        // repo 에서 items 를 찾기 > 컬렉션 객체를 스트림으로 처리 > 스트림의 각 요소를 다른 형대로 변환
-        // 컬렉션 객체를 스트림으로 처리
-        // 스트림의 각 요소를 다른 형태의 요소로 변환 > productItem 의 필드를 이용해 CartItemListResponse 객체 생성
-        List<CartItemListResponse> cartItems = Stream.concat(
-                    productItems.stream().map(productItem -> new CartItemListResponse(
-                            productItem.getId(),
-                            productItem.getQuantity(),
-                            productItem.getAddedDate(),
-                            productItem.getProduct().getProductId(),
-                            productItem.getProduct().getTitle(),
-                            "editedImg",
-                            productItem.getProduct().getPrice())),
-                    sideProductItems.stream().map(sideProductItem -> new CartItemListResponse(
-                            sideProductItem.getId(),
-                            sideProductItem.getQuantity(),
-                            sideProductItem.getAddedDate(),
-                            sideProductItem.getSideProduct().getSideProductId(),
-                            sideProductItem.getSideProduct().getTitle(),
-                            "editedImg",
-                            sideProductItem.getSideProduct().getPrice())))
-                .sorted(Comparator.comparing(CartItemListResponse::getAddedDate).reversed())
-                .collect(Collectors.toList());
-        System.out.println("CartItem List 출력 : "+cartItems);
+        List<SelfSaladItem> selfSaladItems = selfSaladItemRepository.findBySelfSaladCart_Member_memberId(memberId);
+
+        List<CartItemListResponse> cartItems = new ArrayList<>();
+        if(!productItems.isEmpty()){
+            for (ProductItem productItem : productItems) {
+                cartItems.add(new CartItemListResponse(productItem));
+            }
+        }
+        if(!sideProductItems.isEmpty()){
+            for (SideProductItem sideProductItem : sideProductItems) {
+                cartItems.add(new CartItemListResponse(sideProductItem));
+            }
+        }
+        if(!selfSaladItems.isEmpty()){
+            for (SelfSaladItem selfSaladItem : selfSaladItems) {
+                cartItems.add(new CartItemListResponse(selfSaladItem));
+            }
+        }
+        if(!cartItems.isEmpty()){
+            // 2. Comparator 구현하여 Stream의 sorted() 메서드에 전달
+            Comparator<CartItemListResponse> byDate = Comparator.comparing(CartItemListResponse::getAddedDate);
+            // 3. Stream으로 변환 후 정렬
+            List<CartItemListResponse> sortedItems = cartItems.stream()
+                    .sorted(byDate)
+                    .collect(Collectors.toList());
+            System.out.println("CartItem List 출력 : "+sortedItems);
+        }
     }
 
     @Test
