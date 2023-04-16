@@ -1,4 +1,4 @@
-package com.example.demo.domain.order.controller.request;
+package com.example.demo.domain.order.controller.form;
 
 import com.example.demo.domain.order.entity.SelfSaladCart;
 import com.example.demo.domain.order.entity.items.SelfSaladItem;
