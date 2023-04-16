@@ -291,6 +291,16 @@ public class CartServiceImpl implements CartService{
 
             sideProductItemRepository.deleteById(itemDelete.getItemId());
             log.info(itemDelete.getItemId()+" 번 SideProduct Item 이 삭제되었습니다.");
+
+        } else if (itemDelete.getItemCategoryType() == ItemCategoryType.SELF_SALAD) {
+            SelfSalad deleteSalad =
+                    selfSaladItemRepository.findById(itemDelete.getItemId()).get().getSelfSalad();
+
+            selfSaladItemRepository.deleteById(itemDelete.getItemId());
+            log.info(itemDelete.getItemId()+" 번 SelfSalad Item 이 삭제되었습니다.");
+            selfSaladRepository.deleteById(deleteSalad.getId());
+
+            log.info(itemDelete.getItemId()+" 번 SelfSalad 가 삭제되었습니다.");
         }
     }
 
