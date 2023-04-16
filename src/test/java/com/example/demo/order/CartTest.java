@@ -31,11 +31,12 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.annotation.Commit;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static java.util.Objects.requireNonNull;
 
@@ -411,6 +412,119 @@ public class CartTest {
             System.out.println("수정할 샐러드 재료 정보 보내기 :"+responseList);
         }
     }
+    @Test
+    @Transactional
+    @Commit
+    public void 셀프샐러드_카트아이템_수정(){
+        Long itemId = 3L;
+        List<SelfSaladRequest> requestItems = Arrays.asList(
+                new SelfSaladRequest(2L, 22L, AmountType.GRAM),
+                new SelfSaladRequest(1L, 100L, AmountType.GRAM)
+                //,new SelfSaladRequest(3L, 33L, AmountType.GRAM)
+        );
+        SelfSaladModifyForm modifyForm = new SelfSaladModifyForm(2222L,1L, requestItems);
+
+        // selfSalad item 확인
+        Optional<SelfSaladItem> maybeItem = selfSaladItemRepository.findById(itemId);
+
+        if(maybeItem.isPresent()){
+            // Self Salad 찾기
+            SelfSalad mySalad = maybeItem.get().getSelfSalad();
+            셀프샐러드_수정(mySalad, modifyForm.getTotalPrice(), modifyForm.getTotalCalorie());
+
+            셀프샐러드_재료_수정(mySalad, modifyForm.getSelfSaladRequestList());
+        }
+    }
+    @Test
+    @Commit
+    private void 셀프샐러드_수정(SelfSalad mySalad, Long price, Long calorie){
+        mySalad.setTotal(price, calorie);
+        selfSaladRepository.save(mySalad);
+    }
+    @Test
+    @Commit
+    private void 셀프샐러드_재료_수정(SelfSalad mySalad, List<SelfSaladRequest> requestItems){
+        // 수정 전 재료들 [재료 id : 샐러드_재료]
+        Map<Long, SelfSaladIngredient> prevIngredients =
+                selfSaladIngredientRepository.findBySelfSalad_id(mySalad.getId()).stream()
+                        .collect(Collectors.toMap(
+                                selfSaladIngredient -> selfSaladIngredient.getIngredient().getId(),
+                                selfSaladIngredient -> selfSaladIngredient
+                        ));
+        // 수정 요청 [재료 id : 샐려드_재료 요청]
+        Map<Long, SelfSaladRequest> reqIngredients = requestItems.stream()
+                .collect(Collectors.toMap(SelfSaladRequest::getIngredientId,
+                                          Function.identity()));
+        // 1. 공통된 Ingredient ID 만 포함하는 Set (수량 수정)
+        Set<Long> commonIds = requestItems.stream()
+                .map(SelfSaladRequest::getIngredientId)
+                .collect(Collectors.toSet());
+        commonIds.retainAll(prevIngredients.keySet());
+
+        // 2. 새롭게 추가된 Ingredient ID 만 포함하는 Set - HashSet 은 중복된 값이 없는 집합을 저장
+        Set<Long> newIngredientIds = new HashSet<>(reqIngredients.keySet());
+        newIngredientIds.removeAll(commonIds);
+
+        // 3. 삭제해야 하는 Ingredient ID 만 포함하는 Set (수정 후 요청객체에 없는 수정전 샐러드_재료)
+        Set<Long> deleteIngredientIds = prevIngredients.values().stream()
+                .filter(ingredient -> !commonIds.contains(ingredient.getIngredient().getId()))
+                .map(ingredient -> ingredient.getIngredient().getId())
+                .collect(Collectors.toSet());
+
+        // 1. 수량 수정
+        if( ! commonIds.isEmpty()){
+            샐러드재료_선택수량_샐러드수정(prevIngredients, reqIngredients, commonIds);
+        }
+        // 2. 새로운 재료 추가
+        if( ! newIngredientIds.isEmpty()){
+            샐러드_재료추가_샐러드수정(requestItems, newIngredientIds, mySalad);
+        }
+        // 3. 샐러드_재료 삭제
+        if( ! deleteIngredientIds.isEmpty()){
+            삭제될_샐러드재료_샐러드수정(mySalad.getId(), deleteIngredientIds);
+        }
+    }
+    @Test
+    @Commit
+    private void 샐러드재료_선택수량_샐러드수정 (Map<Long, SelfSaladIngredient> prevIngredients,
+                                               Map<Long, SelfSaladRequest> reqIngredients,
+                                               Set<Long> commonIds){
+        System.out.println("수량 변경 요청 온 샐러드 재료 IDs : "+commonIds);
+        List<SelfSaladIngredient> modifies = new ArrayList<>();
+        for (Long commonId : commonIds) {
+            SelfSaladIngredient prevIngredient = prevIngredients.get(commonId);
+
+            SelfSaladRequest reqIngredient = reqIngredients.get(commonId);
+            if( prevIngredient.getSelectedAmount() != reqIngredient.getSelectedAmount()){
+                prevIngredient.setSelectedAmount(reqIngredient.getSelectedAmount());
+                modifies.add(prevIngredient);
+            }
+        }
+        selfSaladIngredientRepository.saveAll(modifies);
+    }
+
+    @Test
+    @Commit
+    private void 샐러드_재료추가_샐러드수정(List<SelfSaladRequest> requestItems,
+                                              Set<Long> newIngredientIds,
+                                              SelfSalad prevSalad){
+        System.out.println("새롭게 추가할 샐러드 재료 IDs : "+newIngredientIds);
+        List<SelfSaladRequest> addIngredients = requestItems.stream()
+                .filter(item -> newIngredientIds.contains(item.getIngredientId()))
+                .collect(Collectors.toList());
+
+        Map<Long, Ingredient> ingredientMap = 재료아이디_확인(newIngredientIds);
+
+        셀프샐러드_재료_추가(prevSalad, addIngredients, ingredientMap);
+    }
+
+    @Test
+    @Commit
+    private void 삭제될_샐러드재료_샐러드수정(Long saladId, Set<Long> deleteIngredientIds){
+
+        System.out.println("삭제할 샐러드_재료 IDs: "+deleteIngredientIds);
+        selfSaladIngredientRepository.deleteAllBySelfSalad_IdAndIngredient_IdIn
+                (saladId, deleteIngredientIds);
     }
 
 }
