@@ -3,10 +3,12 @@ package com.example.demo.domain.member.entity;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import javax.persistence.*;
 
 @Getter
+@Setter
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
@@ -17,6 +19,9 @@ public class Address {
     private Long id;
 
     @Column(nullable = true)
+    private String zipcode;
+
+    @Column(nullable = true)
     private String city;
 
     @Column(nullable = true)
@@ -25,25 +30,22 @@ public class Address {
     @Column(nullable = true)
     private String addressDetail;
 
-    @Column(nullable = true)
-    private String zipcode;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_profile_id")
     private MemberProfile memberProfile;
 
 
-    public Address(String city, String street, String addressDetail, String zipcode) {
+    public Address(String zipcode, String city, String street, String addressDetail) {
+        this.zipcode = zipcode;
         this.city = city;
         this.street = street;
         this.addressDetail = addressDetail;
-        this.zipcode = zipcode;
     }
 
 
 
-    public static Address of(String city, String street, String addressDetail, String zipcode) {
-        return new Address(city, street, addressDetail, zipcode);
+    public static Address of(String zipcode, String city, String street, String addressDetail) {
+        return new Address(zipcode, city, street, addressDetail);
     }
 
     public void setMemberProfile(MemberProfile memberProfile) {
