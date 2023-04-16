@@ -1,6 +1,7 @@
 package com.example.demo.domain.order.controller.response;
 
 import com.example.demo.domain.order.entity.items.ItemCategoryType;
+import com.example.demo.domain.order.entity.items.ProductItem;
 import com.example.demo.domain.order.entity.items.SelfSaladItem;
 import com.example.demo.domain.order.entity.items.SideProductItem;
 import lombok.Getter;
@@ -61,6 +62,17 @@ public class CartItemListResponse {
                 sideProductItem.getSideProduct().getTitle(),
                 sideProductItem.getSideProduct().getSideProductImg().getEditedImg(),
                 sideProductItem.getSideProduct().getPrice() * sideProductItem.getQuantity());
+    }
+
+    public CartItemListResponse(SelfSaladItem selfSaladItem) {
+        this(ItemCategoryType.SELF_SALAD,
+                selfSaladItem.getId(),
+                selfSaladItem.getQuantity(),
+                selfSaladItem.getAddedDate(),
+                selfSaladItem.getSelfSalad().getId(),
+                selfSaladItem.getSelfSalad().getTitle(),
+                "",
+                selfSaladItem.getSelfSalad().getTotalPrice() * selfSaladItem.getQuantity());
     }
 
 }

@@ -221,6 +221,7 @@ public class CartServiceImpl implements CartService{
 
         List<ProductItem> productItems = productItemRepository.findByProductCart_Member_memberId(memberId);
         List<SideProductItem> sideProductItems = sideProductItemRepository.findBySideProductCart_Member_memberId(memberId);
+        List<SelfSaladItem> selfSaladItems = selfSaladItemRepository.findBySelfSaladCart_Member_memberId(memberId);
 
         List<CartItemListResponse> cartItems = new ArrayList<>();
         if(!productItems.isEmpty()){
@@ -231,6 +232,11 @@ public class CartServiceImpl implements CartService{
         if(!sideProductItems.isEmpty()){
             for (SideProductItem sideProductItem : sideProductItems) {
                 cartItems.add(new CartItemListResponse(sideProductItem));
+            }
+        }
+        if(!selfSaladItems.isEmpty()){
+            for (SelfSaladItem selfSaladItem : selfSaladItems) {
+                cartItems.add(new CartItemListResponse(selfSaladItem));
             }
         }
         if(!cartItems.isEmpty()){
