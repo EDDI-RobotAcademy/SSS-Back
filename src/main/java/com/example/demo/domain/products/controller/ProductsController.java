@@ -69,7 +69,7 @@ public class ProductsController {
         productsService.delete(productId);
     }
 
-    @GetMapping("/viewUp/{productId}")
+    @PostMapping("/viewUp/{productId}")
     public void viewCntUp(@PathVariable("productId") Long productId) {
         log.info("viewUp()");
         productsService.viewCntUp(productId);
