@@ -471,9 +471,17 @@ public class CartServiceImpl implements CartService{
                 .collect(Collectors.toSet());
         commonIds.retainAll(prevIngredients.keySet());
 
+        // 2. 새롭게 추가된 Ingredient ID 만 포함하는 Set - HashSet 은 중복된 값이 없는 집합을 저장
+        Set<Long> newIngredientIds = new HashSet<>(reqIngredients.keySet());
+        newIngredientIds.removeAll(commonIds);
+
         // 1. 수량 수정
         if( ! commonIds.isEmpty()){
             modifySelectedAmount(prevIngredients, reqIngredients, commonIds);
+        }
+        // 2. 새로운 재료 추가
+        if( ! newIngredientIds.isEmpty()){
+            modifyAddSelfSaladIngredient(requestItems, newIngredientIds, mySalad);
         }
     }
 
@@ -495,4 +503,17 @@ public class CartServiceImpl implements CartService{
         return true;
     }
 
+    private boolean modifyAddSelfSaladIngredient(List<SelfSaladRequest> requestItems,
+                                                 Set<Long> newIngredientIds,
+                                                 SelfSalad prevSalad){
+        log.info("새롭게 추가할 샐러드 재료 IDs : "+newIngredientIds);
+        List<SelfSaladRequest> addIngredients = requestItems.stream()
+                .filter(item -> newIngredientIds.contains(item.getIngredientId()))
+                .collect(Collectors.toList());
+
+        Map<Long, Ingredient> ingredientMap = checkIngredients(newIngredientIds);
+
+        addSelfSaladIngredient(prevSalad, addIngredients, ingredientMap);
+        return true;
+    }
 }
