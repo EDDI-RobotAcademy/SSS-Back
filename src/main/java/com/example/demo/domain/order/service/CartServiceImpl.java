@@ -2,10 +2,11 @@ package com.example.demo.domain.order.service;
 
 import com.example.demo.domain.member.entity.Member;
 import com.example.demo.domain.member.repository.MemberRepository;
+import com.example.demo.domain.order.controller.form.SelfSaladCartRegisterForm;
+import com.example.demo.domain.order.controller.form.SelfSaladModifyForm;
 import com.example.demo.domain.order.controller.request.CartItemDeleteRequest;
 import com.example.demo.domain.order.controller.request.CartItemQuantityModifyRequest;
 import com.example.demo.domain.order.controller.request.CartRegisterRequest;
-import com.example.demo.domain.order.controller.request.SelfSaladCartRegisterForm;
 import com.example.demo.domain.order.controller.response.CartItemListResponse;
 import com.example.demo.domain.order.controller.response.SelfSaladReadResponse;
 import com.example.demo.domain.order.entity.ProductCart;
@@ -429,6 +430,25 @@ public class CartServiceImpl implements CartService{
             return responseList;
         }
         return null;
+    }
+    @Override
+    @Transactional
+    public void modifySelfSaladItem(Long itemId, SelfSaladModifyForm modifyForm) {
+        // selfSalad item 확인
+        Optional<SelfSaladItem> maybeItem = selfSaladItemRepository.findById(itemId);
+        if(maybeItem.isPresent()){
+            // Self Salad 찾기
+            SelfSalad mySalad = maybeItem.get().getSelfSalad();
+            modifySelfSalad(mySalad,
+                            modifyForm.getTotalPrice(),
+                            modifyForm.getTotalCalorie());
+        }
+    }
+
+    private void modifySelfSalad(SelfSalad mySalad, Long price, Long calorie){
+        // 수정
+        mySalad.setTotal(price, calorie);
+        selfSaladRepository.save(mySalad);
     }
 
 }

@@ -16,7 +16,7 @@ public class SelfSalad {
      * 중복값 허용X, 순서 중요X = Set
      */
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column
@@ -34,6 +34,14 @@ public class SelfSalad {
 
     public SelfSalad(String title, Long totalPrice, Long totalCalorie) {
         this.title = title;
+        this.totalPrice = totalPrice;
+        this.totalCalorie = totalCalorie;
+    }
+
+    public void setTitle(String modifyTitle){
+        this.title = modifyTitle;
+    }
+    public void setTotal(Long totalPrice, Long totalCalorie){
         this.totalPrice = totalPrice;
         this.totalCalorie = totalCalorie;
     }

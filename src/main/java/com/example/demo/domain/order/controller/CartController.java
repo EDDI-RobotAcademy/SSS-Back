@@ -1,9 +1,8 @@
 package com.example.demo.domain.order.controller;
 
-import com.example.demo.domain.order.controller.request.SelfSaladCartRegisterForm;
-import com.example.demo.domain.order.controller.request.CartItemDeleteRequest;
-import com.example.demo.domain.order.controller.request.CartItemQuantityModifyRequest;
-import com.example.demo.domain.order.controller.request.CartRegisterRequest;
+import com.example.demo.domain.order.controller.form.SelfSaladCartRegisterForm;
+import com.example.demo.domain.order.controller.form.SelfSaladModifyForm;
+import com.example.demo.domain.order.controller.request.*;
 import com.example.demo.domain.order.controller.response.CartItemListResponse;
 import com.example.demo.domain.order.controller.response.SelfSaladReadResponse;
 import com.example.demo.domain.order.service.CartService;
@@ -54,6 +53,13 @@ public class CartController {
     public List<SelfSaladReadResponse> selfSaladRead(@PathVariable("itemId") Long itemId){
         log.info("selfSaladRead()");
         return cartService.readSelfSaladIngredient(itemId);
+    }
+
+    @PutMapping("/selfsalad/modify")
+    public void selfSaladItemModify(@PathVariable("itemId") Long itemId,
+                                    @RequestBody SelfSaladModifyForm modifyForm) {
+        log.info("selfSaladItemModify()");
+        cartService.modifySelfSaladItem(itemId, modifyForm);
     }
 
     @DeleteMapping("/delete")

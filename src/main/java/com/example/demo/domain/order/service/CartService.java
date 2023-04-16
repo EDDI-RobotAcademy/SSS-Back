@@ -22,4 +22,6 @@ public interface CartService {
     Integer checkSelfSaladCartLimit(Long memberId);
 
     List<SelfSaladReadResponse> readSelfSaladIngredient(Long itemId);
+
+    void modifySelfSaladItem(Long itemId, SelfSaladModifyForm modifyForm);
 }
