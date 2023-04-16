@@ -3,6 +3,7 @@ package com.example.demo.domain.security.entity;
 import com.example.demo.domain.member.entity.Member;
 import com.example.demo.domain.utility.encrypt.EncryptionUtil;
 import com.example.demo.domain.utility.password.PasswordHashConverter;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
@@ -11,6 +12,7 @@ import javax.persistence.*;
 
 @Entity
 @Setter
+@Getter
 @ToString(callSuper = true)
 @NoArgsConstructor
 @DiscriminatorValue(Authentication.BASIC_AUTH)

@@ -4,10 +4,12 @@ package com.example.demo.domain.member.entity;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 
 import javax.persistence.*;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -27,18 +29,24 @@ public class MemberProfile {
     @Column(nullable = true)
     private String phoneNumber;
 
+    @Getter
+    @Setter
+    @Column(nullable = false)
+    private String nickname;
+
     @OneToMany(mappedBy = "memberProfile", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private Set<Address> addresses = new HashSet<>();
 
     @Getter
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "member_id", unique = true)
+    @JoinColumn(name = "member_id")
     private Member member;
 
-    public MemberProfile(String phoneNumber, Set<Address> addresses, Member member) {
+    public MemberProfile(String phoneNumber, String nickname, Set<Address> addresses, Member member) {
+        this.nickname = nickname;
         this.phoneNumber = phoneNumber;
         if (addresses != null && !addresses.isEmpty()) {
-            setAddresses(addresses);
+            this.addresses = addresses;
         }
         this.member = member;
     }
@@ -54,8 +62,8 @@ public class MemberProfile {
         this.member = member;
     }
 
-    private void setAddresses(Set<Address> addresses) {
-        this.addresses = new HashSet<>();
+    private void setAddresses(List<Address> addresses) {
+        this.addresses = new HashSet<>(addresses);
         for (Address address : addresses) {
             addAddress(address);
         }
