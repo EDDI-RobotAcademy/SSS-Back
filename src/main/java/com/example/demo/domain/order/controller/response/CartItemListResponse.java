@@ -30,18 +30,6 @@ public class CartItemListResponse {
 
     final private Long totalPrice;
 
-    public CartItemListResponse(ItemCategoryType category, Long cartItemId, Integer quantity,
-                                Date addedDate, Long productId, String title, String editedImg, Long totalPrice) {
-        this.category = category;
-        this.cartItemId = cartItemId;
-        this.quantity = quantity;
-        this.addedDate = addedDate;
-        this.productId = productId;
-        this.title = title;
-        this.editedImg = editedImg;
-        this.totalPrice = totalPrice;
-    }
-
     public CartItemListResponse(ProductItem productItem) {
         this(ItemCategoryType.PRODUCT,
                 productItem.getId(),
