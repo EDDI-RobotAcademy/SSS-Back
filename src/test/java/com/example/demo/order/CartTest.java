@@ -377,6 +377,26 @@ public class CartTest {
         selfSaladIngredientRepository.saveAll(saladIngredients);
     }
 
+    @Test
+    public void 셀프샐러드_재료_읽기(){
+        Long itemId = 3L;
+        // 장바구니 수정 요청시 보낼 샐러드_재료 데이터
+        Optional<SelfSaladItem> maybeItem = selfSaladItemRepository.findById(itemId);
+        Long selfSaladId;
+        if(maybeItem.isPresent()){
+            // Self Salad 찾기
+            selfSaladId = maybeItem.get().getSelfSalad().getId();
+            List<SelfSaladIngredient> selfSaladIngredients =
+                    selfSaladIngredientRepository.findBySelfSalad_id(selfSaladId);
+            List<SelfSaladReadResponse> responseList = new ArrayList<>();
+            for(SelfSaladIngredient ingredient : selfSaladIngredients){
+                responseList.add(
+                        new SelfSaladReadResponse(ingredient.getIngredient().getId(),
+                                ingredient.getSelectedAmount()));
+            }
+            System.out.println("수정할 샐러드 재료 정보 보내기 :"+responseList);
+        }
+    }
     }
 
 }
