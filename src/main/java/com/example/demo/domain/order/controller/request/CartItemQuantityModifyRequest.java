@@ -13,7 +13,7 @@ public class CartItemQuantityModifyRequest {
 
     final private Integer quantity;
 
-    @JsonProperty("itemCategory")
+    @JsonProperty("category")
     final private ItemCategoryType itemCategoryType;
 
 }

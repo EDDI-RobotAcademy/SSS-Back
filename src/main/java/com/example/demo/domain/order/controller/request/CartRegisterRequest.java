@@ -24,7 +24,7 @@ public class CartRegisterRequest {
      * userToken : 장바구니 담은 회원의 userToken
      *
      */
-    @JsonProperty("itemCategoryType")
+    @JsonProperty("category")
     private ItemCategoryType itemCategoryType;
 
     private Long itemId;
