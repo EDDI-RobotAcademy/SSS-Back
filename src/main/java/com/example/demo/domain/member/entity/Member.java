@@ -42,6 +42,7 @@ public class Member {
     @OneToOne(mappedBy = "member", cascade = CascadeType.ALL)
     private MemberProfile memberProfile;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "member", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
     private Set<Authentication> authentications = new HashSet<>();
 
