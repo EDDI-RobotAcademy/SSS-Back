@@ -1,16 +1,16 @@
-package com.example.demo.domain.products.service.request;
+package com.example.demo.domain.products.controller.form;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.ToString;
 
 @Getter
+@ToString
 @AllArgsConstructor
 @NoArgsConstructor
-@Setter
-public class FavoriteInfoRequest {
-
+public class FavoriteResponse {
+    private Boolean isLike;
     private Long memberId;
     private Long productId;
 }
