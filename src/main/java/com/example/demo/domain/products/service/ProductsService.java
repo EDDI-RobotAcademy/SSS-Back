@@ -25,4 +25,6 @@ public interface ProductsService {
     void viewCntUp(Long productId);
 
     List<Product> listByView();
+
+    List<Product> listByFavorite();
 }

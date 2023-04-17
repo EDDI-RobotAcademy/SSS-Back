@@ -215,4 +215,9 @@ public class ProductsServiceImpl implements ProductsService {
     public List<Product> listByView() {
         return productsRepository.findAll(Sort.by(Sort.Direction.DESC, "viewCnt"));
     }
+
+    @Override
+    public List<Product> listByFavorite() {
+        return productsRepository.findAll(Sort.by(Sort.Direction.DESC, "favoriteCnt"));
+    }
 }

@@ -39,12 +39,16 @@ public class FavoriteServiceImpl implements FavoriteService {
                 if(isLike) {
                     log.info("찜O->찜X");
                     maybeFavorite.get().setIsLike(false);
+                    maybeFavorite.get().getProduct().setFavoriteCnt(maybeFavorite.get().getProduct().getFavoriteCnt() - 1);
                     favoriteRepository.save(maybeFavorite.get());
+                    productsRepository.save(maybeFavorite.get().getProduct());
                     return new FavoriteResponse(false, maybeFavorite.get().getMember().getMemberId(), maybeFavorite.get().getProduct().getProductId());
                 } else {
                     log.info("찜X->찜O");
                     maybeFavorite.get().setIsLike(true);
+                    maybeFavorite.get().getProduct().setFavoriteCnt(maybeFavorite.get().getProduct().getFavoriteCnt() + 1);
                     favoriteRepository.save(maybeFavorite.get());
+                    productsRepository.save(maybeFavorite.get().getProduct());
                     return new FavoriteResponse(true, maybeFavorite.get().getMember().getMemberId(), maybeFavorite.get().getProduct().getProductId());
                 }
             } else {
@@ -54,6 +58,11 @@ public class FavoriteServiceImpl implements FavoriteService {
                 favorite.setMember(maybeMember.get());
                 favorite.setProduct(maybeProduct.get());
                 favoriteRepository.save(favorite);
+
+                Product product = favorite.getProduct();
+                product.setFavoriteCnt(product.getFavoriteCnt() + 1);
+                productsRepository.save(product);
+
                 return new FavoriteResponse(true, favorite.getMember().getMemberId(), favorite.getProduct().getProductId());
             }
         }
