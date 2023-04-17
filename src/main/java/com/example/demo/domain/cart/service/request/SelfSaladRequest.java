@@ -1,4 +1,4 @@
-package com.example.demo.domain.order.service.request;
+package com.example.demo.domain.cart.service.request;
 
 import com.example.demo.domain.selfSalad.entity.*;
 import com.fasterxml.jackson.annotation.JsonProperty;

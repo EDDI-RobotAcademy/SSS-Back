@@ -1,4 +1,4 @@
-package com.example.demo.domain.order.entity.items;
+package com.example.demo.domain.cart.entity.cartItems;
 
 public enum CartItemLimit {
     SELF_SALAD(5);

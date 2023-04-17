@@ -1,4 +1,4 @@
-package com.example.demo.domain.order.entity.items;
+package com.example.demo.domain.cart.entity.cartItems;
 
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.stereotype.Component;

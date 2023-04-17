@@ -1,4 +1,4 @@
-package com.example.demo.domain.order.entity.items;
+package com.example.demo.domain.cart.entity.cartItems;
 
 public enum ItemCategoryType {
     // 데이터 전송할 때 SIDE_PRODUCT, PRODUCT, SELF_SALAD 으로 전송하세요.

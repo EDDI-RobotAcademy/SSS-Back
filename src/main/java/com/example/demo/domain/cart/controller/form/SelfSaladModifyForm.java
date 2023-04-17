@@ -1,6 +1,6 @@
-package com.example.demo.domain.order.controller.form;
+package com.example.demo.domain.cart.controller.form;
 
-import com.example.demo.domain.order.service.request.SelfSaladRequest;
+import com.example.demo.domain.cart.service.request.SelfSaladRequest;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

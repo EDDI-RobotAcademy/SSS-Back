@@ -1,6 +1,6 @@
-package com.example.demo.domain.order.repository;
+package com.example.demo.domain.cart.repository;
 
-import com.example.demo.domain.order.entity.items.ProductItem;
+import com.example.demo.domain.cart.entity.cartItems.ProductItem;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;

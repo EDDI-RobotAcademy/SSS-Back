@@ -1,4 +1,4 @@
-package com.example.demo.domain.order.controller.response;
+package com.example.demo.domain.cart.controller.response;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

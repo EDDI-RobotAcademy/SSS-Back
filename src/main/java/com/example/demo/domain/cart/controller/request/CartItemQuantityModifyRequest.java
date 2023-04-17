@@ -1,6 +1,6 @@
-package com.example.demo.domain.order.controller.request;
+package com.example.demo.domain.cart.controller.request;
 
-import com.example.demo.domain.order.entity.items.ItemCategoryType;
+import com.example.demo.domain.cart.entity.cartItems.ItemCategoryType;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

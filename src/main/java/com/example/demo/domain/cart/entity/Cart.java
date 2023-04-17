@@ -1,7 +1,7 @@
-package com.example.demo.domain.order.entity;
+package com.example.demo.domain.cart.entity;
 
 import com.example.demo.domain.member.entity.Member;
-import com.example.demo.domain.order.entity.items.ProductItem;
+import com.example.demo.domain.cart.entity.cartItems.ProductItem;
 import lombok.*;
 
 import javax.persistence.*;
@@ -13,7 +13,7 @@ import java.util.List;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Builder
 @AllArgsConstructor
-public class ProductCart {
+public class Cart {
     /**
      * Order : 주문 테이블
      *
@@ -34,7 +34,6 @@ public class ProductCart {
 }
 
 /**
-
  *     item : Many / Member : One
  1)       고구마 5       ㄱ
  2)       단호박 4       ㄱ

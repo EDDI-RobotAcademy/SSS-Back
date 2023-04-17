@@ -1,6 +1,6 @@
-package com.example.demo.domain.order.entity.items;
+package com.example.demo.domain.cart.entity.cartItems;
 
-import com.example.demo.domain.order.entity.SelfSaladCart;
+import com.example.demo.domain.cart.entity.Cart;
 import com.example.demo.domain.selfSalad.entity.SelfSalad;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -32,16 +32,16 @@ public class SelfSaladItem {
     private SelfSalad selfSalad;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "self_salad_cart_id")
-    private SelfSaladCart selfSaladCart;
+    @JoinColumn(name = "cart_id")
+    private Cart cart;
 
     @CreationTimestamp
     private Date addedDate;
 
-    public SelfSaladItem(Integer quantity, SelfSaladCart selfSaladCart, SelfSalad selfSalad) {
+    public SelfSaladItem(Integer quantity, Cart cart, SelfSalad selfSalad) {
         this.quantity = quantity;
         this.selfSalad = selfSalad;
-        this.selfSaladCart = selfSaladCart;
+        this.cart = cart;
     }
     public void setQuantity(Integer quantity){
         this.quantity = quantity;

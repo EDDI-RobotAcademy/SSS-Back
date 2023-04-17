@@ -1,9 +1,9 @@
-package com.example.demo.domain.order.controller.response;
+package com.example.demo.domain.cart.controller.response;
 
-import com.example.demo.domain.order.entity.items.ItemCategoryType;
-import com.example.demo.domain.order.entity.items.ProductItem;
-import com.example.demo.domain.order.entity.items.SelfSaladItem;
-import com.example.demo.domain.order.entity.items.SideProductItem;
+import com.example.demo.domain.cart.entity.cartItems.ItemCategoryType;
+import com.example.demo.domain.cart.entity.cartItems.ProductItem;
+import com.example.demo.domain.cart.entity.cartItems.SelfSaladItem;
+import com.example.demo.domain.cart.entity.cartItems.SideProductItem;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
