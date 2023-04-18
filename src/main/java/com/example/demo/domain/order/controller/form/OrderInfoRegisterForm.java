@@ -6,7 +6,7 @@ import lombok.Getter;
 import java.util.List;
 
 @Getter
-public class OrderRegisterForm {
+public class OrderInfoRegisterForm {
 
     private Long memberId;
 

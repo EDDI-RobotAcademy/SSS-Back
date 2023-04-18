@@ -1,6 +1,6 @@
 package com.example.demo.domain.order.entity.orderItems;
 
-import com.example.demo.domain.order.entity.Order;
+import com.example.demo.domain.order.entity.OrderInfo;
 import com.example.demo.domain.products.entity.Product;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -24,12 +24,12 @@ public class ProductOrderItem {
     private Product product;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "order_id")
-    private Order order;
+    @JoinColumn(name = "orderInfo_id")
+    private OrderInfo orderInfo;
 
-    public ProductOrderItem(Integer quantity, Product product, Order order) {
+    public ProductOrderItem(Integer quantity, Product product, OrderInfo orderInfo) {
         this.quantity = quantity;
         this.product = product;
-        this.order = order;
+        this.orderInfo = orderInfo;
     }
 }

@@ -343,11 +343,9 @@ public class CartServiceImpl implements CartService{
     }
 
     private SelfSalad createSelfSalad(SelfSaladCartRegisterForm reqForm){
-        SelfSalad mySalad = SelfSalad.builder()
-                                    .title(reqForm.getTitle())
-                                    .totalPrice(reqForm.getTotalPrice())
-                                    .totalCalorie(reqForm.getTotalCalorie())
-                                    .build();
+        SelfSalad mySalad = new SelfSalad(reqForm.getTitle(),
+                                    reqForm.getTotalPrice(),
+                                    reqForm.getTotalCalorie());
         selfSaladRepository.save(mySalad);
         System.out.println("샐러드 출력 가즈아!"+ mySalad);
         return mySalad;

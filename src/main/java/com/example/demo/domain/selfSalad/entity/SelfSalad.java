@@ -1,7 +1,6 @@
 package com.example.demo.domain.selfSalad.entity;
 
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -12,7 +11,6 @@ import java.util.Set;
 @Entity
 @Getter
 @NoArgsConstructor
-@Builder
 @AllArgsConstructor
 public class SelfSalad {
     /**

@@ -14,5 +14,5 @@ public interface SideProductsRepository extends JpaRepository<SideProduct, Long>
 
     SideProductImg findBySideProductId(Long sideProductId);
 
-    Optional<List<SideProduct>> findByIdIn(Set<Long> sideProductIds);
+    Optional<List<SideProduct>> findBySideProductIdIn(Set<Long> sideProductIds);
 }

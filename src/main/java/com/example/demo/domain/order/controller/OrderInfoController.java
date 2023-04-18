@@ -1,7 +1,7 @@
 package com.example.demo.domain.order.controller;
 
-import com.example.demo.domain.order.controller.form.OrderRegisterForm;
-import com.example.demo.domain.order.service.OrderService;
+import com.example.demo.domain.order.controller.form.OrderInfoRegisterForm;
+import com.example.demo.domain.order.service.OrderInfoService;
 import com.example.demo.domain.order.service.request.OrderItemRegisterRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,11 +16,11 @@ import java.util.List;
 @RestController
 @RequestMapping("/order")
 @RequiredArgsConstructor
-public class OrderController {
-    final private OrderService orderService;
+public class OrderInfoController {
+    final private OrderInfoService orderInfoService;
 
     @PostMapping(value = "/register")
-    public void orderItemsRegister (@RequestBody OrderRegisterForm orderRequest) {
+    public void orderItemsRegister (@RequestBody OrderInfoRegisterForm orderRequest) {
         log.info("orderRegister()");
         Long memberId = orderRequest.getMemberId();
         Long totalOrderPrice = orderRequest.getTotalOrderPrice();
@@ -28,6 +28,6 @@ public class OrderController {
         List<OrderItemRegisterRequest> orderItems =
                 orderRequest.getOrderItemRegisterRequestList();
 
-        orderService.classifyOrderItemCategory(memberId, totalOrderPrice, orderItems);
+        orderInfoService.classifyOrderItemCategory(memberId, totalOrderPrice, orderItems);
     }
 }
