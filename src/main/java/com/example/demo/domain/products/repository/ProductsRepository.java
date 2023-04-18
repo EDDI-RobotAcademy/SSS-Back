@@ -12,5 +12,5 @@ import java.util.Set;
 public interface ProductsRepository extends JpaRepository<Product, Long> {
 
 
-    Optional<List<Product>> findByIdIn(Set<Long> products);
+    Optional<List<Product>> findByProductIdIn(Set<Long> products);
 }

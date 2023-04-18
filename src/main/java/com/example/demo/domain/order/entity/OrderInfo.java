@@ -16,18 +16,18 @@ import java.util.List;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Builder
 @AllArgsConstructor
-public class Order {
+public class OrderInfo {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToMany(mappedBy = "order",fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
+    @OneToMany(mappedBy = "orderInfo",fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
     private List<ProductOrderItem> productItemList;
 
-    @OneToMany(mappedBy = "order",fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
+    @OneToMany(mappedBy = "orderInfo",fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
     private List<SideProductOrderItem> sidePoductOrderItemList;
 
-    @OneToMany(mappedBy = "order",fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
+    @OneToMany(mappedBy = "orderInfo",fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
     private List<SelfSaladOrderItem> selfSaladOrderItemList;
 
     @Column
@@ -40,7 +40,8 @@ public class Order {
     @JoinColumn(name = "member_id")
     private Member member;
 
-    public void setOrderTotalPrice(Long totalOrderPrice) {
+    public OrderInfo(Long totalOrderPrice, Member member) {
         this.totalOrderPrice = totalOrderPrice;
+        this.member = member;
     }
 }

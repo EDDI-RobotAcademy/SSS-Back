@@ -1,7 +1,7 @@
 package com.example.demo.domain.order.service.request;
 
 import com.example.demo.domain.cart.entity.cartItems.ItemCategoryType;
-import com.example.demo.domain.order.entity.Order;
+import com.example.demo.domain.order.entity.OrderInfo;
 import com.example.demo.domain.order.entity.orderItems.ProductOrderItem;
 import com.example.demo.domain.order.entity.orderItems.SelfSaladOrderItem;
 import com.example.demo.domain.order.entity.orderItems.SideProductOrderItem;
@@ -25,16 +25,16 @@ public class OrderItemRegisterRequest {
     private Integer quantity;
 
 
-    public ProductOrderItem toProductOrderItem(Product orderProduct, Order myOrder) {
+    public ProductOrderItem toProductOrderItem(Product orderProduct, OrderInfo myOrderInfo) {
 
-        return new ProductOrderItem(this.quantity, orderProduct, myOrder);
+        return new ProductOrderItem(this.quantity, orderProduct, myOrderInfo);
     }
 
-    public SideProductOrderItem toSideProductOrderItem(SideProduct sideProduct, Order myOrder) {
-        return new SideProductOrderItem(this.quantity, sideProduct, myOrder);
+    public SideProductOrderItem toSideProductOrderItem(SideProduct sideProduct, OrderInfo myOrderInfo) {
+        return new SideProductOrderItem(this.quantity, sideProduct, myOrderInfo);
     }
 
-    public SelfSaladOrderItem toSelfSaladOrderItem(SelfSalad selfSalad, Order myOrder) {
-        return new SelfSaladOrderItem(this.quantity, selfSalad, myOrder);
+    public SelfSaladOrderItem toSelfSaladOrderItem(SelfSalad selfSalad, OrderInfo myOrderInfo) {
+        return new SelfSaladOrderItem(this.quantity, selfSalad, myOrderInfo);
     }
 }
