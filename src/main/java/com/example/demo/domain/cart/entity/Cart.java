@@ -1,7 +1,9 @@
 package com.example.demo.domain.cart.entity;
 
-import com.example.demo.domain.member.entity.Member;
 import com.example.demo.domain.cart.entity.cartItems.ProductItem;
+import com.example.demo.domain.cart.entity.cartItems.SelfSaladItem;
+import com.example.demo.domain.cart.entity.cartItems.SideProductItem;
+import com.example.demo.domain.member.entity.Member;
 import lombok.*;
 
 import javax.persistence.*;
@@ -24,10 +26,16 @@ public class Cart {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToMany(mappedBy = "productCart",fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
+    @OneToMany(mappedBy = "cart",fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
     private List<ProductItem> productItemList;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "cart",fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
+    private List<SideProductItem> sideProductItemList;
+
+    @OneToMany(mappedBy = "cart",fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
+    private List<SelfSaladItem> selfSaladItemList;
+
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
     private Member member;
 
