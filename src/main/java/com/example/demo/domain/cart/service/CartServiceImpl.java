@@ -324,37 +324,43 @@ public class CartServiceImpl implements CartService{
         }
         Map<Long, Ingredient> ingredientMap = requireNonNull(checkIngredients(ingredientIds));
 
-        Optional<Cart> myCart =
+        Optional<Cart> maybeCart =
                 cartRepository.findByMember_memberId(member.getMemberId());
 
-        if (myCart.isEmpty()) {
-            Cart firstCart = createCart(member);
-            addSelfSaladItem(firstCart, reqForm, ingredientMap);
-            log.info(member.getNickname() + " 님의 장바구니에 첫 상품을 추가하였습니다.");
-
+        Cart myCart;
+        if (maybeCart.isEmpty()) {
+            myCart = createCart(member);
         } else {
             log.info(member.getNickname() + " 님의 SelfSalad 장바구니는 이미 생성되어 있습니다.");
-
-            addSelfSaladItem(myCart.get(), reqForm, ingredientMap);
-            log.info(member.getNickname() + " 님의 SelfSalad 장바구니에 상품을 추가하였습니다.");
+            myCart = maybeCart.get();
         }
+        SelfSalad mySalad = createSelfSalad(reqForm);
+
+        addSelfSaladIngredient(mySalad,reqForm.getSelfSaladRequestList(), ingredientMap );
+
+        addSelfSaladItem(myCart, mySalad, reqForm);
+        log.info(member.getNickname() + " 님의 장바구니에 첫 상품을 추가하였습니다.");
     }
 
-    private void addSelfSaladItem(Cart myCart, SelfSaladCartRegisterForm reqForm,
-                                  Map<Long, Ingredient> ingredientMap){
-        // SelfSalad 저장
-        SelfSalad selfSalad = reqForm.toSelfSalad();
-        System.out.println("샐러드 출력 가즈아!"+ selfSalad);
-        selfSaladRepository.save(selfSalad);
+    private SelfSalad createSelfSalad(SelfSaladCartRegisterForm reqForm){
+        SelfSalad mySalad = SelfSalad.builder()
+                                    .title(reqForm.getTitle())
+                                    .totalPrice(reqForm.getTotalPrice())
+                                    .totalCalorie(reqForm.getTotalCalorie())
+                                    .build();
+        selfSaladRepository.save(mySalad);
+        System.out.println("샐러드 출력 가즈아!"+ mySalad);
+        return mySalad;
+    }
 
-        addSelfSaladIngredient(selfSalad, reqForm.getSelfSaladRequestList(), ingredientMap);
 
+    private void addSelfSaladItem(Cart myCart, SelfSalad mySalad, SelfSaladCartRegisterForm reqForm){
         // SelfSalad Item
-        SelfSaladItem newSelfSaladitem = reqForm.toSelfSaladItem(myCart, selfSalad);
+        SelfSaladItem newSelfSaladitem = reqForm.toSelfSaladItem(myCart, mySalad);
         selfSaladItemRepository.save(newSelfSaladitem);
     }
 
-    private void addSelfSaladIngredient(SelfSalad selfSalad, List<SelfSaladRequest> requestList,
+    private void addSelfSaladIngredient(SelfSalad mySalad, List<SelfSaladRequest> requestList,
                                         Map<Long, Ingredient> ingredientMap){
         // SelfSaladIngredient 저장
         List<SelfSaladIngredient> saladIngredients = new ArrayList<>();
@@ -365,7 +371,7 @@ public class CartServiceImpl implements CartService{
             Ingredient ingredient =
                     ingredientMap.get(request.getIngredientId());
 
-            saladIngredients.add( request.toSelfSaladIngredient( selfSalad,ingredient, amount) );
+            saladIngredients.add( request.toSelfSaladIngredient( mySalad, ingredient, amount) );
         }
         selfSaladIngredientRepository.saveAll(saladIngredients);
     }
