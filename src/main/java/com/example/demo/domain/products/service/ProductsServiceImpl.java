@@ -12,7 +12,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.swing.text.html.Option;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -47,6 +46,7 @@ public class ProductsServiceImpl implements ProductsService {
         product.setTitle(request.getTitle());
         product.setPrice(request.getPrice());
         product.setContent(request.getContent());
+        product.setProductDetail(request.getProductDetail());
 
         for (MultipartFile multipartFile : files) {
             UUID uuid = UUID.randomUUID();
