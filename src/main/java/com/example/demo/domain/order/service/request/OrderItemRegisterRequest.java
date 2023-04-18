@@ -1,10 +1,12 @@
 package com.example.demo.domain.order.service.request;
 
-import com.example.demo.domain.order.entity.Order;
 import com.example.demo.domain.cart.entity.cartItems.ItemCategoryType;
+import com.example.demo.domain.order.entity.Order;
 import com.example.demo.domain.order.entity.orderItems.ProductOrderItem;
+import com.example.demo.domain.order.entity.orderItems.SelfSaladOrderItem;
 import com.example.demo.domain.order.entity.orderItems.SideProductOrderItem;
 import com.example.demo.domain.products.entity.Product;
+import com.example.demo.domain.selfSalad.entity.SelfSalad;
 import com.example.demo.domain.sideProducts.entity.SideProduct;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
@@ -30,5 +32,9 @@ public class OrderItemRegisterRequest {
 
     public SideProductOrderItem toSideProductOrderItem(SideProduct sideProduct, Order myOrder) {
         return new SideProductOrderItem(this.quantity, sideProduct, myOrder);
+    }
+
+    public SelfSaladOrderItem toSelfSaladOrderItem(SelfSalad selfSalad, Order myOrder) {
+        return new SelfSaladOrderItem(this.quantity, selfSalad, myOrder);
     }
 }
