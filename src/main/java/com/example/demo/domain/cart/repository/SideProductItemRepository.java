@@ -7,6 +7,6 @@ import java.util.List;
 import java.util.Optional;
 
 public interface SideProductItemRepository extends JpaRepository<SideProductItem, Long> {
-    Optional<SideProductItem> findBySideProduct_sideProductIdAndSideProductCart_Id(Long productId, Long productCartId);
-    List<SideProductItem> findBySideProductCart_Member_memberId(Long memberId);
+    Optional<SideProductItem> findBySideProduct_sideProductIdAndCart_Id(Long productId, Long productCartId);
+    List<SideProductItem> findByCart_Member_memberId(Long memberId);
 }

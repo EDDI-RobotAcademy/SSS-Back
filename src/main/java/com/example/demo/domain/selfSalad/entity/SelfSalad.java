@@ -1,5 +1,7 @@
 package com.example.demo.domain.selfSalad.entity;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -10,6 +12,8 @@ import java.util.Set;
 @Entity
 @Getter
 @NoArgsConstructor
+@Builder
+@AllArgsConstructor
 public class SelfSalad {
     /**
      * ingredientQuantities : 선택한 재료 id 에 해당하는 수량 (30g)
@@ -37,6 +41,7 @@ public class SelfSalad {
         this.totalPrice = totalPrice;
         this.totalCalorie = totalCalorie;
     }
+
 
     public void setTitle(String modifyTitle){
         this.title = modifyTitle;

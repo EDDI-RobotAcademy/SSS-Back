@@ -144,7 +144,7 @@ public class CartServiceImpl implements CartService{
         Product requestProduct = requireNonNull(checkProduct(cartItem.getItemId()));
 
         Optional<ProductItem> maybeProductItem =
-                productItemRepository.findByProduct_productIdAndProductCart_Id(cartItem.getItemId(),myCart.getId());
+                productItemRepository.findByProduct_productIdAndCart_Id(cartItem.getItemId(),myCart.getId());
 
         if (maybeProductItem.isPresent()) {
             ProductItem productItem = maybeProductItem.get();
@@ -167,7 +167,7 @@ public class CartServiceImpl implements CartService{
         SideProduct requestSideProduct = requireNonNull(checkSideProduct(cartItem.getItemId()));
 
         Optional<SideProductItem> maybeSideProductItem =
-                sideProductItemRepository.findBySideProduct_sideProductIdAndSideProductCart_Id(cartItem.getItemId(),myCart.getId());
+                sideProductItemRepository.findBySideProduct_sideProductIdAndCart_Id(cartItem.getItemId(),myCart.getId());
 
         if (maybeSideProductItem.isPresent()) {
             SideProductItem sideProductItem = maybeSideProductItem.get();
@@ -190,8 +190,8 @@ public class CartServiceImpl implements CartService{
     @Transactional
     public List<CartItemListResponse> cartItemList(Long memberId){
 
-        List<ProductItem> productItems = productItemRepository.findByProductCart_Member_memberId(memberId);
-        List<SideProductItem> sideProductItems = sideProductItemRepository.findBySideProductCart_Member_memberId(memberId);
+        List<ProductItem> productItems = productItemRepository.findByCart_Member_memberId(memberId);
+        List<SideProductItem> sideProductItems = sideProductItemRepository.findByCart_Member_memberId(memberId);
         List<SelfSaladItem> selfSaladItems = selfSaladItemRepository.findByCart_Member_memberId(memberId);
 
         List<CartItemListResponse> cartItems = new ArrayList<>();
