@@ -2,6 +2,7 @@ package com.example.demo.domain.products.service;
 
 import com.example.demo.domain.member.entity.Member;
 import com.example.demo.domain.member.repository.MemberRepository;
+import com.example.demo.domain.products.controller.form.FavoriteResponse;
 import com.example.demo.domain.products.entity.Favorite;
 import com.example.demo.domain.products.entity.Product;
 import com.example.demo.domain.products.repository.FavoriteRepository;
@@ -23,9 +24,8 @@ public class FavoriteServiceImpl implements FavoriteService {
     final private FavoriteRepository favoriteRepository;
     final private ProductsRepository productsRepository;
     final private MemberRepository memberRepository;
-    final private RedisService redisService;
 
-    public Boolean changeLike(FavoriteInfoRequest request) {
+    public FavoriteResponse changeLike(FavoriteInfoRequest request) {
         Optional<Member> maybeMember = memberRepository.findById(request.getMemberId());
         Optional<Product> maybeProduct = productsRepository.findById(request.getProductId());
 
@@ -39,13 +39,17 @@ public class FavoriteServiceImpl implements FavoriteService {
                 if(isLike) {
                     log.info("찜O->찜X");
                     maybeFavorite.get().setIsLike(false);
+                    maybeFavorite.get().getProduct().setFavoriteCnt(maybeFavorite.get().getProduct().getFavoriteCnt() - 1);
                     favoriteRepository.save(maybeFavorite.get());
-                    return false;
+                    productsRepository.save(maybeFavorite.get().getProduct());
+                    return new FavoriteResponse(false, maybeFavorite.get().getMember().getMemberId(), maybeFavorite.get().getProduct().getProductId());
                 } else {
                     log.info("찜X->찜O");
                     maybeFavorite.get().setIsLike(true);
+                    maybeFavorite.get().getProduct().setFavoriteCnt(maybeFavorite.get().getProduct().getFavoriteCnt() + 1);
                     favoriteRepository.save(maybeFavorite.get());
-                    return true;
+                    productsRepository.save(maybeFavorite.get().getProduct());
+                    return new FavoriteResponse(true, maybeFavorite.get().getMember().getMemberId(), maybeFavorite.get().getProduct().getProductId());
                 }
             } else {
                 log.info("찜내역 X");
@@ -54,7 +58,12 @@ public class FavoriteServiceImpl implements FavoriteService {
                 favorite.setMember(maybeMember.get());
                 favorite.setProduct(maybeProduct.get());
                 favoriteRepository.save(favorite);
-                return true;
+
+                Product product = favorite.getProduct();
+                product.setFavoriteCnt(product.getFavoriteCnt() + 1);
+                productsRepository.save(product);
+
+                return new FavoriteResponse(true, favorite.getMember().getMemberId(), favorite.getProduct().getProductId());
             }
         }
         throw new RuntimeException("해당 멤버나 상품 없음");

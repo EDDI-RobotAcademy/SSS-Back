@@ -1,5 +1,6 @@
 package com.example.demo.domain.products.controller;
 
+import com.example.demo.domain.products.controller.form.FavoriteResponse;
 import com.example.demo.domain.products.entity.Favorite;
 import com.example.demo.domain.products.service.FavoriteService;
 import com.example.demo.domain.products.service.request.FavoriteInfoRequest;
@@ -18,7 +19,7 @@ public class FavoriteController {
     final private FavoriteService favoriteService;
 
     @PostMapping("/changeLike")
-    public Boolean changeLike(@RequestBody FavoriteInfoRequest request) {
+    public FavoriteResponse changeLike(@RequestBody FavoriteInfoRequest request) {
         log.info("changeLike(): " + request);
         return favoriteService.changeLike(request);
     }

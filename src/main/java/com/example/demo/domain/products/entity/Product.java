@@ -8,6 +8,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.Id;
 import javax.persistence.*;
+import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -33,6 +34,9 @@ public class Product {
 
     @Column(nullable = false)
     private int viewCnt = 0;
+
+    @Column(nullable = false)
+    private int favoriteCnt = 0;
 
     @OneToMany(mappedBy = "product", fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true) //LAZY 오류 - failed to lazily initialize a collection of role
     private List<ProductImg> productImgs = new ArrayList<>();             //orphanRemoval = true : 부모 엔티티에서 자식 엔티티 삭제 가능

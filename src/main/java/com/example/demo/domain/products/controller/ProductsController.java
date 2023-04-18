@@ -79,4 +79,7 @@ public class ProductsController {
     public List<Product> listByView() {
         return productsService.listByView();
     }
+
+    @PostMapping("/list/favorite")
+    public List<Product> listByFavorite() { return productsService.listByFavorite(); }
 }
