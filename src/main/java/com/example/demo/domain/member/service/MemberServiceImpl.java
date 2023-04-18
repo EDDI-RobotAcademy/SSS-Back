@@ -1,8 +1,6 @@
 package com.example.demo.domain.member.service;
 
-import com.example.demo.domain.member.entity.Address;
-import com.example.demo.domain.member.entity.AdminCode;
-import com.example.demo.domain.member.entity.MemberProfile;
+import com.example.demo.domain.member.entity.*;
 import com.example.demo.domain.member.repository.AdminCodeRepository;
 import com.example.demo.domain.member.repository.MemberRepository;
 import com.example.demo.domain.member.repository.MemberProfileRepository;
@@ -17,7 +15,6 @@ import com.example.demo.domain.security.service.RedisService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import com.example.demo.domain.member.entity.Member;
 
 import javax.transaction.Transactional;
 import java.util.HashMap;
@@ -106,6 +103,7 @@ public class MemberServiceImpl implements MemberService {
 
     //로그인
     @Override
+    @Transactional
     public Map<String, String> signIn(MemberSignInRequest signInRequest) {
         String email = signInRequest.getEmail();
 //        String authorityCode = signInRequest.getAuthorityCode();
@@ -130,7 +128,8 @@ public class MemberServiceImpl implements MemberService {
             userInfo.put("userEmail", memberInfo.getEmail());
             userInfo.put("userNickName", memberInfo.getNickname());
             userInfo.put("userId", memberInfo.getMemberId().toString());
-//            userInfo.put("authorityType", memberInfo.getAdminCheck());
+            AuthorityType authorityType = memberInfo.getAuthority().getAuthorityName();
+            userInfo.put("authorityType", authorityType.name());
 
             log.info("userProfile()" + userInfo);
 
