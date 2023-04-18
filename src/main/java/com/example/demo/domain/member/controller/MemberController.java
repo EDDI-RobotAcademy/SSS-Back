@@ -52,9 +52,9 @@ public class MemberController {
         return memberService.signIn(form.toMemberSignInRequest());
     }
 
-    @DeleteMapping("/delete-member/{id}")
-    public void deleteMember(@PathVariable Long id) {
-        memberService.deleteMember(id);
+    @DeleteMapping("/delete-member/{memberId}")
+    public void deleteMember(@PathVariable Long memberId) {
+        memberService.deleteMember(memberId);
     }
 
 

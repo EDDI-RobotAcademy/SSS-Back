@@ -141,8 +141,8 @@ public class MemberServiceImpl implements MemberService {
     }
 
     //회원탈퇴
-    public void deleteMember(Long id) {
-        memberRepository.deleteById(id);
+    public void deleteMember(Long memberId) {
+        memberRepository.deleteById(memberId);
     }
 
     //정보변경
