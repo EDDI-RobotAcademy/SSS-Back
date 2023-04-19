@@ -2,22 +2,21 @@ package com.example.demo.domain.products.service;
 
 import com.example.demo.domain.member.entity.Member;
 import com.example.demo.domain.member.repository.MemberRepository;
+import com.example.demo.domain.order.entity.OrderInfo;
+import com.example.demo.domain.order.repository.OrderInfoRepository;
 import com.example.demo.domain.products.controller.form.ReviewImgResponse;
 import com.example.demo.domain.products.entity.Product;
-import com.example.demo.domain.products.entity.ProductImg;
 import com.example.demo.domain.products.entity.Review;
 import com.example.demo.domain.products.entity.ReviewImg;
 import com.example.demo.domain.products.repository.ProductsRepository;
 import com.example.demo.domain.products.repository.ReviewImgRepository;
 import com.example.demo.domain.products.repository.ReviewRepository;
-import com.example.demo.domain.products.service.request.ReviewRegisterRequest;
 import com.example.demo.domain.products.service.request.ReviewRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.transaction.Transactional;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -36,43 +35,61 @@ public class ReviewServiceImpl implements ReviewService {
     final private MemberRepository memberRepository;
     final private ReviewRepository reviewRepository;
     final private ReviewImgRepository reviewImgRepository;
-
-//    @Override
-//    public void register(ReviewRegisterRequest request) {
-//        Review review = new Review();
-//
-//        review.setWriter(request.getWriter());
-//        review.setRating(request.getRating());
-//        review.setContent(review.getContent());
-//
-//        Optional<Product> maybeProduct = productsRepository.findById(request.getProductId());
-//        if(maybeProduct.isPresent()) {
-//            Product product = maybeProduct.get();
-//            review.setProduct(product);
-//        } else {
-//            throw new RuntimeException("등록된 상품이 아닙니다.");
-//        }
-//    }
+    final private OrderInfoRepository orderInfoRepository;
 
     @Override
-    public void register(List<MultipartFile> files, ReviewRegisterRequest request) {
+    public void registerText(ReviewRequest request) {
+        Optional<Product> maybeProduct = productsRepository.findById(request.getProductId());
+        Optional<Member> maybeMember = memberRepository.findById(request.getMemberId());
+        Optional<OrderInfo> maybeOrderInfo = orderInfoRepository.findById(request.getOrderId());
+
+        if(!maybeProduct.isPresent() || !maybeMember.isPresent()) {
+            throw new RuntimeException("등록된 상품이나 회원이 아닙니다.");
+        }
+
+        Product product = maybeProduct.get();
+        Member member = maybeMember.get();
+        OrderInfo orderInfo = maybeOrderInfo.get();
+
+        Review review =  Review.builder()
+                            .product(product)
+                            .member(member)
+                            .rating(request.getRating())
+                            .content(request.getContent())
+                            .orderInfo(orderInfo)
+                            .build();
+
+        // 리뷰 작성 시 구매확정으로..? 아니면 구매 확정을 해야 리뷰를 작성할 수 있게...?
+//        orderInfo.setOrderState(OrderState.PAYMENT_CONFIRM);
+//        orderInfoRepository.save(orderInfo);
+
+        reviewRepository.save(review);
+    }
+
+    @Override
+    public void register(List<MultipartFile> files, ReviewRequest request) {
 
         List<ReviewImg> imgList = new ArrayList<>();
-        Review review = new Review();
-
-        review.setRating(request.getRating());
-        review.setContent(request.getContent());
 
         Optional<Product> maybeProduct = productsRepository.findById(request.getProductId());
         Optional<Member> maybeMember = memberRepository.findById(request.getMemberId());
-        if(maybeProduct.isPresent() && maybeMember.isPresent()) {
-            Product product = maybeProduct.get();
-            Member member = maybeMember.get();
-            review.setProduct(product);
-            review.setMember(member);
-        } else {
+        Optional<OrderInfo> maybeOrderInfo = orderInfoRepository.findById(request.getOrderId());
+
+        if(!maybeProduct.isPresent() || !maybeMember.isPresent()) {
             throw new RuntimeException("등록된 상품이나 회원이 아닙니다.");
         }
+
+        Product product = maybeProduct.get();
+        Member member = maybeMember.get();
+        OrderInfo orderInfo = maybeOrderInfo.get();
+
+        Review review = Review.builder()
+                            .product(product)
+                            .member(member)
+                            .rating(request.getRating())
+                            .content(request.getContent())
+                            .orderInfo(orderInfo)
+                            .build();
 
         for (MultipartFile multipartFile : files) {
             UUID uuid = UUID.randomUUID();
@@ -80,20 +97,21 @@ public class ReviewServiceImpl implements ReviewService {
             String editedImg = uuid + originImg;
             String imgPath = "../SSS-Front/src/assets/review/";
 
-            ReviewImg reviewImg = new ReviewImg();
-            reviewImg.setOriginImg(originImg);
-            reviewImg.setEditedImg(editedImg);
-            reviewImg.setImgPath(imgPath);
-            reviewImg.setReview(review);
+            ReviewImg reviewImg = ReviewImg.builder()
+                    .originImg(originImg)
+                    .editedImg(editedImg)
+                    .imgPath(imgPath)
+                    .review(review)
+                    .build();
+
             imgList.add(reviewImg);
+
             log.info(multipartFile.getOriginalFilename());
 
             try {
-
                 FileOutputStream writer = new FileOutputStream(
                         imgPath + editedImg
                 );
-
                 writer.write(multipartFile.getBytes());
                 writer.close();
                 log.info("file upload success");
@@ -114,12 +132,12 @@ public class ReviewServiceImpl implements ReviewService {
         List<Review> reviewList = reviewRepository.findByProductId(productId);
         return reviewList;
     }
-// 회원별 자신이 작성한 후기 목록 반환 (order entity 쪽 완성 후 주문 정보 연결해야함)
-//    @Override
-//    public List<Review> memberReviewList(Long memberId) {
-//        List<Review> reviewList = reviewRepository.findByMemberId(memberId);
-//        return reviewList;
-//    }
+
+    @Override
+    public List<Review> memberReviewList(Long memberId) {
+        List<Review> reviewList = reviewRepository.findByMemberId(memberId);
+        return reviewList;
+    }
 
     @Override
     public List<ReviewImgResponse> reviewImgList(Long reviewId) {
@@ -130,6 +148,21 @@ public class ReviewServiceImpl implements ReviewService {
         }
 
         return reviewImgList;
+    }
+
+    @Override
+    public void modifyText(Long reviewId, ReviewRequest request) {
+        Optional<Review> maybeReview = reviewRepository.findById(reviewId);
+        if(maybeReview.isEmpty()) {
+            System.out.println("해당 reviewId 정보 없음:  " + reviewId);
+        }
+
+        Review review = maybeReview.get();
+
+        review.setRating(request.getRating());
+        review.setContent(request.getContent());
+
+        reviewRepository.save(review);
     }
 
     @Override
@@ -167,19 +200,21 @@ public class ReviewServiceImpl implements ReviewService {
 
                 UUID uuid = UUID.randomUUID();
 
-                String original = multipartFile.getOriginalFilename();
-                String edit = uuid + original;
+                String originImg = multipartFile.getOriginalFilename();
+                String editedImg = uuid + originImg;
 
-                FileOutputStream writer = new FileOutputStream(imgPath + edit);
+                FileOutputStream writer = new FileOutputStream(imgPath + editedImg);
 
                 writer.write(multipartFile.getBytes());
                 writer.close();
 
-                ReviewImg reviewImg = new ReviewImg();
-                reviewImg.setOriginImg(original);
-                reviewImg.setEditedImg(edit);
-                reviewImg.setReview(review);
-                reviewImg.setImgPath(imgPath);
+                ReviewImg reviewImg = ReviewImg.builder()
+                        .originImg(originImg)
+                        .editedImg(editedImg)
+                        .imgPath(imgPath)
+                        .review(review)
+                        .build();
+
                 imgList.add(reviewImg);
             }
         } catch (FileNotFoundException e) {
