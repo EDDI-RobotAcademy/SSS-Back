@@ -27,7 +27,11 @@ public class MemberProfileRequest {
             for (Address address : addresses) {
                 memberProfile.addAddress(address);
             }
+            if (phoneNumber != null && !phoneNumber.isEmpty()) { // 새로운 전화번호가 있으면 업데이트
+                memberProfile.setPhoneNumber(phoneNumber);
+            }
         }
-        return memberProfile;
-    }
+            return memberProfile;
+        }
+
 }
