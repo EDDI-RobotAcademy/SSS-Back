@@ -2,6 +2,8 @@ package com.example.demo.domain.member.controller;
 
 import com.example.demo.domain.member.controller.form.MemberSignInForm;
 import com.example.demo.domain.member.controller.form.MemberSignUpForm;
+import com.example.demo.domain.member.entity.Address;
+import com.example.demo.domain.member.entity.MemberProfile;
 import com.example.demo.domain.member.service.MemberService;
 import com.example.demo.domain.member.service.request.AddressRequest;
 import com.example.demo.domain.member.service.request.MemberPasswordCheckRequest;
@@ -75,6 +77,14 @@ public class MemberController {
         return memberService.updateMemberInfo(memberId, memberProfileRequest);
     }
 
+    // 기본 주소 등록 혹은 수정작업
+    @PutMapping("/profile-address/update/{userId}")
+    public Boolean updateDefaultAddress(@PathVariable("userId") Long memberId,
+                                    @RequestBody AddressRequest reqAddress) {
+        log.info("/member-profile/"+ memberId +", "+ reqAddress);
+
+        return memberService.updateMemberAddress(memberId, reqAddress);
+    }
     @PostMapping("/check-password")
     public Boolean passwordValidation(@RequestBody MemberPasswordCheckRequest memberRequest) {
         log.info("passwordValidation(): "+ memberRequest);

@@ -42,6 +42,23 @@ public class Address {
         this.addressDetail = addressDetail;
     }
 
+    public Address(String zipcode, String city, String street, String addressDetail, MemberProfile memberProfile) {
+        this.zipcode = zipcode;
+        this.city = city;
+        this.street = street;
+        this.addressDetail = addressDetail;
+        this.memberProfile = memberProfile;
+    }
+    
+
+    public Address changeDefaultAddress(String zipcode, String city, String street, String addressDetail){
+        this.zipcode = zipcode;
+        this.city = city;
+        this.street = street;
+        this.addressDetail = addressDetail;
+        return this;
+    }
+
 
 
     public static Address of(String zipcode, String city, String street, String addressDetail) {

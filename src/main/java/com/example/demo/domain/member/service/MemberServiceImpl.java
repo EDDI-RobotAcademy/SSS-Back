@@ -209,13 +209,46 @@ public class MemberServiceImpl implements MemberService {
             System.out.println("memberId 에 해당하는 계정이 없습니다.");
             return null;
         }
+    // 기본 주소 등록 or 수정
+    @Override
+    public Boolean updateMemberAddress(Long memberId, AddressRequest reqAddress){
+        try {
+            Member member = requireNonNull(checkMember(memberId));
+            MemberProfile myProfile = requireNonNull(checkMemberProfile(member));
+            Address defaultAddress;
 
-        Member member = maybeMember.get();
-        if(member.isRightPassword(memberRequest.getPassword())) {
+            // 이미 기본 주소 존재 = 수정작업
+            if(myProfile.getAddresses().get(0) != null){
+
+                defaultAddress = myProfile.getAddresses().get(0);
+                modifyDefaultAddress(defaultAddress, reqAddress);
+
+                // 기본 주소 새로 등록
+            }else{
+                defaultAddress = reqAddress.toAddress(myProfile);
+            }
+            addressRepository.save(defaultAddress);
             return true;
-        }
 
-        return false;
+        } catch (RuntimeException ex) {
+            log.info(ex.getMessage());
+            return null;
+        }
+    }
+
+    // 기본 주소 수정하기
+    private Address modifyDefaultAddress(Address defaultAddress, AddressRequest reqAddress){
+        // 기본 주소에서 변경된 사항 없음
+        if( ! defaultAddress.getZipcode().equals(reqAddress.getZipcode())
+                && ! defaultAddress.getAddressDetail().equals(reqAddress.getCity()))
+        {
+            defaultAddress.changeDefaultAddress(
+                    reqAddress.getZipcode(),reqAddress.getCity(),
+                    reqAddress.getStreet(), reqAddress.getAddressDetail());
+            // address 저장 작업
+            addressRepository.save(defaultAddress);
+        }
+        return defaultAddress;
     }
 
 
