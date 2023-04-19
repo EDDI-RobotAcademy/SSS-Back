@@ -283,12 +283,46 @@ public class MemberServiceImpl implements MemberService {
         return defaultAddress;
     }
 
+    // 비밀번호 수정
+    private void updatePassword(Member member, String reqPassword) {
+
+        Optional<Authentication> maybeAuthentication =
+                authenticationRepository.findByMemberId(member.getMemberId());
+
+        if (maybeAuthentication.isPresent() && maybeAuthentication.get() instanceof BasicAuthentication) {
+            BasicAuthentication authentication = (BasicAuthentication) maybeAuthentication.get();
+            String currentPassword = authentication.getPassword();
+
+            // 패스워드 수정
+            if (!reqPassword.equals(currentPassword)) {
+                authenticationRepository.delete(authentication);
+                authenticationRepository.flush();
+                authentication = new BasicAuthentication(member, Authentication.BASIC_AUTH, reqPassword);
+                authenticationRepository.save(authentication);
+            }
+        } else {
+            BasicAuthentication authentication = new BasicAuthentication(member, Authentication.BASIC_AUTH, reqPassword);
+            authenticationRepository.save(authentication);
+        }
+    }
 
 
+    @Override
+    @Transactional
+    public Boolean passwordValidation(MemberPasswordCheckRequest memberRequest) {
+        try {
+            Member member = requireNonNull(checkMember(memberRequest.getMemberId()));
 
+            if(member.isRightPassword(memberRequest.getPassword())) {
+                return true;
+            }
+            return false;
 
-
-
+        } catch (RuntimeException ex) {
+            log.info(ex.getMessage());
+            return null;
+        }
+    }
 
     // 결제창 : 신규 주소 등록 후 주소 id 반환
     @Override
