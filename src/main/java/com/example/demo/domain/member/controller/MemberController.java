@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 
 @Slf4j
@@ -101,6 +102,16 @@ public class MemberController {
 
         return memberService.registerAddress(memberId, reqAddress);
     }
+
+    // 결제창 : 기본 주소 외의 다른 주소들 반환
+    @PutMapping("/profile-address/list/{userId}")
+    public List<Address> getAddressList(@PathVariable("userId") Long memberId) {
+        log.info("/profile-address/list/"+ memberId);
+
+        return memberService.getOtherAddress(memberId);
+    }
+
+
     @PostMapping("/check-password")
     public Boolean passwordValidation(@RequestBody MemberPasswordCheckRequest memberRequest) {
         log.info("passwordValidation(): "+ memberRequest);

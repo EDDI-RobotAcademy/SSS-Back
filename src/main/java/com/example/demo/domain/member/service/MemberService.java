@@ -4,6 +4,7 @@ import com.example.demo.domain.member.entity.Address;
 import com.example.demo.domain.member.entity.MemberProfile;
 import com.example.demo.domain.member.service.request.*;
 
+import java.util.List;
 import java.util.Map;
 
 public interface MemberService {
@@ -31,4 +32,6 @@ public interface MemberService {
     Boolean updateMemberAddress(Long memberId, AddressRequest reqAddress);
 
     Long registerAddress(Long memberId, AddressRequest reqAddress);
+
+    List<Address> getOtherAddress(Long memberId);
 }

@@ -286,4 +286,16 @@ public class MemberServiceImpl implements MemberService {
         }
     }
 
+    @Override
+    public List<Address> getOtherAddress(Long memberId){
+        List<Address> addressList = addressRepository.findByMemberId(memberId);
+        if (addressList.size() > 1) {
+            addressList.remove(0); // 기본 주소 제외
+        } else {
+            addressList.clear(); // 목록에 하나의 요소만 있으면 모두 제외
+        }
+        // 기본주소만 있다면 빈 리스트 반환
+        return addressList.isEmpty() ? Collections.emptyList() : addressList;
+    }
+
 }
