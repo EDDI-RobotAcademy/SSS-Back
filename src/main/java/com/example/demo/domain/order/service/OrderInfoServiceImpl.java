@@ -2,7 +2,12 @@ package com.example.demo.domain.order.service;
 
 import com.example.demo.domain.cart.entity.cartItems.ItemCategoryType;
 import com.example.demo.domain.cart.service.CartServiceImpl;
+import com.example.demo.domain.member.entity.Address;
 import com.example.demo.domain.member.entity.Member;
+import com.example.demo.domain.member.entity.MemberProfile;
+import com.example.demo.domain.member.repository.MemberProfileRepository;
+import com.example.demo.domain.member.service.MemberServiceImpl;
+import com.example.demo.domain.order.controller.response.OrderAddressResponse;
 import com.example.demo.domain.order.entity.OrderInfo;
 import com.example.demo.domain.order.entity.orderItems.ProductOrderItem;
 import com.example.demo.domain.order.entity.orderItems.SelfSaladOrderItem;
@@ -39,6 +44,8 @@ public class OrderInfoServiceImpl implements OrderInfoService {
     final private SelfSaladOrderItemRepository selfSaladOrderItemRepository;
     final private CartServiceImpl cartService;
 
+    final private MemberProfileRepository memberProfileRepository;
+    final private MemberServiceImpl memberService;
 
     private Map<Long, Product> checkProducts(List<OrderItemRegisterRequest> productItems){
 
@@ -122,7 +129,7 @@ public class OrderInfoServiceImpl implements OrderInfoService {
     @Override
     public void classifyOrderItemCategory(Long memberId, Long totalOrderPrice, List<OrderItemRegisterRequest> orderItems){
         // { 상품 카테고리, 상품 id, 상품 수량, 상품 가격 } 주문 list
-        Member member = requireNonNull(cartService.checkMember(memberId));
+        Member member = requireNonNull(memberService.checkMember(memberId));
 
         OrderInfo myOrderInfo = createOrder(member, totalOrderPrice);
 
