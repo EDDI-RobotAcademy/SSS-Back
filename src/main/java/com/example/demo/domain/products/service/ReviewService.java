@@ -2,7 +2,6 @@ package com.example.demo.domain.products.service;
 
 import com.example.demo.domain.products.controller.form.ReviewImgResponse;
 import com.example.demo.domain.products.entity.Review;
-import com.example.demo.domain.products.service.request.ReviewRegisterRequest;
 import com.example.demo.domain.products.service.request.ReviewRequest;
 import org.springframework.web.multipart.MultipartFile;
 

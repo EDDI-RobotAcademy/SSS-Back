@@ -23,10 +23,10 @@ public class ReviewController {
 
     @PostMapping(value = "/register", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE, MediaType.APPLICATION_JSON_VALUE})
     public void reviewRegister(@RequestPart(value = "file") List<MultipartFile> reviewImgList,
-                               @RequestPart(value = "review") ReviewRegisterRequest form) {
+                               @RequestPart(value = "review") ReviewRequest request) {
         log.info("reviewRegister()");
 
-        reviewService.register(reviewImgList, form);
+        reviewService.register(reviewImgList, request);
     }
 
     @GetMapping("/list/{productId}")

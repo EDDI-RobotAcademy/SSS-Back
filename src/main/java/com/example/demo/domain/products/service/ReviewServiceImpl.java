@@ -55,24 +55,29 @@ public class ReviewServiceImpl implements ReviewService {
 //    }
 
     @Override
-    public void register(List<MultipartFile> files, ReviewRegisterRequest request) {
+    public void register(List<MultipartFile> files, ReviewRequest request) {
 
         List<ReviewImg> imgList = new ArrayList<>();
-        Review review = new Review();
-
-        review.setRating(request.getRating());
-        review.setContent(request.getContent());
 
         Optional<Product> maybeProduct = productsRepository.findById(request.getProductId());
         Optional<Member> maybeMember = memberRepository.findById(request.getMemberId());
-        if(maybeProduct.isPresent() && maybeMember.isPresent()) {
-            Product product = maybeProduct.get();
-            Member member = maybeMember.get();
-            review.setProduct(product);
-            review.setMember(member);
-        } else {
+        Optional<OrderInfo> maybeOrderInfo = orderInfoRepository.findById(request.getOrderId());
+
+        if(!maybeProduct.isPresent() || !maybeMember.isPresent()) {
             throw new RuntimeException("등록된 상품이나 회원이 아닙니다.");
         }
+
+        Product product = maybeProduct.get();
+        Member member = maybeMember.get();
+        OrderInfo orderInfo = maybeOrderInfo.get();
+
+        Review review = Review.builder()
+                            .product(product)
+                            .member(member)
+                            .rating(request.getRating())
+                            .content(request.getContent())
+                            .orderInfo(orderInfo)
+                            .build();
 
         for (MultipartFile multipartFile : files) {
             UUID uuid = UUID.randomUUID();
@@ -80,20 +85,21 @@ public class ReviewServiceImpl implements ReviewService {
             String editedImg = uuid + originImg;
             String imgPath = "../SSS-Front/src/assets/review/";
 
-            ReviewImg reviewImg = new ReviewImg();
-            reviewImg.setOriginImg(originImg);
-            reviewImg.setEditedImg(editedImg);
-            reviewImg.setImgPath(imgPath);
-            reviewImg.setReview(review);
+            ReviewImg reviewImg = ReviewImg.builder()
+                    .originImg(originImg)
+                    .editedImg(editedImg)
+                    .imgPath(imgPath)
+                    .review(review)
+                    .build();
+
             imgList.add(reviewImg);
+
             log.info(multipartFile.getOriginalFilename());
 
             try {
-
                 FileOutputStream writer = new FileOutputStream(
                         imgPath + editedImg
                 );
-
                 writer.write(multipartFile.getBytes());
                 writer.close();
                 log.info("file upload success");
