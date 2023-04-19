@@ -1,13 +1,11 @@
 package com.example.demo.domain.member.service;
 
 import com.example.demo.domain.member.entity.*;
+import com.example.demo.domain.member.repository.AddressRepository;
 import com.example.demo.domain.member.repository.AdminCodeRepository;
-import com.example.demo.domain.member.repository.MemberRepository;
 import com.example.demo.domain.member.repository.MemberProfileRepository;
-import com.example.demo.domain.member.service.request.MemberPasswordCheckRequest;
-import com.example.demo.domain.member.service.request.MemberSignInRequest;
-import com.example.demo.domain.member.service.request.MemberSignUpRequest;
-import com.example.demo.domain.member.service.request.MemberProfileRequest;
+import com.example.demo.domain.member.repository.MemberRepository;
+import com.example.demo.domain.member.service.request.*;
 import com.example.demo.domain.security.entity.Authentication;
 import com.example.demo.domain.security.entity.BasicAuthentication;
 import com.example.demo.domain.security.repository.AuthenticationRepository;
@@ -17,10 +15,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
+
+import static java.util.Objects.requireNonNull;
 
 @Slf4j
 @Service
@@ -149,63 +146,47 @@ public class MemberServiceImpl implements MemberService {
 
 
 
-    //회원정보변경
+    // myPage 에서 회원 프로필 불러오기 (없으면 null)
     @Override
-    @Transactional
-    public Boolean updateMemberInfo(Long memberId, MemberProfileRequest memberProfileRequest) {
-        Optional<Member> maybeMember = memberRepository.findByMemberId(memberId);
-        Optional<MemberProfile> maybeMemberProfile = memberProfileRepository.findByMemberProfileId(memberId);
-        Optional<Authentication> maybeAuthentication = authenticationRepository.findByMemberId(memberId);
 
-        if (maybeMember.isEmpty()) {
+        }
+    }
+    // MemberProfile 등록 및 수정 요청
+    @Override
+    public Boolean updateMemberInfo(Long memberId, MemberProfileRequest reqMemberProfile){
+        try {
+            Member member = requireNonNull(checkMember(memberId));
+            Optional<MemberProfile> maybeMemberProfile = memberProfileRepository.findByMemberProfileId(memberId);
+
+            String reqPhoneNumber = reqMemberProfile.getPhoneNumber();
+            String reqNickname= reqMemberProfile.getNickname();
+            String reqPassword = reqMemberProfile.getNewPassword();
+
+            MemberProfile myProfile = null;
+            if(maybeMemberProfile.isPresent()){
+                myProfile = maybeMemberProfile.get();
+
+                if(reqPhoneNumber != null && !reqPhoneNumber.isEmpty()) {
+                    myProfile.setPhoneNumber(reqPhoneNumber);
+                }
+                if(reqNickname != null && !reqNickname.isEmpty()) {
+                    myProfile.setNickname(reqNickname);
+
+                    member.setNickname(reqNickname);
+                    memberRepository.save(member);
+
+                }if(reqPassword != null && !reqPassword.isEmpty()){
+                    updatePassword(member, reqPassword);
+                }
+                memberProfileRepository.save(myProfile);
+                return true;
+            }
             return false;
+
+        } catch (RuntimeException ex) {
+            log.info(ex.getMessage());
+            return null;
         }
-
-        Member member = maybeMember.get();
-        member.setNickname(memberProfileRequest.getNickname());
-
-        memberRepository.save(member);
-
-        if (maybeMemberProfile.isPresent()) {
-            // 기존 MemberProfile 객체를 덮어쓰는 방식으로 업데이트
-            MemberProfile memberProfile = maybeMemberProfile.get();
-            memberProfile.setPhoneNumber(memberProfileRequest.getPhoneNumber());
-            memberProfile.getAddresses().clear();
-            if (memberProfileRequest.getAddresses() != null && !memberProfileRequest.getAddresses().isEmpty()) {
-                for (Address address : memberProfileRequest.getAddresses()) {
-                    memberProfile.addAddress(address);
-                }
-            }
-            memberProfile.setNickname(memberProfileRequest.getNickname());
-            memberProfileRepository.save(memberProfile);
-        } else {
-            // 새로운 MemberProfile 레코드를 생성
-            MemberProfile memberProfile = memberProfileRequest.toMemberUpdate(member);
-            memberProfile.setNickname(member.getNickname());
-            memberProfileRepository.save(memberProfile);
-        }
-
-        if (!memberProfileRequest.getNewPassword().isEmpty()) {
-            String newPassword = memberProfileRequest.getNewPassword();
-            maybeAuthentication = authenticationRepository.findByMemberId(member.getMemberId());
-
-            if (maybeAuthentication.isPresent() && maybeAuthentication.get() instanceof BasicAuthentication) {
-                BasicAuthentication authentication = (BasicAuthentication) maybeAuthentication.get();
-                String currentPassword = authentication.getPassword();
-
-                if (!newPassword.equals(currentPassword)) {
-                    authenticationRepository.delete(authentication);
-                    authenticationRepository.flush();
-                    authentication = new BasicAuthentication(member, Authentication.BASIC_AUTH, newPassword);
-                    authenticationRepository.save(authentication);
-                }
-            } else {
-                BasicAuthentication authentication = new BasicAuthentication(member, Authentication.BASIC_AUTH, newPassword);
-                authenticationRepository.save(authentication);
-            }
-        }
-
-        return true;
     }
 
 

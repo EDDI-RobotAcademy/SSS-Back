@@ -60,7 +60,8 @@ public class MemberController {
 
 
 
-    @PutMapping("/member-profile/{userId}")
+    // 회원 프로필 정보 수정작업 저장
+    @PutMapping("/profile-info/update/{userId}")
     public Boolean updateMemberInfo(@PathVariable("userId") Long memberId,
                                     @RequestBody MemberProfileRequest memberProfileRequest) {
         log.info("/member-profile/"+ memberId +", "+ memberProfileRequest);
