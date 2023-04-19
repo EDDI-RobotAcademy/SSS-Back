@@ -3,7 +3,6 @@ package com.example.demo.domain.products.controller;
 import com.example.demo.domain.products.controller.form.ReviewImgResponse;
 import com.example.demo.domain.products.entity.Review;
 import com.example.demo.domain.products.service.ReviewService;
-import com.example.demo.domain.products.service.request.ReviewRegisterRequest;
 import com.example.demo.domain.products.service.request.ReviewRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -39,6 +38,12 @@ public class ReviewController {
     public List<Review> reviewList(@PathVariable("productId") Long productId) {
         log.info("productReviewList()");
         return reviewService.productReviewList(productId);
+    }
+
+    @GetMapping("/list-myReview/{memberId}")
+    public List<Review> memberReviewList(@PathVariable("memberId") Long memberId) {
+        log.info("memberReviewList()");
+        return reviewService.memberReviewList(memberId);
     }
 
     @GetMapping("/image/{reviewId}")

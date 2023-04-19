@@ -2,15 +2,15 @@ package com.example.demo.domain.products.service;
 
 import com.example.demo.domain.member.entity.Member;
 import com.example.demo.domain.member.repository.MemberRepository;
+import com.example.demo.domain.order.entity.OrderInfo;
+import com.example.demo.domain.order.repository.OrderInfoRepository;
 import com.example.demo.domain.products.controller.form.ReviewImgResponse;
 import com.example.demo.domain.products.entity.Product;
-import com.example.demo.domain.products.entity.ProductImg;
 import com.example.demo.domain.products.entity.Review;
 import com.example.demo.domain.products.entity.ReviewImg;
 import com.example.demo.domain.products.repository.ProductsRepository;
 import com.example.demo.domain.products.repository.ReviewImgRepository;
 import com.example.demo.domain.products.repository.ReviewRepository;
-import com.example.demo.domain.products.service.request.ReviewRegisterRequest;
 import com.example.demo.domain.products.service.request.ReviewRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -132,12 +132,12 @@ public class ReviewServiceImpl implements ReviewService {
         List<Review> reviewList = reviewRepository.findByProductId(productId);
         return reviewList;
     }
-// 회원별 자신이 작성한 후기 목록 반환 (order entity 쪽 완성 후 주문 정보 연결해야함)
-//    @Override
-//    public List<Review> memberReviewList(Long memberId) {
-//        List<Review> reviewList = reviewRepository.findByMemberId(memberId);
-//        return reviewList;
-//    }
+
+    @Override
+    public List<Review> memberReviewList(Long memberId) {
+        List<Review> reviewList = reviewRepository.findByMemberId(memberId);
+        return reviewList;
+    }
 
     @Override
     public List<ReviewImgResponse> reviewImgList(Long reviewId) {

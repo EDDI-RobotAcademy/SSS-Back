@@ -15,7 +15,7 @@ public interface ReviewService {
 
     List<Review> productReviewList(Long productId);
 
-  //  List<Review> memberReviewList(Long memberId);
+    List<Review> memberReviewList(Long memberId);
 
     List<ReviewImgResponse> reviewImgList(Long reviewId);
 
