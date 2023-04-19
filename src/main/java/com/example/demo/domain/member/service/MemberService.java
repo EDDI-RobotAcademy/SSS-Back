@@ -25,5 +25,8 @@ public interface MemberService {
     Boolean updateMemberInfo(Long memberId, MemberProfileRequest memberProfileRequest);
 
     MemberProfile getMemberProfile(Long memberId);
+
+    Address getDefaultAddress(Long memberId);
+
     Boolean updateMemberAddress(Long memberId, AddressRequest reqAddress);
 }

@@ -77,6 +77,13 @@ public class MemberController {
         return memberService.updateMemberInfo(memberId, memberProfileRequest);
     }
 
+    // 회원 기본 주소 불러오기
+    @GetMapping("/profile-address/{userId}")
+    public Address getDefaultAddress(@PathVariable("userId") Long memberId) {
+        log.info("getDefaultAddress()");
+        return memberService.getDefaultAddress(memberId);
+    }
+
     // 기본 주소 등록 혹은 수정작업
     @PutMapping("/profile-address/update/{userId}")
     public Boolean updateDefaultAddress(@PathVariable("userId") Long memberId,

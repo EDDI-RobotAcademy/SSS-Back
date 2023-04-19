@@ -32,6 +32,8 @@ public class MemberServiceImpl implements MemberService {
 
     final private AuthenticationRepository authenticationRepository;
 
+    final private AddressRepository addressRepository;
+
     final private RedisService redisService;
 
     //이메일 중복 확인
@@ -199,16 +201,25 @@ public class MemberServiceImpl implements MemberService {
         }
     }
 
-
+    // myPage 주소 변경 페이지 or 결제 페이지에서 기본주소 불러오기
     @Override
-    @Transactional
-    public Boolean passwordValidation(MemberPasswordCheckRequest memberRequest) {
-        Optional<Member> maybeMember = memberRepository.findByMemberId(memberRequest.getMemberId());
+    public Address getDefaultAddress(Long memberId){
+        try {
+            Member member = requireNonNull(checkMember(memberId));
 
-        if(maybeMember.isEmpty()) {
-            System.out.println("memberId 에 해당하는 계정이 없습니다.");
+            Address defaultAddress =
+                    addressRepository.findFirstByMemberId(member.getMemberId());
+            if(defaultAddress != null){
+                return defaultAddress;
+            }
+            return null;
+
+        } catch (RuntimeException ex) {
+            log.info(ex.getMessage());
             return null;
         }
+    }
+
     // 기본 주소 등록 or 수정
     @Override
     public Boolean updateMemberAddress(Long memberId, AddressRequest reqAddress){
