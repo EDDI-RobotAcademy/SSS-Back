@@ -29,4 +29,6 @@ public interface MemberService {
     Address getDefaultAddress(Long memberId);
 
     Boolean updateMemberAddress(Long memberId, AddressRequest reqAddress);
+
+    Long registerAddress(Long memberId, AddressRequest reqAddress);
 }

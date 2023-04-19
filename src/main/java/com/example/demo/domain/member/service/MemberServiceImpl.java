@@ -269,5 +269,21 @@ public class MemberServiceImpl implements MemberService {
 
 
 
+    // 결제창 : 신규 주소 등록 후 주소 id 반환
+    @Override
+    public Long registerAddress(Long memberId, AddressRequest reqAddress){
+        try {
+            Member member = requireNonNull(checkMember(memberId));
+            MemberProfile myProfile = requireNonNull(checkMemberProfile(member));
+
+            Address newAddress = reqAddress.toAddress(myProfile);
+            addressRepository.save(newAddress);
+            return newAddress.getId();
+
+        } catch (RuntimeException ex) {
+            log.info(ex.getMessage());
+            return null;
+        }
+    }
 
 }

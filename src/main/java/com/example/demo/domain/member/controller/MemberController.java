@@ -92,6 +92,15 @@ public class MemberController {
 
         return memberService.updateMemberAddress(memberId, reqAddress);
     }
+
+    // 결제창 : 신규 주소 등록 후 주소 id 반환
+    @PutMapping("/profile-address/register/{userId}")
+    public Long registerAddress(@PathVariable("userId") Long memberId,
+                                    @RequestBody AddressRequest reqAddress) {
+        log.info("/member-profile/"+ memberId +", "+ reqAddress);
+
+        return memberService.registerAddress(memberId, reqAddress);
+    }
     @PostMapping("/check-password")
     public Boolean passwordValidation(@RequestBody MemberPasswordCheckRequest memberRequest) {
         log.info("passwordValidation(): "+ memberRequest);
