@@ -1,9 +1,6 @@
 package com.example.demo.domain.member.service;
 
-import com.example.demo.domain.member.service.request.MemberPasswordCheckRequest;
-import com.example.demo.domain.member.service.request.MemberSignInRequest;
-import com.example.demo.domain.member.service.request.MemberSignUpRequest;
-import com.example.demo.domain.member.service.request.MemberProfileRequest;
+import com.example.demo.domain.member.entity.MemberProfile;
 
 import java.util.Map;
 
@@ -25,4 +22,5 @@ public interface MemberService {
 
     Boolean updateMemberInfo(Long memberId, MemberProfileRequest memberProfileRequest);
 
+    MemberProfile getMemberProfile(Long memberId);
 }

@@ -148,7 +148,17 @@ public class MemberServiceImpl implements MemberService {
 
     // myPage 에서 회원 프로필 불러오기 (없으면 null)
     @Override
+    public MemberProfile getMemberProfile(Long memberId){
+        try {
+            Member member = requireNonNull(checkMember(memberId));
+            Optional<MemberProfile> maybeMemberProfile =
+                    memberProfileRepository.findByMemberProfileId(member.getMemberId());
 
+            return maybeMemberProfile.orElse(null);
+
+        } catch (RuntimeException ex) {
+            log.info(ex.getMessage());
+            return null;
         }
     }
     // MemberProfile 등록 및 수정 요청

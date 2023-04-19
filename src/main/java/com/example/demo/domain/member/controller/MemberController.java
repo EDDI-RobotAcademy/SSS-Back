@@ -3,6 +3,7 @@ package com.example.demo.domain.member.controller;
 import com.example.demo.domain.member.controller.form.MemberSignInForm;
 import com.example.demo.domain.member.controller.form.MemberSignUpForm;
 import com.example.demo.domain.member.service.MemberService;
+import com.example.demo.domain.member.service.request.AddressRequest;
 import com.example.demo.domain.member.service.request.MemberPasswordCheckRequest;
 import com.example.demo.domain.member.service.request.MemberProfileRequest;
 import lombok.RequiredArgsConstructor;
@@ -58,7 +59,12 @@ public class MemberController {
     }
 
 
+    // 회원 프로필 정보 불러오기
+    @GetMapping("/profile-info/{userId}")
+    public MemberProfile getMemberProfile(@PathVariable("userId") Long memberId) {
 
+        return memberService.getMemberProfile(memberId);
+    }
 
     // 회원 프로필 정보 수정작업 저장
     @PutMapping("/profile-info/update/{userId}")
