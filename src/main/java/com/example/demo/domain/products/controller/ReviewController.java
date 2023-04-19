@@ -52,6 +52,12 @@ public class ReviewController {
         return reviewService.reviewImgList(reviewId);
     }
 
+    @PutMapping("/modifyText/{reviewId}")
+    public void reviewTextModify(@PathVariable("reviewId") Long reviewId, @RequestBody ReviewRequest request) {
+        log.info("reviewTextModify()");
+        reviewService.modifyText(reviewId, request);
+    }
+
     @PutMapping(value = "/modify/{reviewId}", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE, MediaType.APPLICATION_JSON_VALUE})
     public void reviewModify(@PathVariable("reviewId") Long reviewId,
                              @RequestPart(value = "reviewImgList") List<MultipartFile> reviewImgList,

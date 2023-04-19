@@ -19,7 +19,10 @@ public interface ReviewService {
 
     List<ReviewImgResponse> reviewImgList(Long reviewId);
 
+    void modifyText(Long reviewId, ReviewRequest request);
+
     void modify(Long reviewId, List<MultipartFile> reviewImgList, ReviewRequest request);
 
     void delete(Long reviewId);
+
 }

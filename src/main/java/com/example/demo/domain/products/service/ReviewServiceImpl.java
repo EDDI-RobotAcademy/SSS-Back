@@ -151,6 +151,21 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
     @Override
+    public void modifyText(Long reviewId, ReviewRequest request) {
+        Optional<Review> maybeReview = reviewRepository.findById(reviewId);
+        if(maybeReview.isEmpty()) {
+            System.out.println("해당 reviewId 정보 없음:  " + reviewId);
+        }
+
+        Review review = maybeReview.get();
+
+        review.setRating(request.getRating());
+        review.setContent(request.getContent());
+
+        reviewRepository.save(review);
+    }
+
+    @Override
     public void modify(Long reviewId, List<MultipartFile> reviewImgList, ReviewRequest request) {
         Optional<Review> maybeReview = reviewRepository.findById(reviewId);
         if(maybeReview.isEmpty()) {
@@ -185,19 +200,21 @@ public class ReviewServiceImpl implements ReviewService {
 
                 UUID uuid = UUID.randomUUID();
 
-                String original = multipartFile.getOriginalFilename();
-                String edit = uuid + original;
+                String originImg = multipartFile.getOriginalFilename();
+                String editedImg = uuid + originImg;
 
-                FileOutputStream writer = new FileOutputStream(imgPath + edit);
+                FileOutputStream writer = new FileOutputStream(imgPath + editedImg);
 
                 writer.write(multipartFile.getBytes());
                 writer.close();
 
-                ReviewImg reviewImg = new ReviewImg();
-                reviewImg.setOriginImg(original);
-                reviewImg.setEditedImg(edit);
-                reviewImg.setReview(review);
-                reviewImg.setImgPath(imgPath);
+                ReviewImg reviewImg = ReviewImg.builder()
+                        .originImg(originImg)
+                        .editedImg(editedImg)
+                        .imgPath(imgPath)
+                        .review(review)
+                        .build();
+
                 imgList.add(reviewImg);
             }
         } catch (FileNotFoundException e) {
