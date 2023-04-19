@@ -3,7 +3,6 @@ package com.example.demo.domain.products.controller;
 import com.example.demo.domain.products.controller.form.ReviewImgResponse;
 import com.example.demo.domain.products.entity.Review;
 import com.example.demo.domain.products.service.ReviewService;
-import com.example.demo.domain.products.service.request.ReviewRegisterRequest;
 import com.example.demo.domain.products.service.request.ReviewRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,12 +20,18 @@ public class ReviewController {
 
     final private ReviewService reviewService;
 
+    @PostMapping("/registerText")
+    public void registerText(@RequestBody ReviewRequest request) {
+        log.info("reviewText()");
+        reviewService.registerText(request);
+    }
+
     @PostMapping(value = "/register", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE, MediaType.APPLICATION_JSON_VALUE})
     public void reviewRegister(@RequestPart(value = "file") List<MultipartFile> reviewImgList,
-                               @RequestPart(value = "review") ReviewRegisterRequest form) {
+                               @RequestPart(value = "review") ReviewRequest request) {
         log.info("reviewRegister()");
 
-        reviewService.register(reviewImgList, form);
+        reviewService.register(reviewImgList, request);
     }
 
     @GetMapping("/list/{productId}")
@@ -35,10 +40,22 @@ public class ReviewController {
         return reviewService.productReviewList(productId);
     }
 
+    @GetMapping("/list-myReview/{memberId}")
+    public List<Review> memberReviewList(@PathVariable("memberId") Long memberId) {
+        log.info("memberReviewList()");
+        return reviewService.memberReviewList(memberId);
+    }
+
     @GetMapping("/image/{reviewId}")
     public List<ReviewImgResponse> reviewImg(@PathVariable("reviewId") Long reviewId) {
         log.info("reviewImage(): " + reviewId);
         return reviewService.reviewImgList(reviewId);
+    }
+
+    @PutMapping("/modifyText/{reviewId}")
+    public void reviewTextModify(@PathVariable("reviewId") Long reviewId, @RequestBody ReviewRequest request) {
+        log.info("reviewTextModify()");
+        reviewService.modifyText(reviewId, request);
     }
 
     @PutMapping(value = "/modify/{reviewId}", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE, MediaType.APPLICATION_JSON_VALUE})
