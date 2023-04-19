@@ -3,14 +3,10 @@ package com.example.demo.domain.products.entity;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.Id;
 import javax.persistence.*;
-import javax.transaction.Transactional;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 @Data
@@ -41,10 +37,14 @@ public class Product {
     @OneToMany(mappedBy = "product", fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true) //LAZY 오류 - failed to lazily initialize a collection of role
     private List<ProductImg> productImgs = new ArrayList<>();             //orphanRemoval = true : 부모 엔티티에서 자식 엔티티 삭제 가능
 
-    public Product(String title, Long price, String content) {
+    @Embedded
+    private ProductDetail productDetail;
+
+    public Product(String title, Long price, String content, ProductDetail productDetail) {
         this.title = title;
         this.price = price;
         this.content = content;
+        this.productDetail = productDetail;
     }
 
     public void updateViewCnt() {
