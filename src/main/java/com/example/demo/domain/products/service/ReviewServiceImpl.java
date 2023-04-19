@@ -17,7 +17,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.transaction.Transactional;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -36,23 +35,36 @@ public class ReviewServiceImpl implements ReviewService {
     final private MemberRepository memberRepository;
     final private ReviewRepository reviewRepository;
     final private ReviewImgRepository reviewImgRepository;
+    final private OrderInfoRepository orderInfoRepository;
 
-//    @Override
-//    public void register(ReviewRegisterRequest request) {
-//        Review review = new Review();
-//
-//        review.setWriter(request.getWriter());
-//        review.setRating(request.getRating());
-//        review.setContent(review.getContent());
-//
-//        Optional<Product> maybeProduct = productsRepository.findById(request.getProductId());
-//        if(maybeProduct.isPresent()) {
-//            Product product = maybeProduct.get();
-//            review.setProduct(product);
-//        } else {
-//            throw new RuntimeException("등록된 상품이 아닙니다.");
-//        }
-//    }
+    @Override
+    public void registerText(ReviewRequest request) {
+        Optional<Product> maybeProduct = productsRepository.findById(request.getProductId());
+        Optional<Member> maybeMember = memberRepository.findById(request.getMemberId());
+        Optional<OrderInfo> maybeOrderInfo = orderInfoRepository.findById(request.getOrderId());
+
+        if(!maybeProduct.isPresent() || !maybeMember.isPresent()) {
+            throw new RuntimeException("등록된 상품이나 회원이 아닙니다.");
+        }
+
+        Product product = maybeProduct.get();
+        Member member = maybeMember.get();
+        OrderInfo orderInfo = maybeOrderInfo.get();
+
+        Review review =  Review.builder()
+                            .product(product)
+                            .member(member)
+                            .rating(request.getRating())
+                            .content(request.getContent())
+                            .orderInfo(orderInfo)
+                            .build();
+
+        // 리뷰 작성 시 구매확정으로..? 아니면 구매 확정을 해야 리뷰를 작성할 수 있게...?
+//        orderInfo.setOrderState(OrderState.PAYMENT_CONFIRM);
+//        orderInfoRepository.save(orderInfo);
+
+        reviewRepository.save(review);
+    }
 
     @Override
     public void register(List<MultipartFile> files, ReviewRequest request) {

@@ -9,7 +9,9 @@ import java.util.List;
 
 public interface ReviewService {
 
-    void register(List<MultipartFile> reviewImgList, ReviewRegisterRequest request);
+    void registerText(ReviewRequest request);
+
+    void register(List<MultipartFile> reviewImgList, ReviewRequest request);
 
     List<Review> productReviewList(Long productId);
 
