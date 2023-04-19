@@ -36,6 +36,16 @@ public class MemberServiceImpl implements MemberService {
 
     final private RedisService redisService;
 
+    public Member checkMember(Long memberId){
+        Optional<Member> maybeMember =
+                memberRepository.findByMemberId(memberId);
+
+        if(maybeMember.isPresent()) {
+            return maybeMember.get();
+        }
+        throw new RuntimeException("회원을 찾을 수 없습니다: " + memberId);
+    }
+
     //이메일 중복 확인
     @Override
     public Boolean emailValidation(String email) {
@@ -143,9 +153,20 @@ public class MemberServiceImpl implements MemberService {
         memberRepository.deleteById(memberId);
     }
 
-    //정보변경
 
-
+    // 회원 프로필 확인 절차 (없으면 생성)
+    private MemberProfile checkMemberProfile(Member member){
+        Optional<MemberProfile> myProfile =
+                memberProfileRepository.findByMember_memberId(member.getMemberId());
+        // 회원 프로필 존재
+        if(myProfile.isPresent()){
+            return myProfile.get();
+        }
+        // 회원 프로필 없음 = 생성
+        MemberProfile newProfile = new MemberProfile(member);
+        memberProfileRepository.save(newProfile);
+        return newProfile;
+    }
 
 
     // myPage 에서 회원 프로필 불러오기 (없으면 null)
