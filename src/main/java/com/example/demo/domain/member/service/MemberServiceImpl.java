@@ -228,10 +228,10 @@ public class MemberServiceImpl implements MemberService {
         try {
             Member member = requireNonNull(checkMember(memberId));
 
-            Address defaultAddress =
-                    addressRepository.findFirstByMemberId(member.getMemberId());
-            if(defaultAddress != null){
-                return defaultAddress;
+            List<Address> defaultAddress =
+                    addressRepository.findByMemberId(member.getMemberId());
+            if(defaultAddress.get(0) != null){
+                return defaultAddress.get(0);
             }
             return null;
 
