@@ -247,6 +247,7 @@ public class CartServiceImpl implements CartService{
             log.info(selfSaladItem.getId()+" 번의 SelfSalad Item 의 수량이 변경되었습니다.");
         }
     }
+
     @Override
     public void deleteCartItem(CartItemDeleteRequest itemDelete){
 
@@ -272,6 +273,45 @@ public class CartServiceImpl implements CartService{
         }
     }
 
+    @Override
+    public void deleteCartItemList(List<CartItemDeleteRequest> deleteItemlist){
+        List<Long> productItems = new ArrayList<>();
+        List<Long> sideProductItems = new ArrayList<>();
+        List<Long> selfSaladItems = new ArrayList<>();
+
+        for(CartItemDeleteRequest deleteItem : deleteItemlist){
+            switch (deleteItem.getItemCategoryType()) {
+                case PRODUCT:
+                    productItems.add(deleteItem.getItemId()); break;
+                case SIDE:
+                    sideProductItems.add(deleteItem.getItemId()); break;
+                case SELF_SALAD:
+                    selfSaladItems.add(deleteItem.getItemId()); break;
+                default:
+                    throw new IllegalArgumentException("존재하지 않는 장바구니 카테고리 입니다. : " + deleteItem.getItemCategoryType());
+            }
+        }
+        if( ! productItems.isEmpty()){
+            productItemRepository.deleteAllByIdInBatch(productItems);
+            log.info(productItems+" 번 Product Item 들이 삭제되었습니다.");
+        }
+        if( ! sideProductItems.isEmpty()){
+            sideProductItemRepository.deleteAllByIdInBatch(sideProductItems);
+            log.info(sideProductItems+" 번 SideProduct Item 들이 삭제되었습니다.");
+        }
+        if( ! selfSaladItems.isEmpty()){
+            selfSaladItemRepository.deleteAllByIdInBatch(selfSaladItems);
+            log.info(selfSaladItems+" 번 SelfSalad Item 들이 삭제되었습니다.");
+
+            List<SelfSaladItem> selfSaladItemList = selfSaladItemRepository.findByIdIn(selfSaladItems);
+            List<SelfSalad> selfSalads = new ArrayList<>();
+            for(SelfSaladItem selfSaladItem : selfSaladItemList){
+                selfSalads.add(selfSaladItem.getSelfSalad());
+            }
+            selfSaladRepository.deleteAll(selfSalads);
+            log.info(selfSaladItems+" 번 SelfSalad 들이 삭제되었습니다.");
+        }
+    }
 
     @Override
     public Integer checkSelfSaladCartLimit(Long memberId){

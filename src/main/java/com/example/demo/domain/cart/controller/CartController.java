@@ -69,4 +69,11 @@ public class CartController {
         cartService.deleteCartItem(itemDelete);
     }
 
+    @DeleteMapping("/delete/list")
+    public void cartItemRemove(@RequestBody List<CartItemDeleteRequest> deleteItemlist){
+        log.info("cartItemRemove()");
+
+        cartService.deleteCartItemList(deleteItemlist);
+    }
+
 }

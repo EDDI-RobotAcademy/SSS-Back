@@ -11,4 +11,6 @@ public interface SelfSaladItemRepository extends JpaRepository<SelfSaladItem, Lo
     Integer countByCart_id(Long cartId);
 
     List<SelfSaladItem> findByCart_Member_memberId(Long memberId);
+
+    List<SelfSaladItem> findByIdIn(List<Long> selfSaladItems);
 }

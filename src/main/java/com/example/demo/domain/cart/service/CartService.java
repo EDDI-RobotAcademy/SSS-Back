@@ -19,6 +19,8 @@ public interface CartService {
 
     void deleteCartItem(CartItemDeleteRequest itemDelete);
 
+    void deleteCartItemList(List<CartItemDeleteRequest> deleteItemlist);
+
     void selfSaladCartRegister(SelfSaladCartRegisterForm selfSaladItem);
 
     Integer checkSelfSaladCartLimit(Long memberId);
