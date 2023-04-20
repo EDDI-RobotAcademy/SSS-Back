@@ -49,13 +49,13 @@ public class CartController {
         cartService.modifyCartItemQuantity(itemRequest);
     }
 
-    @GetMapping("/selfsalad/read")
+    @GetMapping("/selfsalad/read/{itemId}")
     public List<SelfSaladReadResponse> selfSaladRead(@PathVariable("itemId") Long itemId){
         log.info("selfSaladRead()");
         return cartService.readSelfSaladIngredient(itemId);
     }
 
-    @PutMapping("/selfsalad/modify")
+    @PutMapping("/selfsalad/modify/{itemId}")
     public void selfSaladItemModify(@PathVariable("itemId") Long itemId,
                                     @RequestBody SelfSaladModifyForm modifyForm) {
         log.info("selfSaladItemModify()");

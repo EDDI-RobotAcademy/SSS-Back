@@ -481,11 +481,7 @@ public class CartServiceImpl implements CartService{
                 .collect(Collectors.toSet());
         commonIds.retainAll(prevIngredients.keySet());
 
-        // 2. 새롭게 추가된 Ingredient ID 만 포함하는 Set - HashSet 은 중복된 값이 없는 집합을 저장
-        Set<Long> newIngredientIds = new HashSet<>(reqIngredients.keySet());
-        newIngredientIds.removeAll(commonIds);
-
-        // 3. 삭제해야 하는 Ingredient ID 만 포함하는 Set (수정 후 요청객체에 없는 수정전 샐러드_재료)
+        // 2. 삭제해야 하는 Ingredient ID 만 포함하는 Set (수정 후 요청객체에 없는 수정전 샐러드_재료)
         Set<Long> deleteIngredientIds = prevIngredients.values().stream()
                 .filter(ingredient -> !commonIds.contains(ingredient.getIngredient().getId()))
                 .map(ingredient -> ingredient.getIngredient().getId())
@@ -495,11 +491,7 @@ public class CartServiceImpl implements CartService{
         if( ! commonIds.isEmpty()){
             modifySelectedAmount(prevIngredients, reqIngredients, commonIds);
         }
-        // 2. 새로운 재료 추가
-        if( ! newIngredientIds.isEmpty()){
-            modifyAddSelfSaladIngredient(requestItems, newIngredientIds, mySalad);
-        }
-        // 3. 샐러드_재료 삭제
+        // 2. 샐러드_재료 삭제
         if( ! deleteIngredientIds.isEmpty()){
             deleteSelfSaladIngredient(mySalad.getId(), deleteIngredientIds);
         }
@@ -523,19 +515,6 @@ public class CartServiceImpl implements CartService{
         return true;
     }
 
-    private boolean modifyAddSelfSaladIngredient(List<SelfSaladRequest> requestItems,
-                                                 Set<Long> newIngredientIds,
-                                                 SelfSalad prevSalad){
-        log.info("새롭게 추가할 샐러드 재료 IDs : "+newIngredientIds);
-        List<SelfSaladRequest> addIngredients = requestItems.stream()
-                .filter(item -> newIngredientIds.contains(item.getIngredientId()))
-                .collect(Collectors.toList());
-
-        Map<Long, Ingredient> ingredientMap = checkIngredients(newIngredientIds);
-
-        addSelfSaladIngredient(prevSalad, addIngredients, ingredientMap);
-        return true;
-    }
 
     private boolean deleteSelfSaladIngredient(Long saladId, Set<Long> deleteIngredientIds){
         log.info("삭제할 샐러드_재료 IDs: "+deleteIngredientIds);
