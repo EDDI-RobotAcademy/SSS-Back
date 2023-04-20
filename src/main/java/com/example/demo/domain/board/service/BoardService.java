@@ -10,7 +10,7 @@ public interface BoardService {
     /**
      * 게시물 저장
      */
-    void register(BoardRequest boardRequest);
+    public Board register(BoardRequest boardRequest);
 
     /**
      * 게시물 리스트

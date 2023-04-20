@@ -13,7 +13,9 @@ import org.hibernate.annotations.UpdateTimestamp;
 import java.time.LocalDateTime;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 @Getter
 @Setter
@@ -45,6 +47,8 @@ public class Reply {
     public void update(String replyContent) {
         this.replyContent = replyContent;
     }
+
+
 
 
 }
