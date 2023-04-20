@@ -247,6 +247,7 @@ public class CartServiceImpl implements CartService{
             log.info(selfSaladItem.getId()+" 번의 SelfSalad Item 의 수량이 변경되었습니다.");
         }
     }
+
     @Override
     public void deleteCartItem(CartItemDeleteRequest itemDelete){
 
@@ -272,6 +273,45 @@ public class CartServiceImpl implements CartService{
         }
     }
 
+    @Override
+    public void deleteCartItemList(List<CartItemDeleteRequest> deleteItemlist){
+        List<Long> productItems = new ArrayList<>();
+        List<Long> sideProductItems = new ArrayList<>();
+        List<Long> selfSaladItems = new ArrayList<>();
+
+        for(CartItemDeleteRequest deleteItem : deleteItemlist){
+            switch (deleteItem.getItemCategoryType()) {
+                case PRODUCT:
+                    productItems.add(deleteItem.getItemId()); break;
+                case SIDE:
+                    sideProductItems.add(deleteItem.getItemId()); break;
+                case SELF_SALAD:
+                    selfSaladItems.add(deleteItem.getItemId()); break;
+                default:
+                    throw new IllegalArgumentException("존재하지 않는 장바구니 카테고리 입니다. : " + deleteItem.getItemCategoryType());
+            }
+        }
+        if( ! productItems.isEmpty()){
+            productItemRepository.deleteAllByIdInBatch(productItems);
+            log.info(productItems+" 번 Product Item 들이 삭제되었습니다.");
+        }
+        if( ! sideProductItems.isEmpty()){
+            sideProductItemRepository.deleteAllByIdInBatch(sideProductItems);
+            log.info(sideProductItems+" 번 SideProduct Item 들이 삭제되었습니다.");
+        }
+        if( ! selfSaladItems.isEmpty()){
+            selfSaladItemRepository.deleteAllByIdInBatch(selfSaladItems);
+            log.info(selfSaladItems+" 번 SelfSalad Item 들이 삭제되었습니다.");
+
+            List<SelfSaladItem> selfSaladItemList = selfSaladItemRepository.findByIdIn(selfSaladItems);
+            List<SelfSalad> selfSalads = new ArrayList<>();
+            for(SelfSaladItem selfSaladItem : selfSaladItemList){
+                selfSalads.add(selfSaladItem.getSelfSalad());
+            }
+            selfSaladRepository.deleteAll(selfSalads);
+            log.info(selfSaladItems+" 번 SelfSalad 들이 삭제되었습니다.");
+        }
+    }
 
     @Override
     public Integer checkSelfSaladCartLimit(Long memberId){
@@ -441,11 +481,7 @@ public class CartServiceImpl implements CartService{
                 .collect(Collectors.toSet());
         commonIds.retainAll(prevIngredients.keySet());
 
-        // 2. 새롭게 추가된 Ingredient ID 만 포함하는 Set - HashSet 은 중복된 값이 없는 집합을 저장
-        Set<Long> newIngredientIds = new HashSet<>(reqIngredients.keySet());
-        newIngredientIds.removeAll(commonIds);
-
-        // 3. 삭제해야 하는 Ingredient ID 만 포함하는 Set (수정 후 요청객체에 없는 수정전 샐러드_재료)
+        // 2. 삭제해야 하는 Ingredient ID 만 포함하는 Set (수정 후 요청객체에 없는 수정전 샐러드_재료)
         Set<Long> deleteIngredientIds = prevIngredients.values().stream()
                 .filter(ingredient -> !commonIds.contains(ingredient.getIngredient().getId()))
                 .map(ingredient -> ingredient.getIngredient().getId())
@@ -455,11 +491,7 @@ public class CartServiceImpl implements CartService{
         if( ! commonIds.isEmpty()){
             modifySelectedAmount(prevIngredients, reqIngredients, commonIds);
         }
-        // 2. 새로운 재료 추가
-        if( ! newIngredientIds.isEmpty()){
-            modifyAddSelfSaladIngredient(requestItems, newIngredientIds, mySalad);
-        }
-        // 3. 샐러드_재료 삭제
+        // 2. 샐러드_재료 삭제
         if( ! deleteIngredientIds.isEmpty()){
             deleteSelfSaladIngredient(mySalad.getId(), deleteIngredientIds);
         }
@@ -483,19 +515,6 @@ public class CartServiceImpl implements CartService{
         return true;
     }
 
-    private boolean modifyAddSelfSaladIngredient(List<SelfSaladRequest> requestItems,
-                                                 Set<Long> newIngredientIds,
-                                                 SelfSalad prevSalad){
-        log.info("새롭게 추가할 샐러드 재료 IDs : "+newIngredientIds);
-        List<SelfSaladRequest> addIngredients = requestItems.stream()
-                .filter(item -> newIngredientIds.contains(item.getIngredientId()))
-                .collect(Collectors.toList());
-
-        Map<Long, Ingredient> ingredientMap = checkIngredients(newIngredientIds);
-
-        addSelfSaladIngredient(prevSalad, addIngredients, ingredientMap);
-        return true;
-    }
 
     private boolean deleteSelfSaladIngredient(Long saladId, Set<Long> deleteIngredientIds){
         log.info("삭제할 샐러드_재료 IDs: "+deleteIngredientIds);
