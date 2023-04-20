@@ -10,4 +10,6 @@ public class BoardRequest {
     final private String title;
     final private String writer;
     final private String content;
+    final private Boolean privateCheck;
+    final private Long memberId;
 }

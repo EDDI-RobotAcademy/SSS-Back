@@ -30,7 +30,11 @@ public class BoardController {
     @GetMapping("/list")
     public List<Board> boardList () {
         log.info("boardList()");
-
+        List<Board> boardList = boardService.list();
+        for(Board board: boardList){
+            log.info("3333");
+            log.info("2222" + board.getWriter());
+        }
         return boardService.list();
     }
 
