@@ -232,12 +232,9 @@ public class MemberServiceImpl implements MemberService {
         try {
             Member member = requireNonNull(checkMember(memberId));
 
-            List<Address> defaultAddress =
-                    addressRepository.findByMemberId(member.getMemberId());
-            if(defaultAddress.get(0) != null){
-                return defaultAddress.get(0);
-            }
-            return null;
+            Optional<Address> maybeDefaultAddress =
+                    addressRepository.findByMember_IdAndDefaultCheck(member.getMemberId(), 'Y');
+            return maybeDefaultAddress.orElse(null);
 
         } catch (RuntimeException ex) {
             log.info(ex.getMessage());
@@ -250,19 +247,18 @@ public class MemberServiceImpl implements MemberService {
     public Boolean updateMemberAddress(Long memberId, AddressRequest reqAddress){
         try {
             Member member = requireNonNull(checkMember(memberId));
-            MemberProfile myProfile = requireNonNull(checkMemberProfile(member));
+            Optional<Address> maybeDefaultAddress =
+                    addressRepository.findByMember_IdAndDefaultCheck(member.getMemberId(), 'Y');
             Address defaultAddress;
-
             // 이미 기본 주소 존재 = 수정작업
-            if(myProfile.getAddresses().get(0) != null){
-
-                defaultAddress = myProfile.getAddresses().get(0);
+            if(maybeDefaultAddress.isPresent()){
+                defaultAddress = maybeDefaultAddress.get();
                 modifyDefaultAddress(defaultAddress, reqAddress);
-
                 // 기본 주소 새로 등록
             }else{
-                defaultAddress = reqAddress.toAddress(myProfile);
+                defaultAddress = reqAddress.toAddress(member);
             }
+            log.info("기본 주소 등록 및 수정 완료 : "+ defaultAddress.getZipcode(), defaultAddress.getDefaultCheck());
             addressRepository.save(defaultAddress);
             return true;
 
@@ -281,8 +277,6 @@ public class MemberServiceImpl implements MemberService {
             defaultAddress.changeDefaultAddress(
                     reqAddress.getZipcode(),reqAddress.getCity(),
                     reqAddress.getStreet(), reqAddress.getAddressDetail());
-            // address 저장 작업
-            addressRepository.save(defaultAddress);
         }
         return defaultAddress;
     }
@@ -333,10 +327,10 @@ public class MemberServiceImpl implements MemberService {
     public Long registerAddress(Long memberId, AddressRequest reqAddress){
         try {
             Member member = requireNonNull(checkMember(memberId));
-            MemberProfile myProfile = requireNonNull(checkMemberProfile(member));
 
-            Address newAddress = reqAddress.toAddress(myProfile);
+            Address newAddress = reqAddress.toAddress(member);
             addressRepository.save(newAddress);
+            log.info("주소 등록 완료 : "+ newAddress.getZipcode());
             return newAddress.getId();
 
         } catch (RuntimeException ex) {
@@ -347,14 +341,12 @@ public class MemberServiceImpl implements MemberService {
 
     @Override
     public List<Address> getOtherAddress(Long memberId){
-        List<Address> addressList = addressRepository.findByMemberId(memberId);
-        if (addressList.size() > 1) {
-            addressList.remove(0); // 기본 주소 제외
-        } else {
-            addressList.clear(); // 목록에 하나의 요소만 있으면 모두 제외
-        }
+        Optional<List<Address>> otherAddressList =
+                addressRepository.findByMember_IdAndDefaultCheckNot(memberId, 'Y');
+
         // 기본주소만 있다면 빈 리스트 반환
-        return addressList.isEmpty() ? Collections.emptyList() : addressList;
+        return otherAddressList.isEmpty() ? Collections.emptyList() : otherAddressList.get();
+
     }
 
 }
