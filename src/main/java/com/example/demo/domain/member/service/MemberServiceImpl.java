@@ -233,7 +233,7 @@ public class MemberServiceImpl implements MemberService {
             Member member = requireNonNull(checkMember(memberId));
 
             Optional<Address> maybeDefaultAddress =
-                    addressRepository.findByMember_IdAndDefaultCheck(member.getMemberId(), 'Y');
+                    addressRepository.findByMember_MemberIdAndDefaultCheck(member.getMemberId(), 'Y');
             return maybeDefaultAddress.orElse(null);
 
         } catch (RuntimeException ex) {
@@ -248,7 +248,7 @@ public class MemberServiceImpl implements MemberService {
         try {
             Member member = requireNonNull(checkMember(memberId));
             Optional<Address> maybeDefaultAddress =
-                    addressRepository.findByMember_IdAndDefaultCheck(member.getMemberId(), 'Y');
+                    addressRepository.findByMember_MemberIdAndDefaultCheck(member.getMemberId(), 'Y');
             Address defaultAddress;
             // 이미 기본 주소 존재 = 수정작업
             if(maybeDefaultAddress.isPresent()){
@@ -342,7 +342,7 @@ public class MemberServiceImpl implements MemberService {
     @Override
     public List<Address> getOtherAddress(Long memberId){
         Optional<List<Address>> otherAddressList =
-                addressRepository.findByMember_IdAndDefaultCheckNot(memberId, 'Y');
+                addressRepository.findByMember_MemberIdAndDefaultCheckNot(memberId, 'Y');
 
         // 기본주소만 있다면 빈 리스트 반환
         return otherAddressList.isEmpty() ? Collections.emptyList() : otherAddressList.get();
