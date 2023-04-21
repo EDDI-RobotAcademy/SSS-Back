@@ -8,10 +8,7 @@ import java.util.Optional;
 
 public interface AddressRepository extends JpaRepository<Address, Long> {
 
-//    @Query("SELECT a from Address a JOIN FETCH a.memberProfile mp JOIN FETCH mp.member m where m.memberId = :memberId")
-//    List<Address> findByMemberId(@Param("memberId") Long memberId);
+    Optional<Address> findByMember_MemberIdAndDefaultCheck(Long memberId, char defaultCheck);
+    Optional<List<Address>> findByMember_MemberIdAndDefaultCheckNot(Long memberId, char defaultCheck);
 
-    Optional<Address> findByMember_IdAndDefaultCheck(Long memberId, char defaultCheck);
-    Optional<List<Address>> findByMember_IdAndDefaultCheckNot(Long memberId, char defaultCheck);
-    Optional<List<Address>> findByMember_MemberId(Long memberId);
 }
