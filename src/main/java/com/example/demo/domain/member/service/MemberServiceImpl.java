@@ -164,6 +164,7 @@ public class MemberServiceImpl implements MemberService {
         }
         // 회원 프로필 없음 = 생성
         MemberProfile newProfile = new MemberProfile(member);
+        newProfile.setNickname(member.getNickname());
         memberProfileRepository.save(newProfile);
         return newProfile;
     }
@@ -198,8 +199,12 @@ public class MemberServiceImpl implements MemberService {
             MemberProfile myProfile = null;
             if(maybeMemberProfile.isPresent()){
                 myProfile = maybeMemberProfile.get();
+            } else {
+                myProfile = new MemberProfile(member);
+            }
 
-                if(reqPhoneNumber != null && !reqPhoneNumber.isEmpty()) {
+
+            if(reqPhoneNumber != null && !reqPhoneNumber.isEmpty()) {
                     myProfile.setPhoneNumber(reqPhoneNumber);
                 }
                 if(reqNickname != null && !reqNickname.isEmpty()) {
@@ -213,8 +218,7 @@ public class MemberServiceImpl implements MemberService {
                 }
                 memberProfileRepository.save(myProfile);
                 return true;
-            }
-            return false;
+
 
         } catch (RuntimeException ex) {
             log.info(ex.getMessage());
