@@ -31,8 +31,11 @@ public class Address {
     private String addressDetail;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "member_profile_id")
-    private MemberProfile memberProfile;
+    @JoinColumn(name = "member_id")
+    private Member member;
+
+    @Column(nullable = true)
+    private char defaultCheck; //기본 주소 표시 'Y'
 
 
     public Address(String zipcode, String city, String street, String addressDetail) {
@@ -42,12 +45,13 @@ public class Address {
         this.addressDetail = addressDetail;
     }
 
-    public Address(String zipcode, String city, String street, String addressDetail, MemberProfile memberProfile) {
+    public Address(String zipcode, String city, String street, String addressDetail, Member member, char defaultCheck) {
         this.zipcode = zipcode;
         this.city = city;
         this.street = street;
         this.addressDetail = addressDetail;
-        this.memberProfile = memberProfile;
+        this.member = member;
+        this.defaultCheck = defaultCheck;
     }
     
 
@@ -65,8 +69,8 @@ public class Address {
         return new Address(zipcode, city, street, addressDetail);
     }
 
-    public void setMemberProfile(MemberProfile memberProfile) {
-        this.memberProfile = memberProfile;
+    public void setMember(Member member) {
+        this.member = member;
     }
 
 }
