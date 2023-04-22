@@ -158,9 +158,28 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
     @Override
-    public List<Review> memberReviewList(Long memberId) {
-        List<Review> reviewList = reviewRepository.findByMemberId(memberId);
-        return reviewList;
+    @Transactional
+    public List<ReviewListResponse> memberReviewList(Long memberId) {
+        Optional<Member> maybeMember = memberRepository.findById(memberId);
+        Member member = maybeMember.get();
+        List<Review> reviewList = reviewRepository.findByMember_MemberId(member.getMemberId());
+
+        List<ReviewListResponse> responseList = new ArrayList<>();
+        for(Review review : reviewList){
+            responseList.add(
+                    new ReviewListResponse(
+                            review.getReviewId(),
+                            review.getProduct().getProductId(),
+                            review.getOrderInfo().getMember().getNickname(),
+                            review.getReviewImgs(),
+                            review.getRating(),
+                            review.getContent(),
+                            review.getRegDate(),
+                            review.getUpdDate())
+            );
+        }
+        return responseList;
+
     }
 
 
