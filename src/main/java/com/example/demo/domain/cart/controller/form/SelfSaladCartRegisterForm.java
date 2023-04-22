@@ -26,8 +26,6 @@ public class SelfSaladCartRegisterForm {
 
     private Long totalCalorie;
 
-    private Long memberId;
-
     private List<SelfSaladRequest> selfSaladRequestList;
 
 

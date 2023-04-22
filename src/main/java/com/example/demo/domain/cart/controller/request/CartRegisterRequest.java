@@ -30,7 +30,6 @@ public class CartRegisterRequest {
 
     private int quantity;
 
-    private Long memberId;
 
 
     public ProductItem toProductItem(Product product, Cart cart){

@@ -6,17 +6,19 @@ import com.example.demo.domain.cart.controller.request.*;
 import com.example.demo.domain.cart.controller.response.CartItemListResponse;
 import com.example.demo.domain.cart.controller.response.SelfSaladReadResponse;
 import com.example.demo.domain.cart.service.CartService;
+import com.example.demo.domain.utility.TokenBasedController;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 @Slf4j
 @RestController
 @RequestMapping("/cart")
 @RequiredArgsConstructor
-public class CartController {
+public class CartController extends TokenBasedController {
 
     final private CartService cartService;
 
@@ -27,18 +29,22 @@ public class CartController {
     }
 
     @PostMapping(value = "/selfsalad/limit")
-    public Integer selfSaladCartCount (@PathVariable("memberId") Long memberId) {
+    public Integer selfSaladCartCount (HttpServletRequest requestToken) {
+        Long memberId = findMemberId(requestToken);
         log.info("checkSelfSaladCartCount()");
         return cartService.checkSelfSaladCartLimit(memberId);
     }
     @PostMapping(value = "/selfsalad/register")
-    public void SelfSaladCartRegister (@RequestBody SelfSaladCartRegisterForm selfSaladItem) {
+    public void SelfSaladCartRegister (@RequestBody SelfSaladCartRegisterForm selfSaladItem,
+                                       HttpServletRequest requestToken) {
+        Long memberId = findMemberId(requestToken);
         log.info("cartRegister()");
-        cartService.selfSaladCartRegister(selfSaladItem);
+        cartService.selfSaladCartRegister(memberId, selfSaladItem);
     }
 
-    @GetMapping("/list/{memberId}")
-    public List<CartItemListResponse> cartItemList(@PathVariable("memberId") Long memberId) {
+    @GetMapping("/list")
+    public List<CartItemListResponse> cartItemList(HttpServletRequest requestToken) {
+        Long memberId = findMemberId(requestToken);
         log.info("cartItemList()");
         return cartService.cartItemList(memberId);
     }

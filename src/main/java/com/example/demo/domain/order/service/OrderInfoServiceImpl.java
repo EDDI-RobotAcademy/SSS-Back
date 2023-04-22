@@ -127,7 +127,7 @@ public class OrderInfoServiceImpl implements OrderInfoService {
     }
 
     @Override
-    public void classifyOrderItemCategory(Long memberId, Long totalOrderPrice, List<OrderItemRegisterRequest> orderItems){
+    public void orderRegister(Long memberId, OrderInfoRegisterForm orderForm){
         // { 상품 카테고리, 상품 id, 상품 수량, 상품 가격 } 주문 list
         Member member = requireNonNull(memberService.checkMember(memberId));
 

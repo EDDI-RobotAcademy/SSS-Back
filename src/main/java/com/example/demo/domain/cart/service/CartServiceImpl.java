@@ -355,7 +355,7 @@ public class CartServiceImpl implements CartService{
         }
         return null;
     }
-    public void selfSaladCartRegister(SelfSaladCartRegisterForm reqForm) {
+    public void selfSaladCartRegister(Long memberId, SelfSaladCartRegisterForm reqForm) {
 
         try {
             Member member = requireNonNull(memberService.checkMember(reqForm.getMemberId()));
