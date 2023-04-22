@@ -1,7 +1,7 @@
 package com.example.demo.domain.member.service.request;
 
 import com.example.demo.domain.member.entity.Address;
-import com.example.demo.domain.member.entity.MemberProfile;
+import com.example.demo.domain.member.entity.Member;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
@@ -21,9 +21,9 @@ public class AddressRequest {
 
 
     //새로운 기본 주소 생성
-    public Address toAddress (MemberProfile memberProfile){
+    public Address toAddress (Member member){
         return new Address( zipcode, city, street,
-                addressDetail, memberProfile
+                addressDetail, member, 'Y'
         );
 
     }
