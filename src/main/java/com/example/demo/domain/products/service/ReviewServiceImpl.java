@@ -12,11 +12,13 @@ import com.example.demo.domain.products.repository.ProductsRepository;
 import com.example.demo.domain.products.repository.ReviewImgRepository;
 import com.example.demo.domain.products.repository.ReviewRepository;
 import com.example.demo.domain.products.service.request.ReviewRequest;
+import com.example.demo.domain.products.service.response.ReviewListResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.transaction.Transactional;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -41,7 +43,7 @@ public class ReviewServiceImpl implements ReviewService {
     public void registerText(ReviewRequest request) {
         Optional<Product> maybeProduct = productsRepository.findById(request.getProductId());
         Optional<Member> maybeMember = memberRepository.findById(request.getMemberId());
-        Optional<OrderInfo> maybeOrderInfo = orderInfoRepository.findById(request.getOrderId());
+        Optional<OrderInfo> maybeOrderInfo = orderInfoRepository.findById(request.getOrderInfoId());
 
         if(!maybeProduct.isPresent() || !maybeMember.isPresent()) {
             throw new RuntimeException("등록된 상품이나 회원이 아닙니다.");
@@ -73,9 +75,9 @@ public class ReviewServiceImpl implements ReviewService {
 
         Optional<Product> maybeProduct = productsRepository.findById(request.getProductId());
         Optional<Member> maybeMember = memberRepository.findById(request.getMemberId());
-        Optional<OrderInfo> maybeOrderInfo = orderInfoRepository.findById(request.getOrderId());
+        Optional<OrderInfo> maybeOrderInfo = orderInfoRepository.findById(request.getOrderInfoId());
 
-        if(!maybeProduct.isPresent() || !maybeMember.isPresent()) {
+        if(!maybeProduct.isPresent()) { // || !maybeMember.isPresent()
             throw new RuntimeException("등록된 상품이나 회원이 아닙니다.");
         }
 
@@ -123,21 +125,63 @@ public class ReviewServiceImpl implements ReviewService {
             }
         }
 
+        // 리뷰 작성 시 구매확정으로..? 아니면 구매 확정을 해야 리뷰를 작성할 수 있게...?
+//        orderInfo.setOrderState(OrderState.PAYMENT_CONFIRM);
+//        orderInfoRepository.save(orderInfo);
+
         reviewRepository.save(review);
         reviewImgRepository.saveAll(imgList);
     }
 
     @Override
-    public List<Review> productReviewList(Long productId) {
-        List<Review> reviewList = reviewRepository.findByProductId(productId);
-        return reviewList;
+    @Transactional
+    public List<ReviewListResponse> productReviewList(Long productId) {
+        Optional<Product> maybeProduct = productsRepository.findById(productId);
+        Product product = maybeProduct.get();
+        List<Review> reviewList = reviewRepository.findByProduct_ProductId(product.getProductId());
+
+        List<ReviewListResponse> responseList = new ArrayList<>();
+        for(Review review : reviewList){
+            responseList.add(
+                    new ReviewListResponse(
+                    review.getReviewId(),
+                    review.getProduct().getProductId(),
+                    review.getOrderInfo().getMember().getNickname(),
+                    review.getReviewImgs(),
+                    review.getRating(),
+                    review.getContent(),
+                    review.getRegDate(),
+                    review.getUpdDate())
+            );
+        }
+        return responseList;
     }
 
     @Override
-    public List<Review> memberReviewList(Long memberId) {
-        List<Review> reviewList = reviewRepository.findByMemberId(memberId);
-        return reviewList;
+    @Transactional
+    public List<ReviewListResponse> memberReviewList(Long memberId) {
+        Optional<Member> maybeMember = memberRepository.findById(memberId);
+        Member member = maybeMember.get();
+        List<Review> reviewList = reviewRepository.findByMember_MemberId(member.getMemberId());
+
+        List<ReviewListResponse> responseList = new ArrayList<>();
+        for(Review review : reviewList){
+            responseList.add(
+                    new ReviewListResponse(
+                            review.getReviewId(),
+                            review.getProduct().getProductId(),
+                            review.getOrderInfo().getMember().getNickname(),
+                            review.getReviewImgs(),
+                            review.getRating(),
+                            review.getContent(),
+                            review.getRegDate(),
+                            review.getUpdDate())
+            );
+        }
+        return responseList;
+
     }
+
 
     @Override
     public List<ReviewImgResponse> reviewImgList(Long reviewId) {
@@ -167,34 +211,37 @@ public class ReviewServiceImpl implements ReviewService {
 
     @Override
     public void modify(Long reviewId, List<MultipartFile> reviewImgList, ReviewRequest request) {
+        final String imgPath = "../SSS-Front/src/assets/review/";
+
+        List<ReviewImgResponse> maybeImgs = reviewImgRepository.findReviewImgById(reviewId);
+        if(!maybeImgs.isEmpty()) {
+            List<ReviewImgResponse> removeImgs = reviewImgRepository.findReviewImgById(reviewId);
+
+            for (int i = 0; i < removeImgs.size(); i++) {
+                String fileName = removeImgs.get(i).getEditedImg();
+                System.out.println(fileName);
+
+                File file = new File(imgPath + fileName);
+
+                if (file.exists()) {
+                    file.delete();
+                } else {
+                    System.out.println("파일 삭제 실패");
+                }
+            }
+            reviewImgRepository.deleteReviewImgById(reviewId);
+        }
         Optional<Review> maybeReview = reviewRepository.findById(reviewId);
         if(maybeReview.isEmpty()) {
             System.out.println("해당 reviewId 정보 없음:  " + reviewId);
         }
 
         Review review = maybeReview.get();
-        List<ReviewImg> imgList = new ArrayList<>();
-        List<ReviewImgResponse> removeImgs = reviewImgRepository.findReviewImgById(reviewId);
-
-        final String imgPath = "../SSS-Front/src/assets/review/";
-        for(int i = 0; i < removeImgs.size(); i++) {
-            String fileName = removeImgs.get(i).getEditedImg();
-            System.out.println(fileName);
-
-            File file = new File(imgPath + fileName);
-
-            if (file.exists()) {
-                file.delete();
-            } else {
-                System.out.println("파일 삭제 실패");
-            }
-        }
-        reviewImgRepository.deleteReviewImgById(reviewId);
-
         review.setRating(request.getRating());
         review.setContent(request.getContent());
 
         try {
+            List<ReviewImg> imgList = new ArrayList<>();
             for (MultipartFile multipartFile: reviewImgList) {
                 log.info(multipartFile.getOriginalFilename());
 
@@ -217,6 +264,7 @@ public class ReviewServiceImpl implements ReviewService {
 
                 imgList.add(reviewImg);
             }
+            reviewImgRepository.saveAll(imgList);
         } catch (FileNotFoundException e) {
             throw new RuntimeException(e);
         } catch (IOException e) {
@@ -224,7 +272,6 @@ public class ReviewServiceImpl implements ReviewService {
         }
 
         reviewRepository.save(review);
-        reviewImgRepository.saveAll(imgList);
     }
 
     @Override

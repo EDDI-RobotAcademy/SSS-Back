@@ -4,6 +4,7 @@ import com.example.demo.domain.products.controller.form.ReviewImgResponse;
 import com.example.demo.domain.products.entity.Review;
 import com.example.demo.domain.products.service.ReviewService;
 import com.example.demo.domain.products.service.request.ReviewRequest;
+import com.example.demo.domain.products.service.response.ReviewListResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
@@ -35,13 +36,13 @@ public class ReviewController {
     }
 
     @GetMapping("/list/{productId}")
-    public List<Review> reviewList(@PathVariable("productId") Long productId) {
+    public List<ReviewListResponse> reviewList(@PathVariable("productId") Long productId) {
         log.info("productReviewList()");
         return reviewService.productReviewList(productId);
     }
 
     @GetMapping("/list-myReview/{memberId}")
-    public List<Review> memberReviewList(@PathVariable("memberId") Long memberId) {
+    public List<ReviewListResponse> memberReviewList(@PathVariable("memberId") Long memberId) {
         log.info("memberReviewList()");
         return reviewService.memberReviewList(memberId);
     }

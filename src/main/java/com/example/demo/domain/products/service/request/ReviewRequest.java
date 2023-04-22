@@ -13,6 +13,6 @@ public class ReviewRequest {
     private Long productId;
     private int rating;
     private String content;
-    private Long orderId;
+    private Long orderInfoId;
 
 }

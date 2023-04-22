@@ -12,8 +12,8 @@ import java.util.List;
 
 public interface ReviewImgRepository extends JpaRepository<ReviewImg, Long> {
 
-    @Query("select ri.reviewImgId as reviewImgId, ri.editedImg as editedImg from ReviewImg ri join ri.review r where r.reviewId = :reviewId")
-    List<ReviewImgResponse> findReviewImgById(@Param("reviewId") Long reviewId);
+    @Query("select ri.reviewImgId as reviewImgId, ri.editedImg as editedImg from ReviewImg ri join ri.review r where r.reviewId = :id")
+    List<ReviewImgResponse> findReviewImgById(Long id);
 
     @Modifying
     @Transactional
