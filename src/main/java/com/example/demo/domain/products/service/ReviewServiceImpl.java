@@ -211,34 +211,37 @@ public class ReviewServiceImpl implements ReviewService {
 
     @Override
     public void modify(Long reviewId, List<MultipartFile> reviewImgList, ReviewRequest request) {
+        final String imgPath = "../SSS-Front/src/assets/review/";
+
+        List<ReviewImgResponse> maybeImgs = reviewImgRepository.findReviewImgById(reviewId);
+        if(!maybeImgs.isEmpty()) {
+            List<ReviewImgResponse> removeImgs = reviewImgRepository.findReviewImgById(reviewId);
+
+            for (int i = 0; i < removeImgs.size(); i++) {
+                String fileName = removeImgs.get(i).getEditedImg();
+                System.out.println(fileName);
+
+                File file = new File(imgPath + fileName);
+
+                if (file.exists()) {
+                    file.delete();
+                } else {
+                    System.out.println("파일 삭제 실패");
+                }
+            }
+            reviewImgRepository.deleteReviewImgById(reviewId);
+        }
         Optional<Review> maybeReview = reviewRepository.findById(reviewId);
         if(maybeReview.isEmpty()) {
             System.out.println("해당 reviewId 정보 없음:  " + reviewId);
         }
 
         Review review = maybeReview.get();
-        List<ReviewImg> imgList = new ArrayList<>();
-        List<ReviewImgResponse> removeImgs = reviewImgRepository.findReviewImgById(reviewId);
-
-        final String imgPath = "../SSS-Front/src/assets/review/";
-        for(int i = 0; i < removeImgs.size(); i++) {
-            String fileName = removeImgs.get(i).getEditedImg();
-            System.out.println(fileName);
-
-            File file = new File(imgPath + fileName);
-
-            if (file.exists()) {
-                file.delete();
-            } else {
-                System.out.println("파일 삭제 실패");
-            }
-        }
-        reviewImgRepository.deleteReviewImgById(reviewId);
-
         review.setRating(request.getRating());
         review.setContent(request.getContent());
 
         try {
+            List<ReviewImg> imgList = new ArrayList<>();
             for (MultipartFile multipartFile: reviewImgList) {
                 log.info(multipartFile.getOriginalFilename());
 
@@ -261,6 +264,7 @@ public class ReviewServiceImpl implements ReviewService {
 
                 imgList.add(reviewImg);
             }
+            reviewImgRepository.saveAll(imgList);
         } catch (FileNotFoundException e) {
             throw new RuntimeException(e);
         } catch (IOException e) {
@@ -268,7 +272,6 @@ public class ReviewServiceImpl implements ReviewService {
         }
 
         reviewRepository.save(review);
-        reviewImgRepository.saveAll(imgList);
     }
 
     @Override
