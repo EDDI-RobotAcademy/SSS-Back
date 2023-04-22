@@ -7,7 +7,7 @@ import com.example.demo.domain.member.entity.Member;
 import com.example.demo.domain.member.entity.MemberProfile;
 import com.example.demo.domain.member.repository.MemberProfileRepository;
 import com.example.demo.domain.member.service.MemberServiceImpl;
-import com.example.demo.domain.order.controller.response.OrderAddressResponse;
+//import com.example.demo.domain.order.controller.response.OrderAddressResponse;
 import com.example.demo.domain.order.entity.OrderInfo;
 import com.example.demo.domain.order.entity.orderItems.ProductOrderItem;
 import com.example.demo.domain.order.entity.orderItems.SelfSaladOrderItem;
