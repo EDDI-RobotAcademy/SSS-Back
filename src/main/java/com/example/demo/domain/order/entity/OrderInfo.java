@@ -31,6 +31,11 @@ public class OrderInfo {
 
     @OneToMany(mappedBy = "orderInfo", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
     private List<OrderItem> orderItems = new ArrayList<>();
+
+    @OneToMany(mappedBy = "orderInfo", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
+    private Set<OrderInfoState> orderInfoState = new HashSet<>(); // 주문 상태
+    
+
     public OrderInfo(Long totalOrderPrice, Member member) {
         this.totalOrderPrice = totalOrderPrice;
         this.member = member;

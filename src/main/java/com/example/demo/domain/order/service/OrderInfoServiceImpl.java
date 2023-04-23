@@ -39,10 +39,10 @@ public class OrderInfoServiceImpl implements OrderInfoService {
     final private SideProductsRepository sideProductsRepository;
     final private SelfSaladRepository selfSaladRepository;
     final private OrderInfoRepository orderInfoRepository;
-    final private ProductOrderItemRepository productOrderItemRepository;
-    final private SideProductOrderItemRepository sideProductOrderItemRepository;
-    final private SelfSaladOrderItemRepository selfSaladOrderItemRepository;
-    final private CartServiceImpl cartService;
+    final private OrderItemRepository orderItemRepository;
+    final private OrderStateRepository orderStateRepository;
+    final private OrderInfoStateRepository orderInfoStateRepository;
+
 
     final private MemberProfileRepository memberProfileRepository;
     final private MemberServiceImpl memberService;
@@ -126,10 +126,21 @@ public class OrderInfoServiceImpl implements OrderInfoService {
         return newOrderInfo;
     }
 
+    private OrderInfoState registerOrderState(OrderInfo myOrderInfo){
+
+        final OrderState orderState =
+                orderStateRepository.findByOrderStateType(OrderStateType.PAYMENT_COMPLETE);
+
+        final OrderInfoState orderInfoState =
+                new OrderInfoState(myOrderInfo, orderState);
+        return orderInfoState;
+    }
     @Override
     public void orderRegister(Long memberId, OrderInfoRegisterForm orderForm){
         // { 상품 카테고리, 상품 id, 상품 수량, 상품 가격 } 주문 list
         Member member = requireNonNull(memberService.checkMember(memberId));
+            // orderInfoState 저장
+            registerOrderState(myOrderInfo);
 
         OrderInfo myOrderInfo = createOrder(member, totalOrderPrice);
 
