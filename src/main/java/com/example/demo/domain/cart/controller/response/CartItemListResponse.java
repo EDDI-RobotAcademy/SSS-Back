@@ -1,37 +1,35 @@
 package com.example.demo.domain.cart.controller.response;
 
-import com.example.demo.domain.cart.entity.cartItems.ItemCategoryType;
-import com.example.demo.domain.cart.entity.cartItems.ProductItem;
-import com.example.demo.domain.cart.entity.cartItems.SelfSaladItem;
-import com.example.demo.domain.cart.entity.cartItems.SideProductItem;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.ToString;
+import com.example.demo.domain.cart.entity.cartItems.*;
+import lombok.*;
 
 import java.util.Date;
 
 @Getter
 @ToString
-@RequiredArgsConstructor
+@AllArgsConstructor
+@NoArgsConstructor
 public class CartItemListResponse {
     // 카트 아이템 id, (이미지, 상품명, 가격), 담은 수량
-    final private ItemCategoryType category;
-    final private Long cartItemId;
 
-    final private Integer quantity;
+    private Long cartItemId;
 
-    final private Date addedDate;
+    private Integer quantity;
 
-    final private Long productId;
+    private Date addedDate;
 
-    final private String title;
+    private Long productId;
 
-    final private String editedImg;
+    private String title;
 
-    final private Long totalPrice;
+    private String editedImg;
 
-    public CartItemListResponse(ProductItem productItem) {
-        this(ItemCategoryType.PRODUCT,
+    private Long totalPrice;
+
+
+
+    public CartItemListResponse toProductItem(CartItem productItem) {
+        return new CartItemListResponse(
                 productItem.getId(),
                 productItem.getQuantity(),
                 productItem.getAddedDate(),
@@ -41,8 +39,8 @@ public class CartItemListResponse {
                 productItem.getProduct().getPrice() * productItem.getQuantity());
     }
 
-    public CartItemListResponse(SideProductItem sideProductItem) {
-        this(ItemCategoryType.SIDE,
+    public CartItemListResponse toSideProductItem(CartItem sideProductItem) {
+        return new CartItemListResponse(
                 sideProductItem.getId(),
                 sideProductItem.getQuantity(),
                 sideProductItem.getAddedDate(),
@@ -52,8 +50,8 @@ public class CartItemListResponse {
                 sideProductItem.getSideProduct().getPrice() * sideProductItem.getQuantity());
     }
 
-    public CartItemListResponse(SelfSaladItem selfSaladItem) {
-        this(ItemCategoryType.SELF_SALAD,
+    public CartItemListResponse toSelfSaladItem(CartItem selfSaladItem) {
+        return new CartItemListResponse(
                 selfSaladItem.getId(),
                 selfSaladItem.getQuantity(),
                 selfSaladItem.getAddedDate(),
