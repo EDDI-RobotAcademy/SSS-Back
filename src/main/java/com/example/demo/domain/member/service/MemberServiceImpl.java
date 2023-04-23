@@ -322,22 +322,6 @@ public class MemberServiceImpl implements MemberService {
         }
     }
 
-    // 결제창 : 신규 주소 등록 후 주소 id 반환
-    @Override
-    public Long registerAddress(Long memberId, AddressRequest reqAddress){
-        try {
-            Member member = requireNonNull(checkMember(memberId));
-
-            Address newAddress = reqAddress.toAddress(member);
-            addressRepository.save(newAddress);
-            log.info("주소 등록 완료 : "+ newAddress.getZipcode());
-            return newAddress.getId();
-
-        } catch (RuntimeException ex) {
-            log.info(ex.getMessage());
-            return null;
-        }
-    }
 
     @Override
     public List<Address> getOtherAddress(Long memberId){
@@ -345,7 +329,7 @@ public class MemberServiceImpl implements MemberService {
                 addressRepository.findByMember_MemberIdAndDefaultCheckNot(memberId, 'Y');
 
         // 기본주소만 있다면 빈 리스트 반환
-        return otherAddressList.isEmpty() ? Collections.emptyList() : otherAddressList.get();
+        return otherAddressList.orElse(Collections.emptyList());
 
     }
 

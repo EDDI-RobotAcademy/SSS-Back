@@ -42,6 +42,9 @@ public class OrderInfoServiceImpl implements OrderInfoService {
 
     final private PaymentRepository paymentRepository;
 
+    final private AddressRepository addressRepository;
+    final private DeliveryRepository deliveryRepository;
+
     final private MemberServiceImpl memberService;
 
 
@@ -139,6 +142,28 @@ public class OrderInfoServiceImpl implements OrderInfoService {
                 reqPayment.toPayment(myOrderInfo);
         paymentRepository.save(myPayment);
     }
+
+    private void registerDelivery(DeliveryRegisterRequest reqDelivery, OrderInfo myOrderInfo,
+                                Address myAddress){
+        Delivery myDelivery =
+                reqDelivery.toDelivery(myAddress, myOrderInfo);
+        deliveryRepository.save(myDelivery);
+    }
+
+    private Address getAddressOrCreate(Member member, DeliveryRegisterRequest reqDelivery){
+
+        if(reqDelivery.getAddressId() != null){
+            Optional<Address> maybeAddress =
+                    addressRepository.findById(reqDelivery.getAddressId());
+            
+            return maybeAddress.orElse(null);
+        }
+        Address newAddress = reqDelivery.toAddress(member);
+        addressRepository.save(newAddress);
+        log.info("회원 신규 주소 등록 : "+ newAddress.getZipcode());
+        return newAddress;
+    }
+
     @Override
     public void orderRegister(Long memberId, OrderInfoRegisterForm orderForm){
         // { 상품 카테고리, 상품 id, 상품 수량, 상품 가격 } 주문 list
@@ -156,6 +181,12 @@ public class OrderInfoServiceImpl implements OrderInfoService {
 
             // orderItem 분류 및 저장
             addOrderItemByCategory(orderForm.getOrderItemRegisterRequestList(), myOrderInfo);
+
+            // address 찾기 & 저장
+            Address myAddress = getAddressOrCreate(member, orderForm.getDeliveryRegisterRequest());
+
+            // delivery 저장
+            registerDelivery(orderForm.getDeliveryRegisterRequest(), myOrderInfo, myAddress);
 
         } catch (RuntimeException ex) {
             log.info(ex.getMessage());

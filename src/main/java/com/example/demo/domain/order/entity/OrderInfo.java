@@ -29,6 +29,12 @@ public class OrderInfo {
     @JoinColumn(name = "member_id")
     private Member member;
 
+    @OneToOne(mappedBy = "orderInfo", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
+    private Delivery delivery;
+
+    @OneToOne(mappedBy = "orderInfo", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
+    private Payment payment;
+
     @OneToMany(mappedBy = "orderInfo", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
     private List<OrderItem> orderItems = new ArrayList<>();
 

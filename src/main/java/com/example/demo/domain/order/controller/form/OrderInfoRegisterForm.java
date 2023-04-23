@@ -13,6 +13,8 @@ import java.util.List;
 public class OrderInfoRegisterForm {
 
 
+    // Delivery & Address
+    private final DeliveryRegisterRequest deliveryRegisterRequest; // 배송 정보
 
     // Payment
     private final PaymentRequest paymentRequest; // 결제 정보
