@@ -94,15 +94,6 @@ public class MemberController {
         return memberService.updateMemberAddress(memberId, reqAddress);
     }
 
-    // 결제창 : 신규 주소 등록 후 주소 id 반환
-    @PutMapping("/profile-address/register/{userId}")
-    public Long registerAddress(@PathVariable("userId") Long memberId,
-                                    @RequestBody AddressRequest reqAddress) {
-        log.info("/member-profile/"+ memberId +", "+ reqAddress);
-
-        return memberService.registerAddress(memberId, reqAddress);
-    }
-
     // 결제창 : 기본 주소 외의 다른 주소들 반환
     @PutMapping("/profile-address/list/{userId}")
     public List<Address> getAddressList(@PathVariable("userId") Long memberId) {

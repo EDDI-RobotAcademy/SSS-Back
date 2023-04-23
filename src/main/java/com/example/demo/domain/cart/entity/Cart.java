@@ -1,8 +1,6 @@
 package com.example.demo.domain.cart.entity;
 
-import com.example.demo.domain.cart.entity.cartItems.ProductItem;
-import com.example.demo.domain.cart.entity.cartItems.SelfSaladItem;
-import com.example.demo.domain.cart.entity.cartItems.SideProductItem;
+import com.example.demo.domain.cart.entity.cartItems.CartItem;
 import com.example.demo.domain.member.entity.Member;
 import lombok.*;
 
@@ -26,14 +24,9 @@ public class Cart {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToMany(mappedBy = "cart",fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
-    private List<ProductItem> productItemList;
 
     @OneToMany(mappedBy = "cart",fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
-    private List<SideProductItem> sideProductItemList;
-
-    @OneToMany(mappedBy = "cart",fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
-    private List<SelfSaladItem> selfSaladItemList;
+    private List<CartItem> cartItemList;
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")

@@ -1,7 +1,5 @@
 package com.example.demo.domain.cart.controller.form;
 
-import com.example.demo.domain.cart.entity.Cart;
-import com.example.demo.domain.cart.entity.cartItems.SelfSaladItem;
 import com.example.demo.domain.cart.service.request.SelfSaladRequest;
 import com.example.demo.domain.selfSalad.entity.SelfSalad;
 import lombok.AllArgsConstructor;
@@ -26,18 +24,11 @@ public class SelfSaladCartRegisterForm {
 
     private Long totalCalorie;
 
-    private Long memberId;
-
     private List<SelfSaladRequest> selfSaladRequestList;
 
 
     public SelfSalad toSelfSalad(){
         return new SelfSalad(title, totalPrice, totalCalorie);
-    }
-
-
-    public SelfSaladItem toSelfSaladItem (Cart myCart, SelfSalad selfSalad){
-        return new SelfSaladItem(quantity, myCart, selfSalad);
     }
 
 }

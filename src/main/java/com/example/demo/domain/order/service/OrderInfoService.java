@@ -1,9 +1,9 @@
 package com.example.demo.domain.order.service;
 
-import com.example.demo.domain.order.service.request.OrderItemRegisterRequest;
+import com.example.demo.domain.order.controller.form.OrderInfoRegisterForm;
 
 import java.util.List;
 
 public interface OrderInfoService {
-    void classifyOrderItemCategory(Long memberId, Long totalOrderPrice, List<OrderItemRegisterRequest> orderItems);
+    void orderRegister(Long memberId, OrderInfoRegisterForm orderForm);
 }

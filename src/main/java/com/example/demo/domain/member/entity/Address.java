@@ -53,7 +53,15 @@ public class Address {
         this.member = member;
         this.defaultCheck = defaultCheck;
     }
-    
+
+    public Address(String zipcode, String city, String street, String addressDetail, Member member) {
+        this.zipcode = zipcode;
+        this.city = city;
+        this.street = street;
+        this.addressDetail = addressDetail;
+        this.member = member;
+    }
+
 
     public Address changeDefaultAddress(String zipcode, String city, String street, String addressDetail){
         this.zipcode = zipcode;

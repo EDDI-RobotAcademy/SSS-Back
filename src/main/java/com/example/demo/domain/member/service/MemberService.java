@@ -31,7 +31,5 @@ public interface MemberService {
 
     Boolean updateMemberAddress(Long memberId, AddressRequest reqAddress);
 
-    Long registerAddress(Long memberId, AddressRequest reqAddress);
-
     List<Address> getOtherAddress(Long memberId);
 }

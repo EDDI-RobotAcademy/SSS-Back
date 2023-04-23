@@ -1,20 +1,37 @@
 package com.example.demo.domain.order.entity;
 
 import com.example.demo.domain.member.entity.Address;
-import lombok.Getter;
+import lombok.AllArgsConstructor;
 
 import javax.persistence.*;
-
+@Entity
+@AllArgsConstructor
 public class Delivery {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long deliveryId;
 
-    @Column(nullable = false)
-    private OrderState orderState;
+    @Column
+    private String recipient;
 
-    @Getter
-    @Embedded
+    @Column
+    private String deliveryMemo;
+
+    @OneToOne
+    @JoinColumn(name = "address_id")
     private Address address;
+
+    @OneToOne
+    @JoinColumn(name = "orderInfo_id")
+    private OrderInfo orderInfo;
+
+    public Delivery(String recipient, String deliveryMemo,
+                    Address address, OrderInfo orderInfo) {
+        this.recipient = recipient;
+        this.deliveryMemo = deliveryMemo;
+        this.address = address;
+        this.orderInfo = orderInfo;
+    }
 }
+

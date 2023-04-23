@@ -1,11 +1,6 @@
 package com.example.demo.domain.cart.controller.request;
 
-import com.example.demo.domain.cart.entity.Cart;
-import com.example.demo.domain.cart.entity.cartItems.ItemCategoryType;
-import com.example.demo.domain.cart.entity.cartItems.ProductItem;
-import com.example.demo.domain.cart.entity.cartItems.SideProductItem;
-import com.example.demo.domain.products.entity.Product;
-import com.example.demo.domain.sideProducts.entity.SideProduct;
+import com.example.demo.domain.utility.itemCategory.ItemCategoryType;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -30,18 +25,5 @@ public class CartRegisterRequest {
 
     private int quantity;
 
-    private Long memberId;
-
-
-    public ProductItem toProductItem(Product product, Cart cart){
-        return new ProductItem(
-                quantity, product, cart
-        );
-    }
-    public SideProductItem toSideProductItem(SideProduct sideproduct, Cart sideProductCart){
-        return new SideProductItem(
-                quantity, sideproduct, sideProductCart
-        );
-    }
 }
 

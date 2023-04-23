@@ -1,25 +1,21 @@
 package com.example.demo.domain.order.service;
 
-import com.example.demo.domain.cart.entity.cartItems.ItemCategoryType;
-import com.example.demo.domain.cart.service.CartServiceImpl;
 import com.example.demo.domain.member.entity.Address;
 import com.example.demo.domain.member.entity.Member;
-import com.example.demo.domain.member.entity.MemberProfile;
-import com.example.demo.domain.member.repository.MemberProfileRepository;
+import com.example.demo.domain.member.repository.AddressRepository;
 import com.example.demo.domain.member.service.MemberServiceImpl;
-//import com.example.demo.domain.order.controller.response.OrderAddressResponse;
-import com.example.demo.domain.order.entity.OrderInfo;
+import com.example.demo.domain.order.controller.form.OrderInfoRegisterForm;
+import com.example.demo.domain.order.entity.*;
 import com.example.demo.domain.order.entity.orderItems.ProductOrderItem;
 import com.example.demo.domain.order.entity.orderItems.SelfSaladOrderItem;
 import com.example.demo.domain.order.entity.orderItems.SideProductOrderItem;
-import com.example.demo.domain.order.repository.OrderInfoRepository;
-import com.example.demo.domain.order.repository.ProductOrderItemRepository;
-import com.example.demo.domain.order.repository.SelfSaladOrderItemRepository;
-import com.example.demo.domain.order.repository.SideProductOrderItemRepository;
+import com.example.demo.domain.order.repository.*;
+import com.example.demo.domain.order.service.request.DeliveryRegisterRequest;
 import com.example.demo.domain.order.service.request.OrderItemRegisterRequest;
+import com.example.demo.domain.order.service.request.PaymentRequest;
 import com.example.demo.domain.products.entity.Product;
 import com.example.demo.domain.products.repository.ProductsRepository;
-import com.example.demo.domain.selfSalad.entity.SelfSalad;
+import com.example.demo.domain.selfSalad.entity.*;
 import com.example.demo.domain.selfSalad.repository.SelfSaladRepository;
 import com.example.demo.domain.sideProducts.entity.SideProduct;
 import com.example.demo.domain.sideProducts.repository.SideProductsRepository;
@@ -38,14 +34,20 @@ public class OrderInfoServiceImpl implements OrderInfoService {
     final private ProductsRepository productsRepository;
     final private SideProductsRepository sideProductsRepository;
     final private SelfSaladRepository selfSaladRepository;
-    final private OrderInfoRepository orderInfoRepository;
-    final private ProductOrderItemRepository productOrderItemRepository;
-    final private SideProductOrderItemRepository sideProductOrderItemRepository;
-    final private SelfSaladOrderItemRepository selfSaladOrderItemRepository;
-    final private CartServiceImpl cartService;
 
-    final private MemberProfileRepository memberProfileRepository;
+    final private OrderInfoRepository orderInfoRepository;
+    final private OrderItemRepository orderItemRepository;
+    final private OrderStateRepository orderStateRepository;
+    final private OrderInfoStateRepository orderInfoStateRepository;
+
+    final private PaymentRepository paymentRepository;
+
+    final private AddressRepository addressRepository;
+    final private DeliveryRepository deliveryRepository;
+
     final private MemberServiceImpl memberService;
+
+
 
     private Map<Long, Product> checkProducts(List<OrderItemRegisterRequest> productItems){
 
@@ -116,42 +118,98 @@ public class OrderInfoServiceImpl implements OrderInfoService {
         return null;
     }
 
+    private OrderInfo registerOrderInfo(Member member, Long totalOrderPrice){
 
-    private OrderInfo createOrder(Member member, Long totalOrderPrice){
         OrderInfo newOrderInfo = new OrderInfo(totalOrderPrice, member);
-
         orderInfoRepository.save(newOrderInfo);
-        log.info(member.getNickname() + " 님의 첫번째 주문이 생성하였습니다.");
+        log.info(member.getNickname() + " 님의 주문 테이블이 생성되었습니다.");
 
         return newOrderInfo;
     }
 
+    private OrderInfoState registerOrderState(OrderInfo myOrderInfo){
+
+        final OrderState orderState =
+                orderStateRepository.findByOrderStateType(OrderStateType.PAYMENT_COMPLETE);
+
+        final OrderInfoState orderInfoState =
+                new OrderInfoState(myOrderInfo, orderState);
+        return orderInfoState;
+    }
+
+    private void registerPayment(PaymentRequest reqPayment, OrderInfo myOrderInfo){
+        Payment myPayment =
+                reqPayment.toPayment(myOrderInfo);
+        paymentRepository.save(myPayment);
+    }
+
+    private void registerDelivery(DeliveryRegisterRequest reqDelivery, OrderInfo myOrderInfo,
+                                Address myAddress){
+        Delivery myDelivery =
+                reqDelivery.toDelivery(myAddress, myOrderInfo);
+        deliveryRepository.save(myDelivery);
+    }
+
+    private Address getAddressOrCreate(Member member, DeliveryRegisterRequest reqDelivery){
+
+        if(reqDelivery.getAddressId() != null){
+            Optional<Address> maybeAddress =
+                    addressRepository.findById(reqDelivery.getAddressId());
+            
+            return maybeAddress.orElse(null);
+        }
+        Address newAddress = reqDelivery.toAddress(member);
+        addressRepository.save(newAddress);
+        log.info("회원 신규 주소 등록 : "+ newAddress.getZipcode());
+        return newAddress;
+    }
+
     @Override
-    public void classifyOrderItemCategory(Long memberId, Long totalOrderPrice, List<OrderItemRegisterRequest> orderItems){
+    public void orderRegister(Long memberId, OrderInfoRegisterForm orderForm){
         // { 상품 카테고리, 상품 id, 상품 수량, 상품 가격 } 주문 list
-        Member member = requireNonNull(memberService.checkMember(memberId));
+        try{
+            Member member = requireNonNull(memberService.checkMember(memberId));
 
-        OrderInfo myOrderInfo = createOrder(member, totalOrderPrice);
+            // myOrderInfo 생성
+            OrderInfo myOrderInfo = registerOrderInfo(member, orderForm.getTotalOrderPrice());
 
+            // orderInfoState 저장
+            registerOrderState(myOrderInfo);
+
+            // payment 저장
+            registerPayment(orderForm.getPaymentRequest(), myOrderInfo);
+
+            // orderItem 분류 및 저장
+            addOrderItemByCategory(orderForm.getOrderItemRegisterRequestList(), myOrderInfo);
+
+            // address 찾기 & 저장
+            Address myAddress = getAddressOrCreate(member, orderForm.getDeliveryRegisterRequest());
+
+            // delivery 저장
+            registerDelivery(orderForm.getDeliveryRegisterRequest(), myOrderInfo, myAddress);
+
+        } catch (RuntimeException ex) {
+            log.info(ex.getMessage());
+        }
+    }
+
+    private void addOrderItemByCategory(List<OrderItemRegisterRequest> orderItems, OrderInfo myOrderInfo){
         List<OrderItemRegisterRequest> productOrderItems = new ArrayList<>();
         List<OrderItemRegisterRequest> sideProductOrderItems = new ArrayList<>();
         List<OrderItemRegisterRequest> selfSaladOrderItems = new ArrayList<>();
 
         for(OrderItemRegisterRequest item : orderItems){
-
-            if (item.getItemCategoryType() == ItemCategoryType.PRODUCT) {
-                productOrderItems.add(item);
-
-            } else if (item.getItemCategoryType() == ItemCategoryType.SIDE) {
-                sideProductOrderItems.add(item);
-
-            } else if (item.getItemCategoryType() == ItemCategoryType.SELF_SALAD) {
-                selfSaladOrderItems.add(item);
-            } else{
-                throw new IllegalArgumentException("존재하지 않은 상품 카테고리 입니다. : " + item.getItemCategoryType());
+            switch (item.getItemCategoryType()) {
+                case PRODUCT:
+                    productOrderItems.add(item); break;
+                case SIDE:
+                    sideProductOrderItems.add(item); break;
+                case SELF:
+                    selfSaladOrderItems.add(item); break;
+                default:
+                    throw new IllegalArgumentException("존재하지 않는 상품 카테고리 입니다. : " + item.getItemCategoryType());
             }
         }
-
         if( ! productOrderItems.isEmpty()){
             addProductOrderItems( productOrderItems, myOrderInfo);
         }
@@ -161,7 +219,6 @@ public class OrderInfoServiceImpl implements OrderInfoService {
         if( ! selfSaladOrderItems.isEmpty()){
             addSelfSaladOrderItems( selfSaladOrderItems, myOrderInfo);
         }
-        orderInfoRepository.save(myOrderInfo);
     }
 
     private void addProductOrderItems(List<OrderItemRegisterRequest> productItems, OrderInfo myOrderInfo) {
@@ -179,9 +236,10 @@ public class OrderInfoServiceImpl implements OrderInfoService {
                 productOrderItemList.add(orderItem.toProductOrderItem(product, myOrderInfo));
             }
         }
-        productOrderItemRepository.saveAll(productOrderItemList);
-        log.info(productOrderItemList + " 상품을 주문에 추가하였습니다.");
+        orderItemRepository.saveAll(productOrderItemList);
+        log.info(productOrderItemList + " 상품을 주문상품에 추가하였습니다.");
     }
+
     private void addSideProductsOrderItems(List<OrderItemRegisterRequest> sideProductItems, OrderInfo myOrderInfo) {
 
         Map<Long, SideProduct> sideProductMap = requireNonNull(checkSideProducts(sideProductItems));
@@ -197,8 +255,8 @@ public class OrderInfoServiceImpl implements OrderInfoService {
                 sideProductOrderItems.add(orderItem.toSideProductOrderItem(sideProduct, myOrderInfo));
             }
         }
-        sideProductOrderItemRepository.saveAll(sideProductOrderItems);
-        log.info(sideProductOrderItems + " 상품을 주문에 추가하였습니다.");
+        orderItemRepository.saveAll(sideProductOrderItems);
+        log.info(sideProductOrderItems + " 상품을 주문상품에 추가하였습니다.");
     }
 
     private void addSelfSaladOrderItems(List<OrderItemRegisterRequest> selfSaladItems, OrderInfo myOrderInfo) {
@@ -216,8 +274,8 @@ public class OrderInfoServiceImpl implements OrderInfoService {
                 selfSaladOrderItems.add(orderItem.toSelfSaladOrderItem(selfSalad, myOrderInfo));
             }
         }
-        selfSaladOrderItemRepository.saveAll(selfSaladOrderItems);
-        log.info(selfSaladOrderItems + " 상품을 주문에 추가하였습니다.");
+        orderItemRepository.saveAll(selfSaladOrderItems);
+        log.info(selfSaladOrderItems + " 상품을 주문상품에 추가하였습니다.");
     }
 
 }
