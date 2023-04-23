@@ -1,6 +1,6 @@
 package com.example.demo.domain.order.service.request;
 
-import com.example.demo.domain.cart.entity.cartItems.ItemCategoryType;
+import com.example.demo.domain.utility.itemCategory.ItemCategoryType;
 import com.example.demo.domain.order.entity.OrderInfo;
 import com.example.demo.domain.order.entity.orderItems.ProductOrderItem;
 import com.example.demo.domain.order.entity.orderItems.SelfSaladOrderItem;

@@ -26,6 +26,5 @@ public class OrderInfoController extends TokenBasedController {
         orderInfoService.orderRegister(memberId, orderForm);
     }
 
-        orderInfoService.classifyOrderItemCategory(memberId, totalOrderPrice, orderItems);
     }
 }

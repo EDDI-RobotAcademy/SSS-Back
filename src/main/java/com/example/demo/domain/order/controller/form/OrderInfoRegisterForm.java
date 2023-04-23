@@ -12,6 +12,11 @@ import java.util.List;
 @RequiredArgsConstructor
 public class OrderInfoRegisterForm {
 
+    // OrderInfo
+    private final Long totalOrderPrice; // 총 금액
+
+    // OrderItem
+    private final List<OrderItemRegisterRequest> orderItemRegisterRequestList; // 주문 상품 리스트
 
     // Delivery & Address
     private final DeliveryRegisterRequest deliveryRegisterRequest; // 배송 정보
@@ -19,6 +24,5 @@ public class OrderInfoRegisterForm {
     // Payment
     private final PaymentRequest paymentRequest; // 결제 정보
 
-    private List<OrderItemRegisterRequest> orderItemRegisterRequestList;
 
 }
