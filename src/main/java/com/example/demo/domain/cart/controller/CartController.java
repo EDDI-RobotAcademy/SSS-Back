@@ -23,9 +23,11 @@ public class CartController extends TokenBasedController {
     final private CartService cartService;
 
     @PostMapping(value = "/register")
-    public Integer CartRegister (@RequestBody CartRegisterRequest cartItem) {
+    public Integer CartRegister (@RequestBody CartRegisterRequest cartItem,
+                                 HttpServletRequest requestToken) {
+        Long memberId = findMemberId(requestToken);
         log.info("cartRegister()");
-        return cartService.classifyItemCategory(cartItem);
+        return cartService.classifyItemCategory(memberId,cartItem);
     }
 
     @PostMapping(value = "/selfsalad/limit")

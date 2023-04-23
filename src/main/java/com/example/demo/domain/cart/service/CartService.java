@@ -11,7 +11,7 @@ import com.example.demo.domain.cart.controller.response.SelfSaladReadResponse;
 import java.util.List;
 
 public interface CartService {
-    Integer classifyItemCategory(CartRegisterRequest item);
+    Integer classifyItemCategory(Long memberId, CartRegisterRequest item);
 
     List<CartItemListResponse> cartItemList(Long memberId);
 
