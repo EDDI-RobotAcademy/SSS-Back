@@ -7,6 +7,7 @@ import com.example.demo.domain.cart.controller.response.CartItemListResponse;
 import com.example.demo.domain.cart.controller.response.SelfSaladReadResponse;
 import com.example.demo.domain.cart.service.CartService;
 import com.example.demo.domain.utility.TokenBasedController;
+import com.example.demo.domain.utility.itemCategory.ItemCategoryType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
@@ -28,6 +29,16 @@ public class CartController extends TokenBasedController {
         Long memberId = findMemberId(requestToken);
         log.info("cartRegister()");
         return cartService.classifyItemCategory(memberId,cartItem);
+    }
+
+    @GetMapping("/itemInCart")
+    public Boolean itemInCart (@RequestBody CartItemIdAndCategory idAndCategory,
+                               HttpServletRequest requestToken) {
+        Long memberId = findMemberId(requestToken);
+        Long itemId = idAndCategory.getItemId();
+        ItemCategoryType itemCategoryType = idAndCategory.getItemCategoryType();
+        log.info("isItemInCart()");
+        return cartService.isItemInCart(itemId, memberId, itemCategoryType);
     }
 
     @PostMapping(value = "/selfsalad/limit")
@@ -71,14 +82,14 @@ public class CartController extends TokenBasedController {
     }
 
     @DeleteMapping("/delete")
-    public void cartItemRemove(@RequestBody CartItemDeleteRequest itemDelete){
+    public void cartItemRemove(@RequestBody CartItemIdAndCategory itemDelete){
         log.info("cartItemRemove()");
 
         cartService.deleteCartItem(itemDelete);
     }
 
     @DeleteMapping("/delete/list")
-    public void cartItemRemove(@RequestBody List<CartItemDeleteRequest> deleteItemlist){
+    public void cartItemRemove(@RequestBody List<CartItemIdAndCategory> deleteItemlist){
         log.info("cartItemRemove()");
 
         cartService.deleteCartItemList(deleteItemlist);

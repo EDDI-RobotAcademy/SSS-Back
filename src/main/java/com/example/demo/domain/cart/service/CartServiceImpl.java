@@ -2,7 +2,7 @@ package com.example.demo.domain.cart.service;
 
 import com.example.demo.domain.cart.controller.form.SelfSaladCartRegisterForm;
 import com.example.demo.domain.cart.controller.form.SelfSaladModifyForm;
-import com.example.demo.domain.cart.controller.request.CartItemDeleteRequest;
+import com.example.demo.domain.cart.controller.request.CartItemIdAndCategory;
 import com.example.demo.domain.cart.controller.request.CartItemQuantityModifyRequest;
 import com.example.demo.domain.cart.controller.request.CartRegisterRequest;
 import com.example.demo.domain.cart.controller.response.CartItemListResponse;
@@ -143,8 +143,26 @@ public class CartServiceImpl implements CartService{
     }
 
 
+    @Override
+    public Boolean isItemInCart(Long itemId, Long memberId, ItemCategoryType itemCategoryType){
+        memberService.checkMember(memberId);
 
+        Optional<Cart> myCart = cartRepository.findByMember_memberId(memberId);
+        if(myCart.isPresent()) {
+            switch (itemCategoryType) {
+                case PRODUCT:
+                    Optional<CartItem> productItem =
+                            cartItemRepository.findByProduct_IdAndCart_Id(itemId, myCart.get().getId());
+                    return productItem.isPresent();
+                case SIDE:
+                    Optional<CartItem> sideProductItem =
+                            cartItemRepository.findBySideProduct_IdAndCart_Id(itemId, myCart.get().getId());
+                    return sideProductItem.isPresent();
+                default:
+                    throw new IllegalArgumentException("존재하지 않는 장바구니 카테고리 입니다. : " + itemCategoryType);
+            }
         }
+        return false;
     }
 
     @Override
@@ -191,7 +209,7 @@ public class CartServiceImpl implements CartService{
     }
 
     @Override
-    public void deleteCartItem(CartItemDeleteRequest itemDelete){
+    public void deleteCartItem(CartItemIdAndCategory itemDelete){
         // self salad 먼저 삭제 후 cart item 삭제
         SelfSalad deleteSalad;
         if(itemDelete.getItemCategoryType() == ItemCategoryType.SELF){
@@ -205,12 +223,12 @@ public class CartServiceImpl implements CartService{
     }
 
     @Override
-    public void deleteCartItemList(List<CartItemDeleteRequest> deleteItemlist){
+    public void deleteCartItemList(List<CartItemIdAndCategory> deleteItemlist){
 
         List<Long> cartItems = new ArrayList<>();
         List<Long> selfSaladItems = new ArrayList<>();
 
-        for(CartItemDeleteRequest deleteItem : deleteItemlist){
+        for(CartItemIdAndCategory deleteItem : deleteItemlist){
             switch (deleteItem.getItemCategoryType()) {
                 case PRODUCT:
                 case SIDE:
