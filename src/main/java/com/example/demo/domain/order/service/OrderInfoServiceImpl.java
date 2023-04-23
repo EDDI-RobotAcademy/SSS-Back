@@ -40,6 +40,7 @@ public class OrderInfoServiceImpl implements OrderInfoService {
     final private OrderStateRepository orderStateRepository;
     final private OrderInfoStateRepository orderInfoStateRepository;
 
+    final private PaymentRepository paymentRepository;
 
     final private MemberServiceImpl memberService;
 
@@ -132,19 +133,36 @@ public class OrderInfoServiceImpl implements OrderInfoService {
                 new OrderInfoState(myOrderInfo, orderState);
         return orderInfoState;
     }
+
+    private void registerPayment(PaymentRequest reqPayment, OrderInfo myOrderInfo){
+        Payment myPayment =
+                reqPayment.toPayment(myOrderInfo);
+        paymentRepository.save(myPayment);
+    }
     @Override
     public void orderRegister(Long memberId, OrderInfoRegisterForm orderForm){
         // { 상품 카테고리, 상품 id, 상품 수량, 상품 가격 } 주문 list
         try{
+            Member member = requireNonNull(memberService.checkMember(memberId));
+
+            // myOrderInfo 생성
+            OrderInfo myOrderInfo = registerOrderInfo(member, orderForm.getTotalOrderPrice());
+
             // orderInfoState 저장
             registerOrderState(myOrderInfo);
 
+            // payment 저장
+            registerPayment(orderForm.getPaymentRequest(), myOrderInfo);
+
+            // orderItem 분류 및 저장
+            addOrderItemByCategory(orderForm.getOrderItemRegisterRequestList(), myOrderInfo);
 
         } catch (RuntimeException ex) {
             log.info(ex.getMessage());
         }
     }
 
+    private void addOrderItemByCategory(List<OrderItemRegisterRequest> orderItems, OrderInfo myOrderInfo){
         List<OrderItemRegisterRequest> productOrderItems = new ArrayList<>();
         List<OrderItemRegisterRequest> sideProductOrderItems = new ArrayList<>();
         List<OrderItemRegisterRequest> selfSaladOrderItems = new ArrayList<>();
