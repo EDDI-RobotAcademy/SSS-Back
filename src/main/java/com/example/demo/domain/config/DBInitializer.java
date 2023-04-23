@@ -1,5 +1,8 @@
 package com.example.demo.domain.config;
 
+import com.example.demo.domain.order.entity.OrderState;
+import com.example.demo.domain.order.entity.OrderStateType;
+import com.example.demo.domain.order.repository.OrderStateRepository;
 import com.example.demo.domain.selfSalad.entity.Amount;
 import com.example.demo.domain.selfSalad.entity.AmountType;
 import com.example.demo.domain.selfSalad.entity.Category;
@@ -8,8 +11,8 @@ import com.example.demo.domain.selfSalad.repository.AmountRepository;
 import com.example.demo.domain.selfSalad.repository.CategoryRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-
 import org.springframework.stereotype.Component;
+
 import javax.annotation.PostConstruct;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -20,6 +23,7 @@ import java.util.stream.Collectors;
 public class DBInitializer {
     private final CategoryRepository categoryRepository;
     private final AmountRepository amountRepository;
+    private final OrderStateRepository orderStateRepository;
 
     @PostConstruct
     private void init () {
@@ -27,6 +31,7 @@ public class DBInitializer {
 
         initCategoryTypes();
         initAmountTypes();
+        initOrderStateTypes ();
 
         log.debug("initilizer 동작 완료!");
     }
@@ -74,4 +79,27 @@ public class DBInitializer {
             log.error(e.getMessage(), e);
         }
     }
+
+    private void initOrderStateTypes () {
+        log.debug("OrderState Type 초기화!");
+
+        try {
+            final Set<OrderStateType> states =
+                    orderStateRepository.findAll()
+                            .stream()
+                            .map(OrderState::getOrderStateType)
+                            .collect(Collectors.toSet());
+
+            for (OrderStateType type: OrderStateType.values()) {
+                if (!states.contains(type)) {
+                    final OrderState orderState = new OrderState(type);
+                    orderStateRepository.save(orderState);
+                    log.info("New category, {}, 추가되었습니다.", orderState);
+                }
+            }
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+        }
+    }
+
 }
