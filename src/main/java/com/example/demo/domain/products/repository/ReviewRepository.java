@@ -1,11 +1,8 @@
 package com.example.demo.domain.products.repository;
 
-import io.lettuce.core.dynamic.annotation.Param;
-import org.springframework.data.jpa.repository.JpaRepository;
 import com.example.demo.domain.products.entity.Review;
-import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.jpa.repository.JpaRepository;
 
-import javax.transaction.Transactional;
 import java.util.List;
 
 public interface ReviewRepository extends JpaRepository<Review, Long> {
@@ -14,4 +11,5 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
 
     List<Review> findByMember_MemberId(Long memberId);
 
+    void deleteByMember_memberId(Long memberId);
 }
