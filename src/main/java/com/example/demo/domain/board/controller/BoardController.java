@@ -3,15 +3,17 @@ package com.example.demo.domain.board.controller;
 import com.example.demo.domain.board.dto.request.BoardRequest;
 import com.example.demo.domain.board.entity.Board;
 import com.example.demo.domain.board.service.BoardService;
+import com.example.demo.domain.utility.TokenBasedController;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 @Slf4j
 @RestController
 @RequestMapping("/board")
-public class BoardController {
+public class BoardController extends TokenBasedController {
 
     final private BoardService boardService;
 
@@ -21,10 +23,11 @@ public class BoardController {
 
     // 게시물 등록
     @PostMapping("/register")
-    public void boardRegister (@RequestBody BoardRequest boardRequest) {
+    public void boardRegister (@RequestBody BoardRequest boardRequest,
+                               HttpServletRequest requestToken) {
         log.info("boardRegister()");
-
-        boardService.register(boardRequest);
+        Long memberId = findMemberId(requestToken);
+        boardService.register(memberId, boardRequest);
     }
 
     @GetMapping("/list")

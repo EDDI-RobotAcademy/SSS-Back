@@ -3,16 +3,15 @@ package com.example.demo.domain.board.entity;
 import com.example.demo.domain.member.entity.Member;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
-import lombok. *;
+import lombok.Data;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.*;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 
 @Getter
 @Setter
@@ -28,11 +27,6 @@ public class Board {
 
     @Column(length = 128, nullable = false)
     private String title;
-
-//
-//    @OneToMany(mappedBy = "board", fetch=FetchType.LAZY)
-//    @JsonManagedReference
-//    private List<Reply> replyList = new ArrayList<>();
 
     @Column(length = 32, nullable = false)
     private String writer;

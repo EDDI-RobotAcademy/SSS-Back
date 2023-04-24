@@ -21,7 +21,7 @@ public interface MemberService {
 
     void deleteMember(Long id);
 
-    Boolean passwordValidation(MemberPasswordCheckRequest memberRequest);
+    Boolean passwordValidation(Long memberId, MemberPasswordCheckRequest memberRequest);
 
     Boolean updateMemberInfo(Long memberId, MemberProfileRequest memberProfileRequest);
 

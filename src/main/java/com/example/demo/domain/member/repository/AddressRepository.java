@@ -11,4 +11,5 @@ public interface AddressRepository extends JpaRepository<Address, Long> {
     Optional<Address> findByMember_MemberIdAndDefaultCheck(Long memberId, char defaultCheck);
     Optional<List<Address>> findByMember_MemberIdAndDefaultCheckNot(Long memberId, char defaultCheck);
 
+    void deleteByMember_memberId(Long memberId);
 }

@@ -1,11 +1,16 @@
 package com.example.demo.domain.member.service;
 
+import com.example.demo.domain.board.repository.BoardRepository;
+import com.example.demo.domain.cart.repository.CartRepository;
 import com.example.demo.domain.member.entity.*;
 import com.example.demo.domain.member.repository.AddressRepository;
 import com.example.demo.domain.member.repository.AdminCodeRepository;
 import com.example.demo.domain.member.repository.MemberProfileRepository;
 import com.example.demo.domain.member.repository.MemberRepository;
 import com.example.demo.domain.member.service.request.*;
+import com.example.demo.domain.order.repository.OrderInfoRepository;
+import com.example.demo.domain.products.repository.FavoriteRepository;
+import com.example.demo.domain.products.repository.ReviewRepository;
 import com.example.demo.domain.security.entity.Authentication;
 import com.example.demo.domain.security.entity.BasicAuthentication;
 import com.example.demo.domain.security.repository.AuthenticationRepository;
@@ -33,6 +38,11 @@ public class MemberServiceImpl implements MemberService {
     final private AuthenticationRepository authenticationRepository;
 
     final private AddressRepository addressRepository;
+    final private CartRepository cartRepository;
+    final private OrderInfoRepository orderInfoRepository;
+    final private FavoriteRepository favoriteRepository;
+    final private ReviewRepository reviewRepository;
+    final private BoardRepository boardRepository;
 
     final private RedisService redisService;
 
@@ -149,7 +159,15 @@ public class MemberServiceImpl implements MemberService {
     }
 
     //회원탈퇴
+    @Transactional
     public void deleteMember(Long memberId) {
+        addressRepository.deleteByMember_memberId(memberId);
+        cartRepository.deleteByMember_memberId(memberId);
+        orderInfoRepository.deleteByMember_memberId(memberId);
+        reviewRepository.deleteByMember_memberId(memberId);
+        favoriteRepository.deleteByMember_memberId(memberId);
+        boardRepository.deleteByMember_memberId(memberId);
+
         memberRepository.deleteById(memberId);
     }
 
@@ -307,9 +325,9 @@ public class MemberServiceImpl implements MemberService {
 
     @Override
     @Transactional
-    public Boolean passwordValidation(MemberPasswordCheckRequest memberRequest) {
+    public Boolean passwordValidation(Long memberId, MemberPasswordCheckRequest memberRequest) {
         try {
-            Member member = requireNonNull(checkMember(memberRequest.getMemberId()));
+            Member member = requireNonNull(checkMember(memberId));
 
             if(member.isRightPassword(memberRequest.getPassword())) {
                 return true;

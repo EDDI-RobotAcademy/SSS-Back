@@ -1,23 +1,24 @@
 package com.example.demo.domain.products.controller;
 
 import com.example.demo.domain.products.controller.form.ReviewImgResponse;
-import com.example.demo.domain.products.entity.Review;
 import com.example.demo.domain.products.service.ReviewService;
 import com.example.demo.domain.products.service.request.ReviewRequest;
 import com.example.demo.domain.products.service.response.ReviewListResponse;
+import com.example.demo.domain.utility.TokenBasedController;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 @Slf4j
 @RestController
 @RequestMapping("/review")
 @RequiredArgsConstructor
-public class ReviewController {
+public class ReviewController extends TokenBasedController {
 
     final private ReviewService reviewService;
 
@@ -41,9 +42,10 @@ public class ReviewController {
         return reviewService.productReviewList(productId);
     }
 
-    @GetMapping("/list-myReview/{memberId}")
-    public List<ReviewListResponse> memberReviewList(@PathVariable("memberId") Long memberId) {
+    @GetMapping("/list-myReview")
+    public List<ReviewListResponse> memberReviewList(HttpServletRequest requestToken) {
         log.info("memberReviewList()");
+        Long memberId = findMemberId(requestToken);
         return reviewService.memberReviewList(memberId);
     }
 
