@@ -7,8 +7,6 @@ import com.example.demo.domain.products.entity.Favorite;
 import com.example.demo.domain.products.entity.Product;
 import com.example.demo.domain.products.repository.FavoriteRepository;
 import com.example.demo.domain.products.repository.ProductsRepository;
-import com.example.demo.domain.products.service.request.FavoriteInfoRequest;
-import com.example.demo.domain.security.service.RedisService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -25,12 +23,12 @@ public class FavoriteServiceImpl implements FavoriteService {
     final private ProductsRepository productsRepository;
     final private MemberRepository memberRepository;
 
-    public FavoriteResponse changeLike(FavoriteInfoRequest request) {
-        Optional<Member> maybeMember = memberRepository.findById(request.getMemberId());
-        Optional<Product> maybeProduct = productsRepository.findById(request.getProductId());
+    public FavoriteResponse changeLike(Long memberId, Long productId) {
+        Optional<Member> maybeMember = memberRepository.findById(memberId);
+        Optional<Product> maybeProduct = productsRepository.findById(productId);
 
         if(maybeMember.isPresent() && maybeProduct.isPresent()) {
-            Optional<Favorite> maybeFavorite = favoriteRepository.findByProductAndMember(request.getProductId(), request.getMemberId());
+            Optional<Favorite> maybeFavorite = favoriteRepository.findByProductAndMember(productId, memberId);
 
             if(maybeFavorite.isPresent()) {
                 log.info("찜내역 O");
@@ -70,12 +68,12 @@ public class FavoriteServiceImpl implements FavoriteService {
     }
 
     @Override
-    public Boolean likeStatus(FavoriteInfoRequest request) {
-        Optional<Product> maybeProduct = productsRepository.findById(request.getProductId());
-        Optional<Member> maybeMember = memberRepository.findById(request.getMemberId());
+    public Boolean likeStatus(Long memberId, Long productId) {
+        Optional<Product> maybeProduct = productsRepository.findById(productId);
+        Optional<Member> maybeMember = memberRepository.findById(memberId);
 
         if(maybeMember.isPresent() && maybeProduct.isPresent()) {
-            Optional<Favorite> maybeFavorite = favoriteRepository.findByProductAndMember(request.getProductId(), request.getMemberId());
+            Optional<Favorite> maybeFavorite = favoriteRepository.findByProductAndMember(productId, memberId);
             if(maybeFavorite.isPresent()) {
                 Boolean isLike = maybeFavorite.get().isLike();
                 if(isLike) {
