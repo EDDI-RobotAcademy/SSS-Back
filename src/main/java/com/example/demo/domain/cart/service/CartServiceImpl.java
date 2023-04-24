@@ -370,8 +370,10 @@ public class CartServiceImpl implements CartService{
         Optional<CartItem> maybeItem = cartItemRepository.findById(itemId);
 
         if(maybeItem.isPresent()){
+            if (maybeItem.get() instanceof SelfSaladItem) {
             // Self Salad 찾기
-            Long selfSaladId = maybeItem.get().getSelfSalad().getId();
+            SelfSaladItem selfSaladItem = (SelfSaladItem)maybeItem.get();
+            Long selfSaladId = selfSaladItem.getSelfSalad().getId();
             List<SelfSaladIngredient> selfSaladIngredients =
                     selfSaladIngredientRepository.findBySelfSalad_id(selfSaladId);
 
@@ -381,7 +383,7 @@ public class CartServiceImpl implements CartService{
                         new SelfSaladReadResponse(ingredient.getIngredient().getId(),
                                                   ingredient.getSelectedAmount()));
             }
-            return responseList;
+            return responseList;}
         }
         return null;
     }
@@ -392,12 +394,14 @@ public class CartServiceImpl implements CartService{
         Optional<CartItem> maybeItem = cartItemRepository.findById(itemId);
         if(maybeItem.isPresent()){
             // Self Salad 찾기
-            SelfSalad mySalad = maybeItem.get().getSelfSalad();
+            if (maybeItem.get() instanceof SelfSaladItem) {
+                SelfSaladItem selfSaladItem = (SelfSaladItem)maybeItem.get();
+            SelfSalad mySalad = selfSaladItem.getSelfSalad();
             modifySelfSalad(mySalad,
                             modifyForm.getTotalPrice(),
                             modifyForm.getTotalCalorie());
-            modifySelfSaladIngredient(mySalad, modifyForm.getSelfSaladRequestList());
-        }
+            modifySelfSaladIngredient(mySalad, modifyForm.getSelfSaladModifyRequestList());
+        }}
     }
 
     private void modifySelfSalad(SelfSalad mySalad, Long price, Long calorie){
@@ -406,7 +410,7 @@ public class CartServiceImpl implements CartService{
         selfSaladRepository.save(mySalad);
     }
 
-    private void modifySelfSaladIngredient(SelfSalad mySalad, List<SelfSaladRequest> reqItems){
+    private void modifySelfSaladIngredient(SelfSalad mySalad, List<SelfSaladModifyRequest> reqItems){
         // 수정 전 재료들 [재료 id : 샐러드_재료]
         Map<Long, SelfSaladIngredient> prevIngredients =
                 selfSaladIngredientRepository.findBySelfSalad_id(mySalad.getId()).stream()
@@ -415,12 +419,12 @@ public class CartServiceImpl implements CartService{
                                 selfSaladIngredient -> selfSaladIngredient
                         ));
         // 수정 요청 [재료 id : 샐려드_재료 요청]
-        Map<Long, SelfSaladRequest> reqIngredients = reqItems.stream()
-                .collect(Collectors.toMap(SelfSaladRequest::getIngredientId,
+        Map<Long, SelfSaladModifyRequest> reqIngredients = reqItems.stream()
+                .collect(Collectors.toMap(SelfSaladModifyRequest::getIngredientId,
                                           Function.identity()));
         // 1. 공통된 Ingredient ID 만 포함하는 Set (수량 수정)
         Set<Long> commonIds = reqItems.stream()
-                .map(SelfSaladRequest::getIngredientId)
+                .map(SelfSaladModifyRequest::getIngredientId)
                 .collect(Collectors.toSet());
         commonIds.retainAll(prevIngredients.keySet());
 
@@ -441,14 +445,14 @@ public class CartServiceImpl implements CartService{
     }
 
     private boolean modifySelectedAmount (Map<Long, SelfSaladIngredient> prevIngredients,
-                                          Map<Long, SelfSaladRequest> reqIngredients,
+                                          Map<Long, SelfSaladModifyRequest> reqIngredients,
                                           Set<Long> commonIds){
         log.info("수량 변경 요청 온 샐러드 재료 IDs : "+commonIds);
         List<SelfSaladIngredient> modifies = new ArrayList<>();
         for (Long commonId : commonIds) {
             SelfSaladIngredient prevIngredient = prevIngredients.get(commonId);
 
-            SelfSaladRequest reqIngredient = reqIngredients.get(commonId);
+            SelfSaladModifyRequest reqIngredient = reqIngredients.get(commonId);
             if( prevIngredient.getSelectedAmount() != reqIngredient.getSelectedAmount()){
                 prevIngredient.setSelectedAmount(reqIngredient.getSelectedAmount());
                 modifies.add(prevIngredient);

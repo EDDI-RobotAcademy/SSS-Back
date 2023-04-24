@@ -1,6 +1,6 @@
 package com.example.demo.domain.cart.controller.form;
 
-import com.example.demo.domain.cart.service.request.SelfSaladRequest;
+import com.example.demo.domain.cart.service.request.SelfSaladModifyRequest;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -16,5 +16,5 @@ public class SelfSaladModifyForm {
 
     private Long totalCalorie;
 
-    private List<SelfSaladRequest> selfSaladRequestList;
+    private List<SelfSaladModifyRequest> selfSaladModifyRequestList;
 }
