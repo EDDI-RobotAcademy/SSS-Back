@@ -40,10 +40,10 @@ public abstract class CartItem {
     public void setQuantity(Integer quantity) {
         this.quantity = quantity;
     }
-
-    public Integer getQuantity() {
-        return this.quantity;
+    public void modifyQuantity(int quantity) {
+        this.setQuantity(this.getQuantity() + quantity);
     }
+
 
     public String getCartItemType() {
         DiscriminatorValue discriminatorValue = this.getClass().getAnnotation(DiscriminatorValue.class);

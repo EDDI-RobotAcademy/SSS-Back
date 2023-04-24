@@ -201,11 +201,13 @@ public class CartServiceImpl implements CartService{
     public void modifyCartItemQuantity(CartItemQuantityModifyRequest reqItem){
         Optional<CartItem> cartItem =
                 cartItemRepository.findById(reqItem.getItemId());
-        if(cartItem.isPresent()){
-            cartItem.get().setQuantity(reqItem.getQuantity() + reqItem.getQuantity());
-            cartItemRepository.save(cartItem.get());
+
+        cartItem.ifPresent(item -> {
+            item.modifyQuantity(reqItem.getQuantity());
+
             log.info(cartItem.get().getId()+" 번의 cart Item 의 수량이 변경되었습니다.");
-        }
+            cartItemRepository.save(item);
+        });
     }
 
     @Override
