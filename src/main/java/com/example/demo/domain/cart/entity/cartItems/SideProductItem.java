@@ -2,10 +2,12 @@ package com.example.demo.domain.cart.entity.cartItems;
 
 import com.example.demo.domain.cart.entity.Cart;
 import com.example.demo.domain.sideProducts.entity.SideProduct;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 
 @Entity
+@NoArgsConstructor
 @DiscriminatorValue("SIDE") // 하위클래스
 public class SideProductItem extends CartItem{
 
@@ -25,6 +27,10 @@ public class SideProductItem extends CartItem{
     }
 
     @Override
+    public Long getId() {
+        return this.id;
+    }
+
     public SideProduct getSideProduct(){
         return this.sideProduct;
     }

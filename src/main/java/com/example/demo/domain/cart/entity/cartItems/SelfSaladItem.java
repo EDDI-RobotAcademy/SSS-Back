@@ -25,8 +25,11 @@ public class SelfSaladItem extends CartItem{
         this.selfSalad = selfSalad;
         this.cart = cart;
     }
-
     @Override
+    public Long getId() {
+        return this.id;
+    }
+
     public SelfSalad getSelfSalad(){
         return this.selfSalad;
     }

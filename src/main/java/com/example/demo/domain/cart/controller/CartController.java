@@ -28,6 +28,8 @@ public class CartController extends TokenBasedController {
                                  HttpServletRequest requestToken) {
         Long memberId = findMemberId(requestToken);
         log.info("cartRegister()");
+        log.info("memberId"+memberId);
+        log.info("cartItem"+cartItem.getItemCategoryType());
         return cartService.classifyItemCategory(memberId,cartItem);
     }
 
@@ -81,11 +83,10 @@ public class CartController extends TokenBasedController {
         cartService.modifySelfSaladItem(itemId, modifyForm);
     }
 
-    @DeleteMapping("/delete")
-    public void cartItemRemove(@RequestBody CartItemIdAndCategory itemDelete){
+    @DeleteMapping("/delete/{itemId}")
+    public void cartItemRemove(@PathVariable("itemId") Long itemId){
         log.info("cartItemRemove()");
-
-        cartService.deleteCartItem(itemDelete);
+        cartService.deleteCartItem(itemId);
     }
 
     @DeleteMapping("/delete/list")

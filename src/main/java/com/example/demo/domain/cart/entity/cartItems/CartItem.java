@@ -1,9 +1,6 @@
 package com.example.demo.domain.cart.entity.cartItems;
 
 import com.example.demo.domain.cart.entity.Cart;
-import com.example.demo.domain.products.entity.Product;
-import com.example.demo.domain.selfSalad.entity.SelfSalad;
-import com.example.demo.domain.sideProducts.entity.SideProduct;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -37,27 +34,21 @@ public abstract class CartItem {
         this.cart = cart;
     }
 
+    public Long getId(){
+        return this.id;
+    }
+
     public void setQuantity(Integer quantity) {
         this.quantity = quantity;
     }
-
-    public Integer getQuantity() {
-        return this.quantity;
+    public void modifyQuantity(int quantity) {
+        this.setQuantity(this.getQuantity() + quantity);
     }
+
 
     public String getCartItemType() {
         DiscriminatorValue discriminatorValue = this.getClass().getAnnotation(DiscriminatorValue.class);
         return discriminatorValue != null ? discriminatorValue.value() : null;
     }
 
-    public Product getProduct() {
-        return this.getProduct();
-    }
-
-    public SideProduct getSideProduct() {
-        return this.getSideProduct();
-    }
-    public SelfSalad getSelfSalad(){
-        return this.getSelfSalad();
-    }
 }
