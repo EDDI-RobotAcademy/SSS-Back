@@ -36,8 +36,8 @@ public class BoardServiceImpl implements BoardService {
     RedisService redisService;
 
     @Override
-    public Board register(BoardRequest boardRequest) {
-        Optional<Member> maybeMember = memberRepository.findByMemberId(boardRequest.getMemberId());
+    public Board register(Long memberId, BoardRequest boardRequest) {
+        Optional<Member> maybeMember = memberRepository.findByMemberId(memberId);
 
         if (maybeMember.isEmpty()) {
             System.out.println("Member 정보를 찾지 못했습니다: ");
