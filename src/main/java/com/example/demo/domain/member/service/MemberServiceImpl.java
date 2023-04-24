@@ -325,9 +325,9 @@ public class MemberServiceImpl implements MemberService {
 
     @Override
     @Transactional
-    public Boolean passwordValidation(MemberPasswordCheckRequest memberRequest) {
+    public Boolean passwordValidation(Long memberId, MemberPasswordCheckRequest memberRequest) {
         try {
-            Member member = requireNonNull(checkMember(memberRequest.getMemberId()));
+            Member member = requireNonNull(checkMember(memberId));
 
             if(member.isRightPassword(memberRequest.getPassword())) {
                 return true;

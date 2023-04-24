@@ -9,7 +9,6 @@ import lombok.ToString;
     @AllArgsConstructor
     public class MemberPasswordCheckRequest {
 
-        private Long memberId;
         private String password;
 
     }
