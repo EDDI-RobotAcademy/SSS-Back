@@ -2,10 +2,12 @@ package com.example.demo.domain.cart.entity.cartItems;
 
 import com.example.demo.domain.cart.entity.Cart;
 import com.example.demo.domain.products.entity.Product;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 
 @Entity
+@NoArgsConstructor
 @DiscriminatorValue("PRODUCT") // 하위클래스 // 부모와 맵핑될 때 itemCategoryType 컬럼 값으로 PRODUCT를 저장
 public class ProductItem extends CartItem{
 
@@ -24,6 +26,10 @@ public class ProductItem extends CartItem{
         this.cart = cart;
     }
     @Override
+    public Long getId() {
+        return this.id;
+    }
+
     public Product getProduct(){
         return this.product;
     }

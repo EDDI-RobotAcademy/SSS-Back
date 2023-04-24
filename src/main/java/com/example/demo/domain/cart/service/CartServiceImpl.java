@@ -176,13 +176,13 @@ public class CartServiceImpl implements CartService{
         cartItemList.ifPresent(items -> {
             for (CartItem cartItem : items) {
                 if (cartItem instanceof ProductItem) {
-                    cartItems.add(new CartItemListResponse().toProductItem(cartItem));
-
-                } else if (cartItem instanceof SelfSaladItem) {
-                    cartItems.add(new CartItemListResponse().toSideProductItem(cartItem));
+                    cartItems.add(new CartItemListResponse().toProductItem((ProductItem)cartItem));
 
                 } else if (cartItem instanceof SideProductItem) {
-                    cartItems.add(new CartItemListResponse().toSelfSaladItem(cartItem));
+                    cartItems.add(new CartItemListResponse().toSideProductItem((SideProductItem)cartItem));
+
+                } else if (cartItem instanceof SelfSaladItem) {
+                    cartItems.add(new CartItemListResponse().toSelfSaladItem((SelfSaladItem)cartItem));
                 }
             }
         });
