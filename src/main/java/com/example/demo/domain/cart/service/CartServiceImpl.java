@@ -11,6 +11,7 @@ import com.example.demo.domain.cart.entity.Cart;
 import com.example.demo.domain.cart.entity.cartItems.*;
 import com.example.demo.domain.cart.repository.CartItemRepository;
 import com.example.demo.domain.cart.repository.CartRepository;
+import com.example.demo.domain.cart.service.request.SelfSaladModifyRequest;
 import com.example.demo.domain.cart.service.request.SelfSaladRequest;
 import com.example.demo.domain.member.entity.Member;
 import com.example.demo.domain.member.service.MemberServiceImpl;
@@ -211,51 +212,49 @@ public class CartServiceImpl implements CartService{
     }
 
     @Override
-    public void deleteCartItem(CartItemIdAndCategory itemDelete){
-        // self salad 먼저 삭제 후 cart item 삭제
-        SelfSalad deleteSalad;
-        if(itemDelete.getItemCategoryType() == ItemCategoryType.SELF){
-            deleteSalad =
-                    cartItemRepository.findById(itemDelete.getItemId()).get().getSelfSalad();
-            cartItemRepository.deleteById(itemDelete.getItemId());
-            selfSaladRepository.deleteById(deleteSalad.getId());
+    public void deleteCartItem(Long itemId){
+        Optional<CartItem> maybeItem = cartItemRepository.findById(itemId);
+        if (maybeItem.isPresent()) {
+            if (maybeItem.get() instanceof SelfSaladItem) {
+                SelfSaladItem selfSaladItem = (SelfSaladItem)maybeItem.get();
+                cartItemRepository.deleteById(itemId);
+                selfSaladRepository.deleteById(selfSaladItem.getSelfSalad().getId());}
+        }else {
+            cartItemRepository.deleteById(itemId);
         }
-        cartItemRepository.deleteById(itemDelete.getItemId());
-        log.info(itemDelete.getItemId()+" 번 cart Item 이 삭제되었습니다.");
+        log.info(itemId + " 번 cart Item 이 삭제되었습니다.");
     }
 
     @Override
     public void deleteCartItemList(List<CartItemIdAndCategory> deleteItemlist){
 
-        List<Long> cartItems = new ArrayList<>();
-        List<Long> selfSaladItems = new ArrayList<>();
+        List<Long> cartItemIds = new ArrayList<>();
+        List<Long> saladItemIds = new ArrayList<>();
 
         for(CartItemIdAndCategory deleteItem : deleteItemlist){
-            switch (deleteItem.getItemCategoryType()) {
-                case PRODUCT:
-                case SIDE:
-                    cartItems.add(deleteItem.getItemId()); break;
-                case SELF:
-                    selfSaladItems.add(deleteItem.getItemId()); break;
-                default:
-                    throw new IllegalArgumentException("존재하지 않는 장바구니 카테고리 입니다. : " + deleteItem.getItemCategoryType());
+
+            if(deleteItem.getItemCategoryType()==ItemCategoryType.SELF){
+                saladItemIds.add(deleteItem.getItemId());
+            }else{
+                cartItemIds.add(deleteItem.getItemId());
             }
         }
-        if( ! cartItems.isEmpty()){
-            cartItemRepository.deleteAllByIdInBatch(cartItems);
-            log.info(cartItems+" 번 Cart Item 들이 삭제되었습니다.");
+        if( ! cartItemIds.isEmpty()){
+            cartItemRepository.deleteAllByIdInBatch(cartItemIds);
+            log.info(cartItemIds+" 번 Cart Item 들이 삭제되었습니다.");
         }
-        if( ! selfSaladItems.isEmpty()){
-            cartItemRepository.deleteAllByIdInBatch(selfSaladItems);
-            log.info(selfSaladItems+" 번 SelfSalad Cart Item 들이 삭제되었습니다.");
+        if( ! saladItemIds.isEmpty()){
+            List<SelfSaladItem> selfSaladItemList = cartItemRepository.findByIdIn(saladItemIds);
 
-            List<SelfSaladItem> selfSaladItemList = cartItemRepository.findByIdIn(selfSaladItems);
             List<SelfSalad> selfSalads = new ArrayList<>();
             for(SelfSaladItem selfSaladItem : selfSaladItemList){
                 selfSalads.add(selfSaladItem.getSelfSalad());
             }
+            cartItemRepository.deleteAllByIdInBatch(saladItemIds);
+            log.info(saladItemIds+" 번 SelfSalad Cart Item 들이 삭제되었습니다.");
+
             selfSaladRepository.deleteAll(selfSalads);
-            log.info(selfSaladItems+" 번 SelfSalad 들이 삭제되었습니다.");
+            log.info(" SelfSalad 가 삭제되었습니다.");
         }
     }
 
