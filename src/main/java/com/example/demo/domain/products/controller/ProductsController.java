@@ -78,7 +78,7 @@ public class ProductsController {
     }
 
     @PostMapping("/list/view")
-    public List<Product> listByView() {
+    public List<ProductListResponse> listByView() {
         return productsService.listByView();
     }
 

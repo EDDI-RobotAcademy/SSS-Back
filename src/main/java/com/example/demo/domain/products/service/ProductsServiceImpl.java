@@ -7,6 +7,7 @@ import com.example.demo.domain.products.repository.ProductsImgRepository;
 import com.example.demo.domain.products.repository.ProductsRepository;
 import com.example.demo.domain.products.service.request.ProductsInfoRequest;
 import com.example.demo.domain.products.service.response.ProductListResponse;
+import com.example.demo.domain.products.service.response.ProductReadResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Sort;
@@ -211,6 +212,7 @@ public class ProductsServiceImpl implements ProductsService {
             }
         }
 
+
         productsImgRepository.deleteProductImgByProductId(productId);
         productsRepository.deleteById(productId);
     }
@@ -224,8 +226,18 @@ public class ProductsServiceImpl implements ProductsService {
     }
 
     @Override
-    public List<Product> listByView() {
-        return productsRepository.findAll(Sort.by(Sort.Direction.DESC, "viewCnt"));
+    public List<ProductListResponse> listByView() {
+        List<Product> products = productsRepository.findAll(Sort.by(Sort.Direction.DESC, "viewCnt"));
+        List<ProductListResponse> productList = new ArrayList<>();
+
+        for(Product product : products) {
+            List<ProductImgResponse> productImgList = productsImgRepository.findImagePathByProductId(product.getProductId());
+            productList.add(new ProductListResponse(
+                    product.getProductId(), product.getTitle(), product.getPrice(), product.getContent(),
+                    product.getViewCnt(), product.getFavoriteCnt(), productImgList
+            ));
+        }
+        return productList;
     }
 
     @Override
