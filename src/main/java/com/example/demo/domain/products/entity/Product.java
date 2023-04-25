@@ -1,5 +1,6 @@
 package com.example.demo.domain.products.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -34,6 +35,7 @@ public class Product {
     @Column(nullable = false)
     private int favoriteCnt = 0;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "product", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ProductImg> productImgs = new ArrayList<>();
 

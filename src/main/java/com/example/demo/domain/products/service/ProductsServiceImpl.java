@@ -16,6 +16,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.transaction.Transactional;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -118,6 +119,7 @@ public class ProductsServiceImpl implements ProductsService {
         return productImgList;
     }
 
+    @Transactional
     @Override
     public Product modify(Long productId, List<MultipartFile> productImgList, ProductsInfoRequest request) {
         List<ProductImg> imgList = new ArrayList<>();
@@ -196,6 +198,7 @@ public class ProductsServiceImpl implements ProductsService {
         return product;
     }
 
+    @Transactional
     @Override
     public void delete(Long productId) {
         List<ProductImgResponse> removeImgs = productsImgRepository.findImagePathByProductId(productId);
@@ -215,7 +218,7 @@ public class ProductsServiceImpl implements ProductsService {
             }
         }
 
-
+        favoriteRepository.deleteByProduct_productId(productId);
         productsImgRepository.deleteProductImgByProductId(productId);
         productsRepository.deleteById(productId);
     }
