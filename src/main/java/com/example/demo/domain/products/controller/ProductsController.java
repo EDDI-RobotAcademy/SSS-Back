@@ -83,5 +83,5 @@ public class ProductsController {
     }
 
     @PostMapping("/list/favorite")
-    public List<Product> listByFavorite() { return productsService.listByFavorite(); }
+    public List<ProductListResponse> listByFavorite() { return productsService.listByFavorite(); }
 }

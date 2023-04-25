@@ -1,8 +1,10 @@
 package com.example.demo.domain.products.service;
 
 import com.example.demo.domain.products.controller.form.ProductImgResponse;
+import com.example.demo.domain.products.entity.Favorite;
 import com.example.demo.domain.products.entity.Product;
 import com.example.demo.domain.products.entity.ProductImg;
+import com.example.demo.domain.products.repository.FavoriteRepository;
 import com.example.demo.domain.products.repository.ProductsImgRepository;
 import com.example.demo.domain.products.repository.ProductsRepository;
 import com.example.demo.domain.products.service.request.ProductsInfoRequest;
@@ -30,6 +32,7 @@ public class ProductsServiceImpl implements ProductsService {
 
     final private ProductsRepository productsRepository;
     final private ProductsImgRepository productsImgRepository;
+    final private FavoriteRepository favoriteRepository;
 
     @Override
     public List<ProductListResponse> list() {
@@ -241,7 +244,17 @@ public class ProductsServiceImpl implements ProductsService {
     }
 
     @Override
-    public List<Product> listByFavorite() {
-        return productsRepository.findAll(Sort.by(Sort.Direction.DESC, "favoriteCnt"));
+    public List<ProductListResponse> listByFavorite() {
+        List<Product> products = productsRepository.findAll(Sort.by(Sort.Direction.DESC, "favoriteCnt"));
+        List<ProductListResponse> productList = new ArrayList<>();
+
+        for(Product product : products) {
+            List<ProductImgResponse> productImgList = productsImgRepository.findImagePathByProductId(product.getProductId());
+            productList.add(new ProductListResponse(
+                    product.getProductId(), product.getTitle(), product.getPrice(), product.getContent(),
+                    product.getViewCnt(), product.getFavoriteCnt(), productImgList
+            ));
+        }
+        return productList;
     }
 }

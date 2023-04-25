@@ -28,5 +28,5 @@ public interface ProductsService {
 
     List<ProductListResponse> listByView();
 
-    List<Product> listByFavorite();
+    List<ProductListResponse> listByFavorite();
 }
