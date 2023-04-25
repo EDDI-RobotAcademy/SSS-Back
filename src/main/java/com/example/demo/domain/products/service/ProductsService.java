@@ -8,7 +8,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 
 public interface ProductsService {
-    List<Product> list();
+    List<ProductListResponse> list();
 
     void register(List<MultipartFile> productImgList, ProductsInfoRequest request);
 

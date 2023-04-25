@@ -5,6 +5,7 @@ import com.example.demo.domain.products.controller.form.ProductsRegisterForm;
 import com.example.demo.domain.products.entity.Product;
 import com.example.demo.domain.products.service.ProductsService;
 import com.example.demo.domain.products.service.request.ProductsInfoRequest;
+import com.example.demo.domain.products.service.response.ProductListResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
@@ -23,6 +24,7 @@ public class ProductsController {
 
     @GetMapping(path = "/list")
     public List<Product> productsList() {
+    public List<ProductListResponse> productsList() {
         return productsService.list();
     }
 

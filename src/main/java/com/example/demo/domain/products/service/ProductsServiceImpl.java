@@ -6,6 +6,7 @@ import com.example.demo.domain.products.entity.ProductImg;
 import com.example.demo.domain.products.repository.ProductsImgRepository;
 import com.example.demo.domain.products.repository.ProductsRepository;
 import com.example.demo.domain.products.service.request.ProductsInfoRequest;
+import com.example.demo.domain.products.service.response.ProductListResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Sort;
@@ -30,11 +31,17 @@ public class ProductsServiceImpl implements ProductsService {
     final private ProductsImgRepository productsImgRepository;
 
     @Override
-    public List<Product> list() {
-        List<Product> productList = productsRepository.findAll(Sort.by(Sort.Direction.DESC, "productId"));
+    public List<ProductListResponse> list() {
+        List<Product> products = productsRepository.findAll(Sort.by(Sort.Direction.DESC, "productId"));
+        List<ProductListResponse> productList = new ArrayList<>();
 
-        log.info("상품 리스트: " + String.valueOf(productList));
-
+        for(Product product : products) {
+            List<ProductImgResponse> productImgList = productsImgRepository.findImagePathByProductId(product.getProductId());
+            productList.add(new ProductListResponse(
+                    product.getProductId(), product.getTitle(), product.getPrice(), product.getContent(),
+                    product.getViewCnt(), product.getFavoriteCnt(), productImgList
+            ));
+        }
         return productList;
     }
 

@@ -1,5 +1,6 @@
 package com.example.demo.domain.products.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -27,7 +28,6 @@ public class ProductImg {
     @Column(nullable = false)
     private String imgPath;
 
-    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id")
     private Product product;
