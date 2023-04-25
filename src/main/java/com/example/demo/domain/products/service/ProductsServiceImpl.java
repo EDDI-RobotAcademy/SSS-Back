@@ -91,15 +91,20 @@ public class ProductsServiceImpl implements ProductsService {
     }
 
     @Override
-    public Product read(Long productId) {
+    public ProductReadResponse read(Long productId) {
         Optional<Product> maybeProduct = productsRepository.findById(productId);
-
+        Product product = maybeProduct.get();
         if (maybeProduct.isEmpty()) {
             log.info("없음!");
             return null;
         }
-        Product product = maybeProduct.get();
-        return product;
+
+        List<ProductImgResponse> productImgList = productsImgRepository.findImagePathByProductId(product.getProductId());
+        ProductReadResponse productRead = new ProductReadResponse(
+                product.getProductId(), product.getTitle(), product.getPrice(), product.getContent(),
+                product.getViewCnt(), product.getFavoriteCnt(), product.getProductDetail(), productImgList);
+
+        return productRead;
     }
 
     @Override

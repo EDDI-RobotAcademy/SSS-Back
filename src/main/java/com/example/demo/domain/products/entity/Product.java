@@ -34,7 +34,8 @@ public class Product {
     @Column(nullable = false)
     private int favoriteCnt = 0;
 
-    @OneToMany(mappedBy = "product", fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true) //LAZY 오류 - failed to lazily initialize a collection of role
+    @OneToMany(mappedBy = "product", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ProductImg> productImgs = new ArrayList<>();
 
     @Embedded
     private ProductDetail productDetail;

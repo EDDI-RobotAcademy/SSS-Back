@@ -3,6 +3,8 @@ package com.example.demo.domain.products.service;
 import com.example.demo.domain.products.controller.form.ProductImgResponse;
 import com.example.demo.domain.products.entity.Product;
 import com.example.demo.domain.products.service.request.ProductsInfoRequest;
+import com.example.demo.domain.products.service.response.ProductListResponse;
+import com.example.demo.domain.products.service.response.ProductReadResponse;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
@@ -12,7 +14,7 @@ public interface ProductsService {
 
     void register(List<MultipartFile> productImgList, ProductsInfoRequest request);
 
-    Product read(Long productId);
+    ProductReadResponse read(Long productId);
 
     List<ProductImgResponse> findProductImage(Long productId);
 

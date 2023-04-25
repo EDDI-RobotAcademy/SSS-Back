@@ -6,6 +6,7 @@ import com.example.demo.domain.products.entity.Product;
 import com.example.demo.domain.products.service.ProductsService;
 import com.example.demo.domain.products.service.request.ProductsInfoRequest;
 import com.example.demo.domain.products.service.response.ProductListResponse;
+import com.example.demo.domain.products.service.response.ProductReadResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
@@ -23,7 +24,6 @@ public class ProductsController {
     final private ProductsService productsService;
 
     @GetMapping(path = "/list")
-    public List<Product> productsList() {
     public List<ProductListResponse> productsList() {
         return productsService.list();
     }
@@ -37,7 +37,7 @@ public class ProductsController {
     }
 
     @GetMapping("/{productId}")
-    public Product productRead(@PathVariable("productId") Long productId) {
+    public ProductReadResponse productRead(@PathVariable("productId") Long productId) {
         log.info("productRead()");
 
         return productsService.read(productId);
