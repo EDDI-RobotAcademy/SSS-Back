@@ -3,6 +3,7 @@ package com.example.demo.domain.products.controller;
 import com.example.demo.domain.products.controller.form.FavoriteResponse;
 import com.example.demo.domain.products.entity.Favorite;
 import com.example.demo.domain.products.service.FavoriteService;
+import com.example.demo.domain.products.service.response.FavoriteListResponse;
 import com.example.demo.domain.utility.TokenBasedController;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -36,7 +37,7 @@ public class FavoriteController extends TokenBasedController {
     }
 
     @GetMapping("/myFavorite")
-    public List<Favorite> favoriteList(HttpServletRequest requestToken) {
+    public List<FavoriteListResponse> favoriteList(HttpServletRequest requestToken) {
         Long memberId = findMemberId(requestToken);
         log.info("favoriteList()-memberId: " + memberId);
         return favoriteService.favoriteList(memberId);

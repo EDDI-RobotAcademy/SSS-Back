@@ -2,6 +2,7 @@ package com.example.demo.domain.products.service;
 
 import com.example.demo.domain.products.controller.form.FavoriteResponse;
 import com.example.demo.domain.products.entity.Favorite;
+import com.example.demo.domain.products.service.response.FavoriteListResponse;
 
 import java.util.List;
 
@@ -10,5 +11,5 @@ public interface FavoriteService {
 
     Boolean likeStatus(Long memberId, Long productId);
 
-    List<Favorite> favoriteList(Long memberId);
+    List<FavoriteListResponse> favoriteList(Long memberId);
 }
