@@ -6,7 +6,7 @@ import com.example.demo.domain.cart.controller.request.CartItemIdAndCategory;
 import com.example.demo.domain.cart.controller.request.CartItemQuantityModifyRequest;
 import com.example.demo.domain.cart.controller.request.CartRegisterRequest;
 import com.example.demo.domain.cart.controller.response.CartItemListResponse;
-import com.example.demo.domain.cart.controller.response.SelfSaladReadResponse;
+import com.example.demo.domain.cart.controller.response.SelectedIngredientsResponse;
 import com.example.demo.domain.utility.itemCategory.ItemCategoryType;
 
 import java.util.List;
@@ -20,7 +20,7 @@ public interface CartService {
 
     void modifyCartItemQuantity(CartItemQuantityModifyRequest itemRequest);
 
-    void deleteCartItem(Long itemDelete);
+    void deleteCartItem(CartItemIdAndCategory itemDelete);
 
     void deleteCartItemList(List<CartItemIdAndCategory> deleteItemlist);
 
@@ -28,7 +28,7 @@ public interface CartService {
 
     Integer checkSelfSaladCartLimit(Long memberId);
 
-    List<SelfSaladReadResponse> readSelfSaladIngredient(Long itemId);
+    List<SelectedIngredientsResponse> getSelfSaladIngredient(Long itemId);
 
     void modifySelfSaladItem(Long itemId, SelfSaladModifyForm modifyForm);
 }
