@@ -1,17 +1,22 @@
 package com.example.demo.domain.products.service;
 
 import com.example.demo.domain.products.controller.form.ProductImgResponse;
+import com.example.demo.domain.products.entity.Favorite;
 import com.example.demo.domain.products.entity.Product;
 import com.example.demo.domain.products.entity.ProductImg;
+import com.example.demo.domain.products.repository.FavoriteRepository;
 import com.example.demo.domain.products.repository.ProductsImgRepository;
 import com.example.demo.domain.products.repository.ProductsRepository;
 import com.example.demo.domain.products.service.request.ProductsInfoRequest;
+import com.example.demo.domain.products.service.response.ProductListResponse;
+import com.example.demo.domain.products.service.response.ProductReadResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.transaction.Transactional;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -28,13 +33,20 @@ public class ProductsServiceImpl implements ProductsService {
 
     final private ProductsRepository productsRepository;
     final private ProductsImgRepository productsImgRepository;
+    final private FavoriteRepository favoriteRepository;
 
     @Override
-    public List<Product> list() {
-        List<Product> productList = productsRepository.findAll(Sort.by(Sort.Direction.DESC, "productId"));
+    public List<ProductListResponse> list() {
+        List<Product> products = productsRepository.findAll(Sort.by(Sort.Direction.DESC, "productId"));
+        List<ProductListResponse> productList = new ArrayList<>();
 
-        log.info("상품 리스트: " + String.valueOf(productList));
-
+        for(Product product : products) {
+            List<ProductImgResponse> productImgList = productsImgRepository.findImagePathByProductId(product.getProductId());
+            productList.add(new ProductListResponse(
+                    product.getProductId(), product.getTitle(), product.getPrice(), product.getContent(),
+                    product.getViewCnt(), product.getFavoriteCnt(), productImgList
+            ));
+        }
         return productList;
     }
 
@@ -84,15 +96,20 @@ public class ProductsServiceImpl implements ProductsService {
     }
 
     @Override
-    public Product read(Long productId) {
+    public ProductReadResponse read(Long productId) {
         Optional<Product> maybeProduct = productsRepository.findById(productId);
-
+        Product product = maybeProduct.get();
         if (maybeProduct.isEmpty()) {
             log.info("없음!");
             return null;
         }
-        Product product = maybeProduct.get();
-        return product;
+
+        List<ProductImgResponse> productImgList = productsImgRepository.findImagePathByProductId(product.getProductId());
+        ProductReadResponse productRead = new ProductReadResponse(
+                product.getProductId(), product.getTitle(), product.getPrice(), product.getContent(),
+                product.getViewCnt(), product.getFavoriteCnt(), product.getProductDetail(), productImgList);
+
+        return productRead;
     }
 
     @Override
@@ -102,6 +119,7 @@ public class ProductsServiceImpl implements ProductsService {
         return productImgList;
     }
 
+    @Transactional
     @Override
     public Product modify(Long productId, List<MultipartFile> productImgList, ProductsInfoRequest request) {
         List<ProductImg> imgList = new ArrayList<>();
@@ -180,6 +198,7 @@ public class ProductsServiceImpl implements ProductsService {
         return product;
     }
 
+    @Transactional
     @Override
     public void delete(Long productId) {
         List<ProductImgResponse> removeImgs = productsImgRepository.findImagePathByProductId(productId);
@@ -199,6 +218,7 @@ public class ProductsServiceImpl implements ProductsService {
             }
         }
 
+        favoriteRepository.deleteByProduct_productId(productId);
         productsImgRepository.deleteProductImgByProductId(productId);
         productsRepository.deleteById(productId);
     }
@@ -212,12 +232,32 @@ public class ProductsServiceImpl implements ProductsService {
     }
 
     @Override
-    public List<Product> listByView() {
-        return productsRepository.findAll(Sort.by(Sort.Direction.DESC, "viewCnt"));
+    public List<ProductListResponse> listByView() {
+        List<Product> products = productsRepository.findAll(Sort.by(Sort.Direction.DESC, "viewCnt"));
+        List<ProductListResponse> productList = new ArrayList<>();
+
+        for(Product product : products) {
+            List<ProductImgResponse> productImgList = productsImgRepository.findImagePathByProductId(product.getProductId());
+            productList.add(new ProductListResponse(
+                    product.getProductId(), product.getTitle(), product.getPrice(), product.getContent(),
+                    product.getViewCnt(), product.getFavoriteCnt(), productImgList
+            ));
+        }
+        return productList;
     }
 
     @Override
-    public List<Product> listByFavorite() {
-        return productsRepository.findAll(Sort.by(Sort.Direction.DESC, "favoriteCnt"));
+    public List<ProductListResponse> listByFavorite() {
+        List<Product> products = productsRepository.findAll(Sort.by(Sort.Direction.DESC, "favoriteCnt"));
+        List<ProductListResponse> productList = new ArrayList<>();
+
+        for(Product product : products) {
+            List<ProductImgResponse> productImgList = productsImgRepository.findImagePathByProductId(product.getProductId());
+            productList.add(new ProductListResponse(
+                    product.getProductId(), product.getTitle(), product.getPrice(), product.getContent(),
+                    product.getViewCnt(), product.getFavoriteCnt(), productImgList
+            ));
+        }
+        return productList;
     }
 }

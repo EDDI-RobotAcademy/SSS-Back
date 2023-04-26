@@ -1,5 +1,6 @@
 package com.example.demo.domain.products.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -34,8 +35,9 @@ public class Product {
     @Column(nullable = false)
     private int favoriteCnt = 0;
 
-    @OneToMany(mappedBy = "product", fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true) //LAZY 오류 - failed to lazily initialize a collection of role
-    private List<ProductImg> productImgs = new ArrayList<>();             //orphanRemoval = true : 부모 엔티티에서 자식 엔티티 삭제 가능
+    @JsonIgnore
+    @OneToMany(mappedBy = "product", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ProductImg> productImgs = new ArrayList<>();
 
     @Embedded
     private ProductDetail productDetail;

@@ -3,14 +3,18 @@ package com.example.demo.domain.products.service;
 import com.example.demo.domain.member.entity.Member;
 import com.example.demo.domain.member.repository.MemberRepository;
 import com.example.demo.domain.products.controller.form.FavoriteResponse;
+import com.example.demo.domain.products.controller.form.ProductImgResponse;
 import com.example.demo.domain.products.entity.Favorite;
 import com.example.demo.domain.products.entity.Product;
 import com.example.demo.domain.products.repository.FavoriteRepository;
+import com.example.demo.domain.products.repository.ProductsImgRepository;
 import com.example.demo.domain.products.repository.ProductsRepository;
+import com.example.demo.domain.products.service.response.FavoriteListResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -22,6 +26,7 @@ public class FavoriteServiceImpl implements FavoriteService {
     final private FavoriteRepository favoriteRepository;
     final private ProductsRepository productsRepository;
     final private MemberRepository memberRepository;
+    final private ProductsImgRepository productsImgRepository;
 
     public FavoriteResponse changeLike(Long memberId, Long productId) {
         Optional<Member> maybeMember = memberRepository.findById(memberId);
@@ -92,7 +97,18 @@ public class FavoriteServiceImpl implements FavoriteService {
     }
 
     @Override
-    public List<Favorite> favoriteList (Long memberId) {
-        return favoriteRepository.findFavoriteByMemberId(memberId);
+    public List<FavoriteListResponse> favoriteList (Long memberId) {
+        List<Favorite> favorites = favoriteRepository.findFavoriteByMemberId(memberId);
+        List<FavoriteListResponse> favoriteList = new ArrayList<>();
+
+        for(Favorite favorite : favorites) {
+            List<ProductImgResponse> productImgList = productsImgRepository.findImagePathByProductId(favorite.getProduct().getProductId());
+            favoriteList.add(new FavoriteListResponse(
+                    favorite.getFavoriteId(), favorite.isLike(), favorite.getProduct().getProductId(),
+                    favorite.getProduct().getTitle(), favorite.getProduct().getPrice(),
+                    productImgList, favorite.getMember().getMemberId()
+            ));
+        }
+        return favoriteList;
     }
 }

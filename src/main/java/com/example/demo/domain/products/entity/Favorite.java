@@ -1,6 +1,7 @@
 package com.example.demo.domain.products.entity;
 
 import com.example.demo.domain.member.entity.Member;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 
 import javax.persistence.*;

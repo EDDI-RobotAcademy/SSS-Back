@@ -5,6 +5,8 @@ import com.example.demo.domain.products.controller.form.ProductsRegisterForm;
 import com.example.demo.domain.products.entity.Product;
 import com.example.demo.domain.products.service.ProductsService;
 import com.example.demo.domain.products.service.request.ProductsInfoRequest;
+import com.example.demo.domain.products.service.response.ProductListResponse;
+import com.example.demo.domain.products.service.response.ProductReadResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
@@ -22,7 +24,7 @@ public class ProductsController {
     final private ProductsService productsService;
 
     @GetMapping(path = "/list")
-    public List<Product> productsList() {
+    public List<ProductListResponse> productsList() {
         return productsService.list();
     }
 
@@ -35,7 +37,7 @@ public class ProductsController {
     }
 
     @GetMapping("/{productId}")
-    public Product productRead(@PathVariable("productId") Long productId) {
+    public ProductReadResponse productRead(@PathVariable("productId") Long productId) {
         log.info("productRead()");
 
         return productsService.read(productId);
@@ -76,10 +78,10 @@ public class ProductsController {
     }
 
     @PostMapping("/list/view")
-    public List<Product> listByView() {
+    public List<ProductListResponse> listByView() {
         return productsService.listByView();
     }
 
     @PostMapping("/list/favorite")
-    public List<Product> listByFavorite() { return productsService.listByFavorite(); }
+    public List<ProductListResponse> listByFavorite() { return productsService.listByFavorite(); }
 }
