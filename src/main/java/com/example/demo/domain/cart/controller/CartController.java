@@ -2,9 +2,11 @@ package com.example.demo.domain.cart.controller;
 
 import com.example.demo.domain.cart.controller.form.SelfSaladCartRegisterForm;
 import com.example.demo.domain.cart.controller.form.SelfSaladModifyForm;
-import com.example.demo.domain.cart.controller.request.*;
+import com.example.demo.domain.cart.controller.request.CartItemIdAndCategory;
+import com.example.demo.domain.cart.controller.request.CartItemQuantityModifyRequest;
+import com.example.demo.domain.cart.controller.request.CartRegisterRequest;
 import com.example.demo.domain.cart.controller.response.CartItemListResponse;
-import com.example.demo.domain.cart.controller.response.SelfSaladReadResponse;
+import com.example.demo.domain.cart.controller.response.SelectedIngredientsResponse;
 import com.example.demo.domain.cart.service.CartService;
 import com.example.demo.domain.utility.TokenBasedController;
 import com.example.demo.domain.utility.itemCategory.ItemCategoryType;
@@ -71,9 +73,9 @@ public class CartController extends TokenBasedController {
     }
 
     @GetMapping("/selfsalad/read/{itemId}")
-    public List<SelfSaladReadResponse> selfSaladRead(@PathVariable("itemId") Long itemId){
+    public List<SelectedIngredientsResponse> selfSaladRead(@PathVariable("itemId") Long itemId){
         log.info("selfSaladRead()");
-        return cartService.readSelfSaladIngredient(itemId);
+        return cartService.getSelfSaladIngredient(itemId);
     }
 
     @PutMapping("/selfsalad/modify/{itemId}")

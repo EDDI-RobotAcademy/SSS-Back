@@ -6,7 +6,7 @@ import com.example.demo.domain.cart.controller.request.CartItemIdAndCategory;
 import com.example.demo.domain.cart.controller.request.CartItemQuantityModifyRequest;
 import com.example.demo.domain.cart.controller.request.CartRegisterRequest;
 import com.example.demo.domain.cart.controller.response.CartItemListResponse;
-import com.example.demo.domain.cart.controller.response.SelfSaladReadResponse;
+import com.example.demo.domain.cart.controller.response.SelectedIngredientsResponse;
 import com.example.demo.domain.cart.entity.Cart;
 import com.example.demo.domain.cart.entity.cartItems.*;
 import com.example.demo.domain.cart.repository.CartItemRepository;
@@ -380,28 +380,55 @@ public class CartServiceImpl implements CartService{
         selfSaladIngredientRepository.saveAll(saladIngredients);
     }
 
-    @Override
-    public List<SelfSaladReadResponse> readSelfSaladIngredient(Long itemId){
-        // 장바구니 수정 요청시 보낼 샐러드_재료 데이터
-        Optional<CartItem> maybeItem = cartItemRepository.findById(itemId);
+    private  List<SelfSaladIngredient> findSelectedIngredient(Long itemId){
+        CartItem cartItem = cartItemRepository.findById(itemId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 장바구니 상품은 없습니다. : "+itemId));
 
-        if(maybeItem.isPresent()){
-            if (maybeItem.get() instanceof SelfSaladItem) {
-            // Self Salad 찾기
-            SelfSaladItem selfSaladItem = (SelfSaladItem)maybeItem.get();
-            Long selfSaladId = selfSaladItem.getSelfSalad().getId();
-            List<SelfSaladIngredient> selfSaladIngredients =
-                    selfSaladIngredientRepository.findBySelfSalad_id(selfSaladId);
+        SelfSaladItem selfSaladItem = (SelfSaladItem) cartItem;
+        Long selfSaladId = selfSaladItem.getSelfSalad().getId();
 
-            List<SelfSaladReadResponse> responseList = new ArrayList<>();
-            for(SelfSaladIngredient ingredient : selfSaladIngredients){
-                responseList.add(
-                        new SelfSaladReadResponse(ingredient.getIngredient().getId(),
-                                                  ingredient.getSelectedAmount()));
-            }
-            return responseList;}
+        return selfSaladIngredientRepository.findBySelfSalad_id(selfSaladId);
+    }
+    private Set<Long> findSelectedIngredientIds(List<SelfSaladIngredient> selectedIngredients){
+        Set<Long> ingredientIds = new HashSet<>();
+        for(SelfSaladIngredient myIngredients : selectedIngredients ){
+            ingredientIds.add(myIngredients.getIngredient().getId());
         }
-        return null;
+        return ingredientIds;
+    }
+    @Override
+    @Transactional
+    public List<SelectedIngredientsResponse> getSelfSaladIngredient(Long itemId){
+
+        List<SelfSaladIngredient> selectedIngredients = findSelectedIngredient(itemId);
+        Set<Long> ingredientIds = findSelectedIngredientIds(selectedIngredients);
+
+        List<Ingredient> ingredients = ingredientRepository.findByIdIn(ingredientIds)
+                .orElseThrow(() -> new IllegalArgumentException("해당 Ingredient 아이디들은 없습니다. : "+ingredientIds));
+        List<SelectedIngredientsResponse> response =
+         ingredients.stream()
+                .flatMap(ingredient -> ingredient.getIngredientAmounts().stream()
+                        .filter(amount -> ingredientIds.contains(ingredient.getId()))
+                        .map(amount -> {
+                            Long selectedAmount = selectedIngredients.stream()
+                                    .filter(selected -> selected.getIngredient().getId().equals(ingredient.getId()))
+                                    .findFirst()
+                                    .map(SelfSaladIngredient::getSelectedAmount)
+                                    .orElse(0L);
+                            return new SelectedIngredientsResponse(
+                                    ingredient.getId(),
+                                    ingredient.getName(),
+                                    ingredient.getPrice(),
+                                    amount.getAmount().getAmountType().toString(),
+                                    amount.getMax(),
+                                    amount.getUnit(),
+                                    amount.getCalorie(),
+                                    selectedAmount
+                            );
+                        }))
+                .collect(Collectors.toList());
+        log.info(response.get(0).getName());
+        return response;
     }
     @Override
     @Transactional
