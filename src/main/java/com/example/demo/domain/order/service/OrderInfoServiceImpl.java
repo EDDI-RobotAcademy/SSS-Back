@@ -1,5 +1,6 @@
 package com.example.demo.domain.order.service;
 
+import com.example.demo.domain.cart.service.CartServiceImpl;
 import com.example.demo.domain.member.entity.Address;
 import com.example.demo.domain.member.entity.Member;
 import com.example.demo.domain.member.repository.AddressRepository;
@@ -46,6 +47,7 @@ public class OrderInfoServiceImpl implements OrderInfoService {
     final private DeliveryRepository deliveryRepository;
 
     final private MemberServiceImpl memberService;
+    final private CartServiceImpl cartService;
 
 
 
@@ -106,7 +108,7 @@ public class OrderInfoServiceImpl implements OrderInfoService {
                 selfSaladRepository.findByIdIn(selfSaladIds);
 
         if(maybeSelfSalad.isPresent()){
-            log.info("SideProducts "+selfSaladIds+" 번의 상품들이 존재합니다.");
+            log.info("SelfSalads "+selfSaladIds+" 번의 상품들이 존재합니다.");
 
             Map<Long, SelfSalad> selfSaladMap = new HashMap<>();
 
@@ -127,27 +129,19 @@ public class OrderInfoServiceImpl implements OrderInfoService {
         return newOrderInfo;
     }
 
-    private OrderInfoState registerOrderState(OrderInfo myOrderInfo){
+    private void registerOrderState(OrderInfo myOrderInfo){
 
         final OrderState orderState =
                 orderStateRepository.findByOrderStateType(OrderStateType.PAYMENT_COMPLETE);
 
-        final OrderInfoState orderInfoState =
-                new OrderInfoState(myOrderInfo, orderState);
-        return orderInfoState;
+        orderInfoStateRepository.save(
+                new OrderInfoState(myOrderInfo, orderState));
     }
 
     private void registerPayment(PaymentRequest reqPayment, OrderInfo myOrderInfo){
-        Payment myPayment =
-                reqPayment.toPayment(myOrderInfo);
-        paymentRepository.save(myPayment);
-    }
 
-    private void registerDelivery(DeliveryRegisterRequest reqDelivery, OrderInfo myOrderInfo,
-                                Address myAddress){
-        Delivery myDelivery =
-                reqDelivery.toDelivery(myAddress, myOrderInfo);
-        deliveryRepository.save(myDelivery);
+        Payment myPayment = reqPayment.toPayment(myOrderInfo);
+        paymentRepository.save(myPayment);
     }
 
     private Address getAddressOrCreate(Member member, DeliveryRegisterRequest reqDelivery){
@@ -162,6 +156,13 @@ public class OrderInfoServiceImpl implements OrderInfoService {
         addressRepository.save(newAddress);
         log.info("회원 신규 주소 등록 : "+ newAddress.getZipcode());
         return newAddress;
+    }
+
+    private void registerDelivery(DeliveryRegisterRequest reqDelivery, OrderInfo myOrderInfo,
+                                  Address myAddress){
+        Delivery myDelivery =
+                reqDelivery.toDelivery(myAddress, myOrderInfo);
+        deliveryRepository.save(myDelivery);
     }
 
     @Override
