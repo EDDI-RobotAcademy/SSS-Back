@@ -2,9 +2,11 @@ package com.example.demo.domain.order.entity.orderItems;
 
 import com.example.demo.domain.order.entity.OrderInfo;
 import com.example.demo.domain.selfSalad.entity.SelfSalad;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 @Entity
+@NoArgsConstructor
 @DiscriminatorValue("SELF") // 하위클래스
 public class SelfSaladOrderItem extends OrderItem{
 
@@ -13,7 +15,7 @@ public class SelfSaladOrderItem extends OrderItem{
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "selfSalad_id", nullable = true)
+    @JoinColumn(name = "self_salad_id", nullable = true)
     private SelfSalad selfSalad;
 
 
@@ -23,7 +25,12 @@ public class SelfSaladOrderItem extends OrderItem{
         this.selfSalad = selfSalad;
         this.orderInfo = orderInfo;
     }
+
     @Override
+    public Long getId() {
+        return this.id;
+    }
+
     public SelfSalad getSelfSalad(){
         return this.selfSalad;
     }

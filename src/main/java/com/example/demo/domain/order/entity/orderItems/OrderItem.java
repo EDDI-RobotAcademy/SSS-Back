@@ -1,9 +1,6 @@
 package com.example.demo.domain.order.entity.orderItems;
 
 import com.example.demo.domain.order.entity.OrderInfo;
-import com.example.demo.domain.products.entity.Product;
-import com.example.demo.domain.selfSalad.entity.SelfSalad;
-import com.example.demo.domain.sideProducts.entity.SideProduct;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -33,19 +30,13 @@ public abstract class OrderItem {
         this.orderInfo = orderInfo;
     }
 
+    public Long getId(){
+        return this.id;
+    }
+
     public String getOrderItemType() {
         DiscriminatorValue discriminatorValue = this.getClass().getAnnotation(DiscriminatorValue.class);
         return discriminatorValue != null ? discriminatorValue.value() : null;
-    }
-
-    public Product getProduct() {
-        return this.getProduct();
-    }
-    public SideProduct getSideProduct() {
-        return this.getSideProduct();
-    }
-    public SelfSalad getSelfSalad(){
-        return this.getSelfSalad();
     }
 
 }
