@@ -212,16 +212,30 @@ public class CartServiceImpl implements CartService{
     }
 
     @Override
-    public void deleteCartItem(Long itemId){
+    public void deleteCartItem(CartItemIdAndCategory deleteItem){
+        ItemCategoryType itemType = deleteItem.getItemCategoryType();
+        Long itemId = deleteItem.getItemId();
+
         Optional<CartItem> maybeItem = cartItemRepository.findById(itemId);
-        if (maybeItem.isPresent()) {
-            if (maybeItem.get() instanceof SelfSaladItem) {
-                SelfSaladItem selfSaladItem = (SelfSaladItem)maybeItem.get();
-                cartItemRepository.deleteById(itemId);
-                selfSaladRepository.deleteById(selfSaladItem.getSelfSalad().getId());}
-        }else {
-            cartItemRepository.deleteById(itemId);
-        }
+        maybeItem.ifPresent(item -> {
+            switch(itemType){
+
+            case PRODUCT:
+                ProductItem productItem = (ProductItem) item;
+                cartItemRepository.delete(productItem); break;
+            case SIDE:
+                SideProductItem sideProductItem = (SideProductItem) item;
+                cartItemRepository.delete(sideProductItem); break;
+            case SELF:
+                SelfSaladItem selfSaladItem = (SelfSaladItem) item;
+                Long selfSaladId = selfSaladItem.getSelfSalad().getId();
+                cartItemRepository.delete(selfSaladItem);
+                selfSaladRepository.deleteById(selfSaladId); break;
+            default:
+                throw new IllegalArgumentException("존재하지 않는 장바구니 카테고리 입니다. : " + itemType);
+            }
+
+        });
         log.info(itemId + " 번 cart Item 이 삭제되었습니다.");
     }
 
@@ -231,24 +245,27 @@ public class CartServiceImpl implements CartService{
         List<Long> cartItemIds = new ArrayList<>();
         List<Long> saladItemIds = new ArrayList<>();
 
-        for(CartItemIdAndCategory deleteItem : deleteItemlist){
-
-            if(deleteItem.getItemCategoryType()==ItemCategoryType.SELF){
-                saladItemIds.add(deleteItem.getItemId());
-            }else{
-                cartItemIds.add(deleteItem.getItemId());
+        for(CartItemIdAndCategory deleteItem : deleteItemlist) {
+            switch (deleteItem.getItemCategoryType()) {
+                case PRODUCT:
+                case SIDE:
+                    cartItemIds.add(deleteItem.getItemId()); break;
+                case SELF:
+                    saladItemIds.add(deleteItem.getItemId()); break;
+                default:
+                    throw new IllegalArgumentException("존재하지 않는 장바구니 카테고리 입니다. : "
+                            + deleteItem.getItemCategoryType());
             }
         }
         if( ! cartItemIds.isEmpty()){
             cartItemRepository.deleteAllByIdInBatch(cartItemIds);
             log.info(cartItemIds+" 번 Cart Item 들이 삭제되었습니다.");
         }
+        List<SelfSalad> selfSalads = new ArrayList<>();
         if( ! saladItemIds.isEmpty()){
-            List<SelfSaladItem> selfSaladItemList = cartItemRepository.findByIdIn(saladItemIds);
-
-            List<SelfSalad> selfSalads = new ArrayList<>();
-            for(SelfSaladItem selfSaladItem : selfSaladItemList){
-                selfSalads.add(selfSaladItem.getSelfSalad());
+            List<SelfSaladItem> saladItem = cartItemRepository.findByIdIn(saladItemIds);
+            for(SelfSaladItem item : saladItem){
+                selfSalads.add(item.getSelfSalad());
             }
             cartItemRepository.deleteAllByIdInBatch(saladItemIds);
             log.info(saladItemIds+" 번 SelfSalad Cart Item 들이 삭제되었습니다.");

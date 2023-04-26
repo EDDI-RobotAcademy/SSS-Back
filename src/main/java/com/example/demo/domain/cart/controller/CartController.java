@@ -83,10 +83,10 @@ public class CartController extends TokenBasedController {
         cartService.modifySelfSaladItem(itemId, modifyForm);
     }
 
-    @DeleteMapping("/delete/{itemId}")
-    public void cartItemRemove(@PathVariable("itemId") Long itemId){
+    @DeleteMapping("/delete")
+    public void cartItemRemove(@RequestBody CartItemIdAndCategory deleteItem){
         log.info("cartItemRemove()");
-        cartService.deleteCartItem(itemId);
+        cartService.deleteCartItem(deleteItem);
     }
 
     @DeleteMapping("/delete/list")

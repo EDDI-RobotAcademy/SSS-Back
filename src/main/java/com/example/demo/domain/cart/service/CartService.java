@@ -20,7 +20,7 @@ public interface CartService {
 
     void modifyCartItemQuantity(CartItemQuantityModifyRequest itemRequest);
 
-    void deleteCartItem(Long itemDelete);
+    void deleteCartItem(CartItemIdAndCategory itemDelete);
 
     void deleteCartItemList(List<CartItemIdAndCategory> deleteItemlist);
 
