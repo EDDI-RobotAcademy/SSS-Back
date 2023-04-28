@@ -8,8 +8,7 @@ import java.util.List;
 
 public interface BoardRepository extends JpaRepository<Board, Long> {
 
-    @Query("select b from Board b join fetch b.member q where q.memberId = :memberId")
-    List<Board> findByMemberId(Long memberId);
+    List<Board> findByMember_MemberId(Long memberId);
 
     Long countBy();
 
