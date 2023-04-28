@@ -151,6 +151,7 @@ public class ProductsServiceImpl implements ProductsService {
         product.setTitle(request.getTitle());
         product.setContent(request.getContent());
         product.setPrice(request.getPrice());
+        product.setProductDetail(request.getProductDetail());
 
         try {
             for (MultipartFile multipartFile: productImgList) {
@@ -193,6 +194,7 @@ public class ProductsServiceImpl implements ProductsService {
         product.setTitle(request.getTitle());
         product.setContent(request.getContent());
         product.setPrice(request.getPrice());
+        product.setProductDetail(request.getProductDetail());
 
         productsRepository.save(product);
         return product;
