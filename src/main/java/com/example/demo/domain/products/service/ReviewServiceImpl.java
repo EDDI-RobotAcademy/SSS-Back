@@ -13,6 +13,7 @@ import com.example.demo.domain.products.repository.ReviewImgRepository;
 import com.example.demo.domain.products.repository.ReviewRepository;
 import com.example.demo.domain.products.service.request.ReviewRequest;
 import com.example.demo.domain.products.service.response.ReviewListResponse;
+import com.example.demo.domain.utility.file.FileUploadUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -38,6 +39,40 @@ public class ReviewServiceImpl implements ReviewService {
     final private ReviewRepository reviewRepository;
     final private ReviewImgRepository reviewImgRepository;
     final private OrderInfoRepository orderInfoRepository;
+
+    private List<ReviewListResponse> getReviewList(List<Review> reviewList) {
+        List<ReviewListResponse> responseList = new ArrayList<>();
+        for (Review review : reviewList) {
+            responseList.add(
+                    new ReviewListResponse(
+                            review.getReviewId(),
+                            review.getProduct().getProductId(),
+                            review.getOrderInfo().getMember().getNickname(),
+                            review.getReviewImgs(),
+                            review.getRating(),
+                            review.getContent(),
+                            review.getRegDate(),
+                            review.getUpdDate()
+                    )
+            );
+        }
+        return responseList;
+    }
+
+    private void deleteReviewImages(List<ReviewImgResponse> reviewImgs, String imgPath) {
+        for (ReviewImgResponse img : reviewImgs) {
+            String fileName = img.getEditedImg();
+            System.out.println(fileName);
+
+            File file = new File(imgPath + fileName);
+
+            if (file.exists()) {
+                file.delete();
+            } else {
+                System.out.println("파일 삭제 실패");
+            }
+        }
+    }
 
     @Override
     public void registerText(ReviewRequest request) {
@@ -69,7 +104,7 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
     @Override
-    public void register(List<MultipartFile> files, ReviewRequest request) {
+    public void register(List<MultipartFile> files, ReviewRequest request) throws IOException {
 
         List<ReviewImg> imgList = new ArrayList<>();
 
@@ -94,10 +129,9 @@ public class ReviewServiceImpl implements ReviewService {
                             .build();
 
         for (MultipartFile multipartFile : files) {
-            UUID uuid = UUID.randomUUID();
             String originImg = multipartFile.getOriginalFilename();
-            String editedImg = uuid + originImg;
-            String imgPath = "../SSS-Front/src/assets/review/";
+            String editedImg = FileUploadUtils.generateUniqueFileName(originImg);
+            String imgPath = "../SSS-Front/src/assets/review/" + editedImg;
 
             ReviewImg reviewImg = ReviewImg.builder()
                     .originImg(originImg)
@@ -110,19 +144,7 @@ public class ReviewServiceImpl implements ReviewService {
 
             log.info(multipartFile.getOriginalFilename());
 
-            try {
-                FileOutputStream writer = new FileOutputStream(
-                        imgPath + editedImg
-                );
-                writer.write(multipartFile.getBytes());
-                writer.close();
-                log.info("file upload success");
-
-            } catch (FileNotFoundException e) {
-                throw new RuntimeException(e);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
+            FileUploadUtils.writeFile(multipartFile, imgPath);
         }
 
         // 리뷰 작성 시 구매확정으로..? 아니면 구매 확정을 해야 리뷰를 작성할 수 있게...?
@@ -133,6 +155,7 @@ public class ReviewServiceImpl implements ReviewService {
         reviewImgRepository.saveAll(imgList);
     }
 
+
     @Override
     @Transactional
     public List<ReviewListResponse> productReviewList(Long productId) {
@@ -140,21 +163,7 @@ public class ReviewServiceImpl implements ReviewService {
         Product product = maybeProduct.get();
         List<Review> reviewList = reviewRepository.findByProduct_ProductId(product.getProductId());
 
-        List<ReviewListResponse> responseList = new ArrayList<>();
-        for(Review review : reviewList){
-            responseList.add(
-                    new ReviewListResponse(
-                    review.getReviewId(),
-                    review.getProduct().getProductId(),
-                    review.getOrderInfo().getMember().getNickname(),
-                    review.getReviewImgs(),
-                    review.getRating(),
-                    review.getContent(),
-                    review.getRegDate(),
-                    review.getUpdDate())
-            );
-        }
-        return responseList;
+        return getReviewList(reviewList);
     }
 
     @Override
@@ -164,21 +173,7 @@ public class ReviewServiceImpl implements ReviewService {
         Member member = maybeMember.get();
         List<Review> reviewList = reviewRepository.findByMember_MemberId(member.getMemberId());
 
-        List<ReviewListResponse> responseList = new ArrayList<>();
-        for(Review review : reviewList){
-            responseList.add(
-                    new ReviewListResponse(
-                            review.getReviewId(),
-                            review.getProduct().getProductId(),
-                            review.getOrderInfo().getMember().getNickname(),
-                            review.getReviewImgs(),
-                            review.getRating(),
-                            review.getContent(),
-                            review.getRegDate(),
-                            review.getUpdDate())
-            );
-        }
-        return responseList;
+        return getReviewList(reviewList);
 
     }
 
@@ -193,6 +188,7 @@ public class ReviewServiceImpl implements ReviewService {
 
         return reviewImgList;
     }
+
 
     @Override
     public void modifyText(Long reviewId, ReviewRequest request) {
@@ -209,6 +205,7 @@ public class ReviewServiceImpl implements ReviewService {
         reviewRepository.save(review);
     }
 
+
     @Override
     public void modify(Long reviewId, List<MultipartFile> reviewImgList, ReviewRequest request) {
         final String imgPath = "../SSS-Front/src/assets/review/";
@@ -217,18 +214,7 @@ public class ReviewServiceImpl implements ReviewService {
         if(!maybeImgs.isEmpty()) {
             List<ReviewImgResponse> removeImgs = reviewImgRepository.findReviewImgById(reviewId);
 
-            for (int i = 0; i < removeImgs.size(); i++) {
-                String fileName = removeImgs.get(i).getEditedImg();
-                System.out.println(fileName);
-
-                File file = new File(imgPath + fileName);
-
-                if (file.exists()) {
-                    file.delete();
-                } else {
-                    System.out.println("파일 삭제 실패");
-                }
-            }
+           deleteReviewImages(removeImgs, imgPath);
             reviewImgRepository.deleteReviewImgById(reviewId);
         }
         Optional<Review> maybeReview = reviewRepository.findById(reviewId);
@@ -279,18 +265,7 @@ public class ReviewServiceImpl implements ReviewService {
         List<ReviewImgResponse> removeImgs = reviewImgRepository.findReviewImgById(reviewId);
         final String imgPath = "../SSS-Front/src/assets/review/";
 
-        for(int i = 0; i < removeImgs.size(); i++) {
-            String fileName = removeImgs.get(i).getEditedImg();
-            System.out.println(fileName);
-
-            File file = new File(imgPath + fileName);
-
-            if(file.exists()) {
-                file.delete();
-            } else {
-                System.out.println("삭제 실패");
-            }
-        }
+        deleteReviewImages(removeImgs, imgPath);
 
         reviewImgRepository.deleteReviewImgById(reviewId);
         reviewRepository.deleteById(reviewId);

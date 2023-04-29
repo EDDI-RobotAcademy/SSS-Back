@@ -3,7 +3,6 @@ package com.example.demo.domain.member.service.request;
 import com.example.demo.domain.member.entity.Authority;
 import com.example.demo.domain.member.entity.AuthorityType;
 import com.example.demo.domain.member.entity.Member;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;

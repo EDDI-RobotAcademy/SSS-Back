@@ -7,12 +7,13 @@ import com.example.demo.domain.products.service.response.ProductListResponse;
 import com.example.demo.domain.products.service.response.ProductReadResponse;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 
 public interface ProductsService {
     List<ProductListResponse> list();
 
-    void register(List<MultipartFile> productImgList, ProductsInfoRequest request);
+    void register(List<MultipartFile> productImgList, ProductsInfoRequest request) throws IOException;
 
     ProductReadResponse read(Long productId);
 

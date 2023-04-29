@@ -25,6 +25,7 @@ public class Member {
     private Long memberId;
 
     @Getter
+    @Setter
     @Column(nullable = false)
     private String email;
 

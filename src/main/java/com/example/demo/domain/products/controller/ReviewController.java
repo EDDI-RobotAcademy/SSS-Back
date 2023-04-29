@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
 import java.util.List;
 
 @Slf4j
@@ -29,8 +30,8 @@ public class ReviewController extends TokenBasedController {
     }
 
     @PostMapping(value = "/register", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE, MediaType.APPLICATION_JSON_VALUE})
-    public void reviewRegister(@RequestPart(value = "file") List<MultipartFile> reviewImgList,
-                               @RequestPart(value = "review") ReviewRequest request) {
+    public void reviewRegister(@RequestPart(value = "reviewImgList") List<MultipartFile> reviewImgList,
+                               @RequestPart(value = "reviewInfo") ReviewRequest request) throws IOException {
         log.info("reviewRegister()");
 
         reviewService.register(reviewImgList, request);

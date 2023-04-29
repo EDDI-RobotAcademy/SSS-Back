@@ -1,6 +1,7 @@
 package com.example.demo.domain.sideProducts.service;
 
 
+import com.example.demo.domain.products.controller.form.ReviewImgResponse;
 import com.example.demo.domain.sideProducts.dto.request.SideProductRequest;
 import com.example.demo.domain.sideProducts.dto.response.SideProductResponse;
 import com.example.demo.domain.sideProducts.entity.SideProduct;
@@ -199,6 +200,4 @@ public class SideProductsServiceImpl implements SideProductsService {
         );
         return sideProductResponse;
     }
-
-
 }
