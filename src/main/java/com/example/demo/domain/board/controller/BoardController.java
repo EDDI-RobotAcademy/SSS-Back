@@ -67,5 +67,10 @@ public class BoardController extends TokenBasedController {
         return boardService.modify(boardId, boardRequest);
     }
 
-
+    @GetMapping("/list-myBoard")
+    public List<Board> memberBoardList(HttpServletRequest requestToken) {
+        log.info("memberBoardList()");
+        Long memberId = findMemberId(requestToken);
+        return boardService.memberBoardList(memberId);
+    }
 }

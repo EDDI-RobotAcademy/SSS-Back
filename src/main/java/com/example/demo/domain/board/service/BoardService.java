@@ -41,4 +41,6 @@ public interface BoardService {
      * 마지막 엔티티 id번호
      */
     Long getLastEntityId();
+
+    List<Board> memberBoardList(Long memberId);
 }

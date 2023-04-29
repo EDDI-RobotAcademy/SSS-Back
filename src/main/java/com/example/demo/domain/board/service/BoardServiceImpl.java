@@ -111,4 +111,13 @@ public class BoardServiceImpl implements BoardService {
         Board board = boardRepository.findFirstByOrderByBoardIdDesc();
         return board.getBoardId();
     }
+
+    @Override
+    public List<Board> memberBoardList(Long memberId) {
+        Optional<Member> maybeMember = memberRepository.findById(memberId);
+        Member member = maybeMember.get();
+        log.info("게시글 작성자: " + member.getMemberId());
+        List<Board> boardList = boardRepository.findByMember_MemberId(member.getMemberId());
+        return boardList;
+    }
 }
