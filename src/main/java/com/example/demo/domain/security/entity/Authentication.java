@@ -22,7 +22,7 @@ public abstract class Authentication {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id = null;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
     private Member member;
 
