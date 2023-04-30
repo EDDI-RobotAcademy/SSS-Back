@@ -16,12 +16,11 @@ public class PaymentRequest {
     private final String pay_method; // 결제 수단
 
     private final Long paid_amount; // 결제된 금액
-
-    private final String paid_at; // 결제 일시
+    
 
     public Payment toPayment(OrderInfo myOrderInfo){
         return new Payment(merchant_id, imp_uid, pay_method,
-                           paid_amount, paid_at, myOrderInfo);
+                           paid_amount, myOrderInfo);
     }
 
 }
