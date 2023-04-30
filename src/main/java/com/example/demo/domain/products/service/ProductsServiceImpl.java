@@ -10,6 +10,7 @@ import com.example.demo.domain.products.repository.ProductsRepository;
 import com.example.demo.domain.products.service.request.ProductsInfoRequest;
 import com.example.demo.domain.products.service.response.ProductListResponse;
 import com.example.demo.domain.products.service.response.ProductReadResponse;
+import com.example.demo.domain.utility.file.FileUploadUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Sort;
@@ -52,6 +53,8 @@ public class ProductsServiceImpl implements ProductsService {
 
     @Override
     public void register(List<MultipartFile> files, ProductsInfoRequest request) {
+    @Override
+    public void register(List<MultipartFile> files, ProductsInfoRequest request) throws IOException {
         List<ProductImg> imgList = new ArrayList<>();
         Product product = request.toProduct();
 
@@ -61,10 +64,11 @@ public class ProductsServiceImpl implements ProductsService {
         product.setProductDetail(request.getProductDetail());
 
         for (MultipartFile multipartFile : files) {
-            UUID uuid = UUID.randomUUID();
             String originImg = multipartFile.getOriginalFilename();
-            String editedImg = uuid + originImg;
-            String imgPath = "../SSS-Front/src/assets/product/";
+            String editedImg = FileUploadUtils.generateUniqueFileName(originImg);
+            String imgPath = "../SSS-Front/src/assets/product/" + editedImg;
+
+            FileUploadUtils.writeFile(multipartFile, imgPath);
 
             ProductImg productImg = new ProductImg();
             productImg.setOriginImg(originImg);
@@ -73,22 +77,6 @@ public class ProductsServiceImpl implements ProductsService {
             productImg.setImgPath(imgPath);
             imgList.add(productImg);
             log.info(multipartFile.getOriginalFilename());
-
-            try {
-
-                FileOutputStream writer = new FileOutputStream(
-                        imgPath + editedImg
-                );
-
-                writer.write(multipartFile.getBytes());
-                writer.close();
-                log.info("file upload success");
-
-            } catch (FileNotFoundException e) {
-                throw new RuntimeException(e);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
         }
 
         productsRepository.save(product);
@@ -157,15 +145,11 @@ public class ProductsServiceImpl implements ProductsService {
             for (MultipartFile multipartFile: productImgList) {
                 log.info(multipartFile.getOriginalFilename());
 
-                UUID uuid = UUID.randomUUID();
-
                 String original = multipartFile.getOriginalFilename();
-                String edit = uuid + original;
+                String edit = FileUploadUtils.generateUniqueFileName(original);
+                String imagePath = imgPath + edit;
 
-                FileOutputStream writer = new FileOutputStream(imgPath + edit);
-
-                writer.write(multipartFile.getBytes());
-                writer.close();
+                FileUploadUtils.writeFile(multipartFile, imagePath);
 
                 ProductImg productImg = new ProductImg();
                 productImg.setOriginImg(original);

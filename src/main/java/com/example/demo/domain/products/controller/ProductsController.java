@@ -13,6 +13,7 @@ import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 
 @Slf4j
@@ -30,7 +31,7 @@ public class ProductsController {
 
     @PostMapping(value = "/register", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE, MediaType.APPLICATION_JSON_VALUE})
     public void productRegister (@RequestPart(value = "productImgList") List<MultipartFile> productImgList,
-                                 @RequestPart(value = "productInfo") ProductsRegisterForm form) {
+                                 @RequestPart(value = "productInfo") ProductsRegisterForm form) throws IOException {
         log.info("productRegister()");
 
         productsService.register(productImgList, form.toProductRegisterRequest());
