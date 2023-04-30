@@ -13,6 +13,7 @@ import com.example.demo.domain.products.repository.ReviewImgRepository;
 import com.example.demo.domain.products.repository.ReviewRepository;
 import com.example.demo.domain.products.service.request.ReviewRequest;
 import com.example.demo.domain.products.service.response.ReviewListResponse;
+import com.example.demo.domain.utility.file.FileUploadUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -54,12 +55,12 @@ public class ReviewServiceImpl implements ReviewService {
         OrderInfo orderInfo = maybeOrderInfo.get();
 
         Review review =  Review.builder()
-                            .product(product)
-                            .member(member)
-                            .rating(request.getRating())
-                            .content(request.getContent())
-                            .orderInfo(orderInfo)
-                            .build();
+                .product(product)
+                .member(member)
+                .rating(request.getRating())
+                .content(request.getContent())
+                .orderInfo(orderInfo)
+                .build();
 
         // 리뷰 작성 시 구매확정으로..? 아니면 구매 확정을 해야 리뷰를 작성할 수 있게...?
 //        orderInfo.setOrderState(OrderState.PAYMENT_CONFIRM);
@@ -69,7 +70,7 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
     @Override
-    public void register(List<MultipartFile> files, ReviewRequest request) {
+    public void register(List<MultipartFile> files, ReviewRequest request) throws IOException {
 
         List<ReviewImg> imgList = new ArrayList<>();
 
@@ -86,18 +87,17 @@ public class ReviewServiceImpl implements ReviewService {
         OrderInfo orderInfo = maybeOrderInfo.get();
 
         Review review = Review.builder()
-                            .product(product)
-                            .member(member)
-                            .rating(request.getRating())
-                            .content(request.getContent())
-                            .orderInfo(orderInfo)
-                            .build();
+                .product(product)
+                .member(member)
+                .rating(request.getRating())
+                .content(request.getContent())
+                .orderInfo(orderInfo)
+                .build();
 
         for (MultipartFile multipartFile : files) {
-            UUID uuid = UUID.randomUUID();
             String originImg = multipartFile.getOriginalFilename();
-            String editedImg = uuid + originImg;
-            String imgPath = "../SSS-Front/src/assets/review/";
+            String editedImg = FileUploadUtils.generateUniqueFileName(originImg);
+            String imgPath = "../SSS-Front/src/assets/review/" + editedImg;
 
             ReviewImg reviewImg = ReviewImg.builder()
                     .originImg(originImg)
@@ -110,19 +110,7 @@ public class ReviewServiceImpl implements ReviewService {
 
             log.info(multipartFile.getOriginalFilename());
 
-            try {
-                FileOutputStream writer = new FileOutputStream(
-                        imgPath + editedImg
-                );
-                writer.write(multipartFile.getBytes());
-                writer.close();
-                log.info("file upload success");
-
-            } catch (FileNotFoundException e) {
-                throw new RuntimeException(e);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
+            FileUploadUtils.writeFile(multipartFile, imgPath);
         }
 
         // 리뷰 작성 시 구매확정으로..? 아니면 구매 확정을 해야 리뷰를 작성할 수 있게...?
@@ -132,6 +120,7 @@ public class ReviewServiceImpl implements ReviewService {
         reviewRepository.save(review);
         reviewImgRepository.saveAll(imgList);
     }
+
 
     @Override
     @Transactional
