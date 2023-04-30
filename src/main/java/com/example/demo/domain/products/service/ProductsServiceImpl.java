@@ -36,9 +36,9 @@ public class ProductsServiceImpl implements ProductsService {
     final private ProductsImgRepository productsImgRepository;
     final private FavoriteRepository favoriteRepository;
 
-    @Override
-    public List<ProductListResponse> list() {
-        List<Product> products = productsRepository.findAll(Sort.by(Sort.Direction.DESC, "productId"));
+
+    public List<ProductListResponse> getList(String sortBy) {
+        List<Product> products = productsRepository.findAll(Sort.by(Sort.Direction.DESC, sortBy));
         List<ProductListResponse> productList = new ArrayList<>();
 
         for(Product product : products) {
@@ -52,7 +52,10 @@ public class ProductsServiceImpl implements ProductsService {
     }
 
     @Override
-    public void register(List<MultipartFile> files, ProductsInfoRequest request) {
+    public List<ProductListResponse> list() {
+        return getList("productId");
+    }
+
     @Override
     public void register(List<MultipartFile> files, ProductsInfoRequest request) throws IOException {
         List<ProductImg> imgList = new ArrayList<>();
@@ -219,31 +222,12 @@ public class ProductsServiceImpl implements ProductsService {
 
     @Override
     public List<ProductListResponse> listByView() {
-        List<Product> products = productsRepository.findAll(Sort.by(Sort.Direction.DESC, "viewCnt"));
-        List<ProductListResponse> productList = new ArrayList<>();
-
-        for(Product product : products) {
-            List<ProductImgResponse> productImgList = productsImgRepository.findImagePathByProductId(product.getProductId());
-            productList.add(new ProductListResponse(
-                    product.getProductId(), product.getTitle(), product.getPrice(), product.getContent(),
-                    product.getViewCnt(), product.getFavoriteCnt(), productImgList
-            ));
-        }
-        return productList;
+        return getList("viewCnt");
     }
 
     @Override
     public List<ProductListResponse> listByFavorite() {
-        List<Product> products = productsRepository.findAll(Sort.by(Sort.Direction.DESC, "favoriteCnt"));
-        List<ProductListResponse> productList = new ArrayList<>();
-
-        for(Product product : products) {
-            List<ProductImgResponse> productImgList = productsImgRepository.findImagePathByProductId(product.getProductId());
-            productList.add(new ProductListResponse(
-                    product.getProductId(), product.getTitle(), product.getPrice(), product.getContent(),
-                    product.getViewCnt(), product.getFavoriteCnt(), productImgList
-            ));
-        }
-        return productList;
+        return getList("favoriteCnt");
     }
 }
+
