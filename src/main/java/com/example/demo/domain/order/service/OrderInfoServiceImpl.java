@@ -279,4 +279,21 @@ public class OrderInfoServiceImpl implements OrderInfoService {
         log.info(selfSaladOrderItems + " 상품을 주문상품에 추가하였습니다.");
     }
 
+    @Override
+    public Boolean updateOrderState(Long orderId, OrderStateType orderStateType){
+        Optional<OrderInfo> myOrderInfo = orderInfoRepository.findById(orderId);
+        if(myOrderInfo.isPresent()){
+
+            final OrderState updateState =
+                    orderStateRepository.findByOrderStateType(orderStateType);
+
+            final OrderInfoState orderInfoState =
+                    orderInfoStateRepository.findByOrderInfo_id(orderId);
+
+            orderInfoState.setOrderState(myOrderInfo.get(), updateState);
+            orderInfoStateRepository.save(orderInfoState);
+            return true;
+        }
+        return false;
+    }
 }

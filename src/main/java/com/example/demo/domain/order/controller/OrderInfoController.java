@@ -3,6 +3,7 @@ package com.example.demo.domain.order.controller;
 import com.example.demo.domain.order.controller.form.OrderInfoRegisterForm;
 import com.example.demo.domain.order.entity.OrderInfo;
 import com.example.demo.domain.order.service.OrderInfoService;
+import com.example.demo.domain.order.service.request.OrderStateModifyRequest;
 import com.example.demo.domain.utility.TokenBasedController;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,5 +27,9 @@ public class OrderInfoController extends TokenBasedController {
         orderInfoService.orderRegister(memberId, orderForm);
     }
 
+    @PostMapping("/modify/state")
+    public Boolean orderStateUpdate(@RequestBody OrderStateModifyRequest stateRequest){
+        log.info("orderState Update()");
+        return orderInfoService.updateOrderState(stateRequest.getOrderId(), stateRequest.getOrderStateType());
     }
 }
