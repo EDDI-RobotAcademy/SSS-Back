@@ -26,5 +26,4 @@ public class OrderInfoController extends TokenBasedController {
         orderInfoService.orderRegister(memberId, orderForm);
     }
 
-
-}
+    }
