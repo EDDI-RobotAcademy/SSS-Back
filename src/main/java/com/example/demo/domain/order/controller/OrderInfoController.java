@@ -1,7 +1,7 @@
 package com.example.demo.domain.order.controller;
 
 import com.example.demo.domain.order.controller.form.OrderInfoRegisterForm;
-import com.example.demo.domain.order.entity.OrderInfo;
+import com.example.demo.domain.order.controller.response.OrderInfoListResponse;
 import com.example.demo.domain.order.service.OrderInfoService;
 import com.example.demo.domain.order.service.request.OrderStateModifyRequest;
 import com.example.demo.domain.utility.TokenBasedController;
@@ -31,5 +31,11 @@ public class OrderInfoController extends TokenBasedController {
     public Boolean orderStateUpdate(@RequestBody OrderStateModifyRequest stateRequest){
         log.info("orderState Update()");
         return orderInfoService.updateOrderState(stateRequest.getOrderId(), stateRequest.getOrderStateType());
+    }
+
+    @GetMapping("/list")
+    public List<OrderInfoListResponse> orderInfoListResponses(HttpServletRequest requestToken){
+        Long memberId = findMemberId(requestToken);
+        return orderInfoService.orderInfoListResponse(memberId);
     }
 }
