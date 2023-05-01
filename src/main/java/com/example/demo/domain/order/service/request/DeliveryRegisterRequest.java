@@ -17,15 +17,6 @@ public class DeliveryRegisterRequest {
 
     private final String deliveryMemo; // 배송 메모
 
-    private final String zipcode;
-
-    private final String city;
-
-    private final String street;
-
-    private final String addressDetail;
-
-
     public Delivery toDelivery(Address address, OrderInfo orderInfo){
         return new Delivery(recipient, deliveryMemo, address, orderInfo);
     }
