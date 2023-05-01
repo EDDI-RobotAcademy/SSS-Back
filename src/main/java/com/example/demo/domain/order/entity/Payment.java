@@ -1,12 +1,14 @@
 package com.example.demo.domain.order.entity;
 
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.util.Date;
 
 @Entity
 @Getter
+@NoArgsConstructor
 public class Payment {
 
     @Id

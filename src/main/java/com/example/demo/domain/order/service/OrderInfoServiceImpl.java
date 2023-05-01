@@ -6,7 +6,10 @@ import com.example.demo.domain.member.entity.Member;
 import com.example.demo.domain.member.repository.AddressRepository;
 import com.example.demo.domain.member.service.MemberServiceImpl;
 import com.example.demo.domain.order.controller.form.OrderInfoRegisterForm;
+import com.example.demo.domain.order.controller.response.OrderInfoListResponse;
+import com.example.demo.domain.order.controller.response.OrderItemListResponse;
 import com.example.demo.domain.order.entity.*;
+import com.example.demo.domain.order.entity.orderItems.OrderItem;
 import com.example.demo.domain.order.entity.orderItems.ProductOrderItem;
 import com.example.demo.domain.order.entity.orderItems.SelfSaladOrderItem;
 import com.example.demo.domain.order.entity.orderItems.SideProductOrderItem;
@@ -16,13 +19,14 @@ import com.example.demo.domain.order.service.request.OrderItemRegisterRequest;
 import com.example.demo.domain.order.service.request.PaymentRequest;
 import com.example.demo.domain.products.entity.Product;
 import com.example.demo.domain.products.repository.ProductsRepository;
-import com.example.demo.domain.selfSalad.entity.*;
+import com.example.demo.domain.selfSalad.entity.SelfSalad;
 import com.example.demo.domain.selfSalad.repository.SelfSaladRepository;
 import com.example.demo.domain.sideProducts.entity.SideProduct;
 import com.example.demo.domain.sideProducts.repository.SideProductsRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 
@@ -293,5 +297,60 @@ public class OrderInfoServiceImpl implements OrderInfoService {
             return true;
         }
         return false;
+    }
+
+    @Transactional
+    @Override
+    public List<OrderInfoListResponse> orderInfoListResponse(Long memberId){
+        List<OrderInfo> orderInfoList = orderInfoRepository.findByMember_memberId(memberId);
+        List<OrderInfoListResponse> responseList = new ArrayList<>();
+        for(OrderInfo orderInfo : orderInfoList){
+            responseList.add(
+                    new OrderInfoListResponse(
+                            orderInfo.getId(),
+                            orderInfo.getPayment().getMerchant_uid(),
+                            orderInfo.getPayment().getPaid_amount(),
+                            orderInfo.getPayment().getPaid_at(),
+                            orderInfo.getDelivery(),
+                            getOrderStateType(orderInfo.getOrderInfoState()),
+                            getOrderItems(orderInfo.getOrderItems())
+                    )
+            );
+        }
+        return responseList;
+    }
+
+    private OrderStateType getOrderStateType(Set<OrderInfoState> orderInfoStates){
+        OrderStateType orderStateType = null;
+        for(OrderInfoState orderInfoState : orderInfoStates){
+            orderStateType = orderInfoState.getOrderState().getOrderStateType();
+        }
+        return orderStateType;
+    }
+
+    private List<OrderItemListResponse> getOrderItems(List<OrderItem> orderItems){
+        List<OrderItemListResponse> itemListResponses = new ArrayList<>();
+        for(OrderItem orderItem : orderItems){
+            itemListResponses.add(
+                    new OrderItemListResponse(
+                            orderItem.getId(),
+                            orderItem.getQuantity(),
+                            getOrderItemTitle(orderItem)
+                    )
+            );
+        }
+        return itemListResponses;
+    }
+
+    private String getOrderItemTitle(OrderItem orderItem){
+        String itemTitle = null;
+        if(orderItem instanceof ProductOrderItem){
+            itemTitle = ((ProductOrderItem) orderItem).getProduct().getTitle();
+        }else if(orderItem instanceof SideProductOrderItem){
+            itemTitle = ((SideProductOrderItem) orderItem).getSideProduct().getTitle();
+        }else if(orderItem instanceof SelfSaladOrderItem){
+            itemTitle = ((SelfSaladOrderItem) orderItem).getSelfSalad().getTitle();
+        }
+        return itemTitle;
     }
 }
