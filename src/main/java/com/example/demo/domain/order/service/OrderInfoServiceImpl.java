@@ -144,18 +144,16 @@ public class OrderInfoServiceImpl implements OrderInfoService {
         paymentRepository.save(myPayment);
     }
 
-    private Address getAddressOrCreate(Member member, DeliveryRegisterRequest reqDelivery){
+    private Address getDeliveryAddress(Member member, DeliveryRegisterRequest reqDelivery){
 
         if(reqDelivery.getAddressId() != null){
             Optional<Address> maybeAddress =
                     addressRepository.findById(reqDelivery.getAddressId());
-            
+
             return maybeAddress.orElse(null);
         }
-        Address newAddress = reqDelivery.toAddress(member);
-        addressRepository.save(newAddress);
-        log.info("회원 신규 주소 등록 : "+ newAddress.getZipcode());
-        return newAddress;
+        log.info("주문 전에 배송지를 등록해주세요.");
+        return null;
     }
 
     private void registerDelivery(DeliveryRegisterRequest reqDelivery, OrderInfo myOrderInfo,
@@ -183,8 +181,8 @@ public class OrderInfoServiceImpl implements OrderInfoService {
             // orderItem 분류 및 저장
             addOrderItemByCategory(orderForm.getOrderItemRegisterRequestList(), myOrderInfo);
 
-            // address 찾기 & 저장
-            Address myAddress = getAddressOrCreate(member, orderForm.getDeliveryRegisterRequest());
+            // 등록했던 배송지 address 반환
+            Address myAddress = getDeliveryAddress(member, orderForm.getDeliveryRegisterRequest());
 
             // delivery 저장
             registerDelivery(orderForm.getDeliveryRegisterRequest(), myOrderInfo, myAddress);

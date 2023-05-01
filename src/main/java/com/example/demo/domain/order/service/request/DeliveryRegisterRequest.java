@@ -1,7 +1,6 @@
 package com.example.demo.domain.order.service.request;
 
 import com.example.demo.domain.member.entity.Address;
-import com.example.demo.domain.member.entity.Member;
 import com.example.demo.domain.order.entity.Delivery;
 import com.example.demo.domain.order.entity.OrderInfo;
 import lombok.Getter;
@@ -27,12 +26,6 @@ public class DeliveryRegisterRequest {
     private final String addressDetail;
 
 
-    //신규 주소 생성
-    public Address toAddress(Member member){
-        return new Address( zipcode, city, street,
-                addressDetail, member
-        );
-    }
     public Delivery toDelivery(Address address, OrderInfo orderInfo){
         return new Delivery(recipient, deliveryMemo, address, orderInfo);
     }
