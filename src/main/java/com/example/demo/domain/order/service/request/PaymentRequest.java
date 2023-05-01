@@ -9,7 +9,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class PaymentRequest {
 
-    private final String merchant_id; // 상점 고유 번호
+    private final String merchant_uid; // 상점 고유 번호
 
     private final String imp_uid; // 아임포트에서 부여한 결제 거래 고유 ID
 
@@ -19,7 +19,7 @@ public class PaymentRequest {
     
 
     public Payment toPayment(OrderInfo myOrderInfo){
-        return new Payment(merchant_id, imp_uid, pay_method,
+        return new Payment(merchant_uid, imp_uid, pay_method,
                            paid_amount, myOrderInfo);
     }
 
