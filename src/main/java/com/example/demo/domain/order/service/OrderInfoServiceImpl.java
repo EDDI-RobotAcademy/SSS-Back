@@ -58,6 +58,7 @@ public class OrderInfoServiceImpl implements OrderInfoService {
     private Map<Long, Product> checkProducts(List<OrderItemRegisterRequest> productItems){
 
         Set<Long> productIds = new HashSet<>();
+
         for(OrderItemRegisterRequest orderItem : productItems ){
 
             productIds.add(orderItem.getItemId());
@@ -149,21 +150,23 @@ public class OrderInfoServiceImpl implements OrderInfoService {
     }
 
     private Address getDeliveryAddress(Member member, DeliveryRegisterRequest reqDelivery){
-
+        Long addressId = 2L;
         if(reqDelivery.getAddressId() != null){
             Optional<Address> maybeAddress =
-                    addressRepository.findById(reqDelivery.getAddressId());
-
+                    addressRepository.findById(addressId);
             return maybeAddress.orElse(null);
         }
+
         log.info("주문 전에 배송지를 등록해주세요.");
         return null;
     }
 
     private void registerDelivery(DeliveryRegisterRequest reqDelivery, OrderInfo myOrderInfo,
                                   Address myAddress){
+        log.info("1차 확인!!!!" + myAddress.getId());
         Delivery myDelivery =
                 reqDelivery.toDelivery(myAddress, myOrderInfo);
+        log.info("2차 확인 :"+myDelivery.getDeliveryId());
         deliveryRepository.save(myDelivery);
     }
 
@@ -302,6 +305,7 @@ public class OrderInfoServiceImpl implements OrderInfoService {
     @Transactional
     @Override
     public List<OrderInfoListResponse> orderInfoListResponse(Long memberId){
+
         List<OrderInfo> orderInfoList = orderInfoRepository.findByMember_memberId(memberId);
         List<OrderInfoListResponse> responseList = new ArrayList<>();
         for(OrderInfo orderInfo : orderInfoList){
@@ -311,7 +315,12 @@ public class OrderInfoServiceImpl implements OrderInfoService {
                             orderInfo.getPayment().getMerchant_uid(),
                             orderInfo.getPayment().getPaid_amount(),
                             orderInfo.getPayment().getPaid_at(),
-                            orderInfo.getDelivery(),
+                            orderInfo.getDelivery().getRecipient(),
+                            orderInfo.getDelivery().getDeliveryMemo(),
+                            orderInfo.getDelivery().getAddress().getZipcode(),
+                            orderInfo.getDelivery().getAddress().getCity(),
+                            orderInfo.getDelivery().getAddress().getStreet(),
+                            orderInfo.getDelivery().getAddress().getAddressDetail(),
                             getOrderStateType(orderInfo.getOrderInfoState()),
                             getOrderItems(orderInfo.getOrderItems())
                     )
@@ -335,7 +344,8 @@ public class OrderInfoServiceImpl implements OrderInfoService {
                     new OrderItemListResponse(
                             orderItem.getId(),
                             orderItem.getQuantity(),
-                            getOrderItemTitle(orderItem)
+                            getOrderItemTitle(orderItem),
+                            getOrderItemId(orderItem)
                     )
             );
         }
@@ -352,5 +362,17 @@ public class OrderInfoServiceImpl implements OrderInfoService {
             itemTitle = ((SelfSaladOrderItem) orderItem).getSelfSalad().getTitle();
         }
         return itemTitle;
+    }
+
+    private Long getOrderItemId(OrderItem orderItem){
+        Long itemId = null;
+        if(orderItem instanceof ProductOrderItem){
+            itemId = ((ProductOrderItem) orderItem).getProduct().getProductId();
+        }else if(orderItem instanceof SideProductOrderItem){
+            itemId = ((SideProductOrderItem) orderItem).getSideProduct().getSideProductId();
+        }else if(orderItem instanceof SelfSaladOrderItem){
+            itemId = ((SelfSaladOrderItem) orderItem).getSelfSalad().getId();
+        }
+        return itemId;
     }
 }
