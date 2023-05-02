@@ -8,7 +8,7 @@ import com.example.demo.domain.cart.controller.request.CartRegisterRequest;
 import com.example.demo.domain.cart.controller.response.CartItemListResponse;
 import com.example.demo.domain.cart.controller.response.SelectedIngredientsResponse;
 import com.example.demo.domain.cart.service.CartService;
-import com.example.demo.domain.utility.member.TokenBasedController;
+import com.example.demo.domain.utility.common.TokenBasedController;
 import com.example.demo.domain.utility.itemCategory.ItemCategoryType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
