@@ -1,10 +1,9 @@
 package com.example.demo.domain.order.service;
 
-import com.example.demo.domain.cart.service.CartServiceImpl;
 import com.example.demo.domain.member.entity.Address;
 import com.example.demo.domain.member.entity.Member;
 import com.example.demo.domain.member.repository.AddressRepository;
-import com.example.demo.domain.member.service.MemberServiceImpl;
+import com.example.demo.domain.member.repository.MemberRepository;
 import com.example.demo.domain.order.controller.form.OrderInfoRegisterForm;
 import com.example.demo.domain.order.controller.response.OrderInfoListResponse;
 import com.example.demo.domain.order.controller.response.OrderItemListResponse;
@@ -14,6 +13,7 @@ import com.example.demo.domain.order.entity.orderItems.ProductOrderItem;
 import com.example.demo.domain.order.entity.orderItems.SelfSaladOrderItem;
 import com.example.demo.domain.order.entity.orderItems.SideProductOrderItem;
 import com.example.demo.domain.order.repository.*;
+import com.example.demo.domain.order.service.request.DeliveryAddressRequest;
 import com.example.demo.domain.order.service.request.DeliveryRegisterRequest;
 import com.example.demo.domain.order.service.request.OrderItemRegisterRequest;
 import com.example.demo.domain.order.service.request.PaymentRequest;
@@ -23,6 +23,7 @@ import com.example.demo.domain.selfSalad.entity.SelfSalad;
 import com.example.demo.domain.selfSalad.repository.SelfSaladRepository;
 import com.example.demo.domain.sideProducts.entity.SideProduct;
 import com.example.demo.domain.sideProducts.repository.SideProductsRepository;
+import com.example.demo.domain.utility.common.CommonUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -50,9 +51,7 @@ public class OrderInfoServiceImpl implements OrderInfoService {
     final private AddressRepository addressRepository;
     final private DeliveryRepository deliveryRepository;
 
-    final private MemberServiceImpl memberService;
-    final private CartServiceImpl cartService;
-
+    final private MemberRepository memberRepository;
 
 
     private Map<Long, Product> checkProducts(List<OrderItemRegisterRequest> productItems){
@@ -148,6 +147,15 @@ public class OrderInfoServiceImpl implements OrderInfoService {
         paymentRepository.save(myPayment);
     }
 
+    @Override
+    public Long registerNewAddress(Long memberId, DeliveryAddressRequest addressRequest){
+        Member member = CommonUtils.getMemberById(memberRepository,memberId);
+        Address newAddress = addressRequest.toAddress(member);
+
+        addressRepository.save(newAddress);
+        return newAddress.getId();
+    }
+
     private Address getDeliveryAddress(Member member, DeliveryRegisterRequest reqDelivery){
 
         if(reqDelivery.getAddressId() != null){
@@ -170,30 +178,25 @@ public class OrderInfoServiceImpl implements OrderInfoService {
     @Override
     public void orderRegister(Long memberId, OrderInfoRegisterForm orderForm){
         // { 상품 카테고리, 상품 id, 상품 수량, 상품 가격 } 주문 list
-        try{
-            Member member = requireNonNull(memberService.checkMember(memberId));
+        Member member = CommonUtils.getMemberById(memberRepository,memberId);
 
-            // myOrderInfo 생성
-            OrderInfo myOrderInfo = registerOrderInfo(member, orderForm.getTotalOrderPrice());
+        // myOrderInfo 생성
+        OrderInfo myOrderInfo = registerOrderInfo(member, orderForm.getTotalOrderPrice());
 
-            // orderInfoState 저장
-            registerOrderState(myOrderInfo);
+        // orderInfoState 저장
+        registerOrderState(myOrderInfo);
 
-            // payment 저장
-            registerPayment(orderForm.getPaymentRequest(), myOrderInfo);
+        // payment 저장
+        registerPayment(orderForm.getPaymentRequest(), myOrderInfo);
 
-            // orderItem 분류 및 저장
-            addOrderItemByCategory(orderForm.getOrderItemRegisterRequestList(), myOrderInfo);
+        // orderItem 분류 및 저장
+        addOrderItemByCategory(orderForm.getOrderItemRegisterRequestList(), myOrderInfo);
 
-            // 등록했던 배송지 address 반환
-            Address myAddress = getDeliveryAddress(member, orderForm.getDeliveryRegisterRequest());
+        // 등록했던 배송지 address 반환
+        Address myAddress = getDeliveryAddress(member, orderForm.getDeliveryRegisterRequest());
 
-            // delivery 저장
-            registerDelivery(orderForm.getDeliveryRegisterRequest(), myOrderInfo, myAddress);
-
-        } catch (RuntimeException ex) {
-            log.info(ex.getMessage());
-        }
+        // delivery 저장
+        registerDelivery(orderForm.getDeliveryRegisterRequest(), myOrderInfo, myAddress);
     }
 
     private void addOrderItemByCategory(List<OrderItemRegisterRequest> orderItems, OrderInfo myOrderInfo){

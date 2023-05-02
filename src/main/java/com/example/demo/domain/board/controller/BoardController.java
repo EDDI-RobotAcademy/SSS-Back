@@ -3,7 +3,8 @@ package com.example.demo.domain.board.controller;
 import com.example.demo.domain.board.dto.request.BoardRequest;
 import com.example.demo.domain.board.entity.Board;
 import com.example.demo.domain.board.service.BoardService;
-import com.example.demo.domain.utility.TokenBasedController;
+import com.example.demo.domain.utility.common.TokenBasedController;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
@@ -13,31 +14,23 @@ import java.util.List;
 @Slf4j
 @RestController
 @RequestMapping("/board")
+@RequiredArgsConstructor
 public class BoardController extends TokenBasedController {
 
     final private BoardService boardService;
-
-    public BoardController(BoardService boardService) {
-        this.boardService = boardService;
-    }
 
     // 게시물 등록
     @PostMapping("/register")
     public void boardRegister (@RequestBody BoardRequest boardRequest,
                                HttpServletRequest requestToken) {
         log.info("boardRegister()");
-        Long memberId = findMemberId(requestToken);
+        Long memberId = findMemberIdByToken(requestToken);
         boardService.register(memberId, boardRequest);
     }
 
     @GetMapping("/list")
     public List<Board> boardList () {
         log.info("boardList()");
-        List<Board> boardList = boardService.list();
-        for(Board board: boardList){
-            log.info("3333");
-            log.info("2222" + board.getWriter());
-        }
         return boardService.list();
     }
 
@@ -70,7 +63,7 @@ public class BoardController extends TokenBasedController {
     @GetMapping("/list-myBoard")
     public List<Board> memberBoardList(HttpServletRequest requestToken) {
         log.info("memberBoardList()");
-        Long memberId = findMemberId(requestToken);
+        Long memberId = findMemberIdByToken(requestToken);
         return boardService.memberBoardList(memberId);
     }
 }
