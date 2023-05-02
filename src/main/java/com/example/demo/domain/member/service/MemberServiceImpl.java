@@ -260,6 +260,27 @@ public class MemberServiceImpl implements MemberService {
         }
     }
 
+    // 신규 주소 등록
+    @Override
+    public Boolean registerMemberAddress(Long memberId, AddressRequest reqAddress){
+        try {
+            Member member = requireNonNull(checkMember(memberId));
+            Optional<Address> maybeDefaultAddress =
+                    addressRepository.findByMember_MemberIdAndDefaultCheck(member.getMemberId(), 'N');
+            Address registerAddress;
+
+            registerAddress = reqAddress.toAddress(member);
+
+            log.info("기본 주소 등록 및 수정 완료 : "+ registerAddress.getZipcode());
+            addressRepository.save(registerAddress);
+            return true;
+
+        } catch (RuntimeException ex) {
+            log.info(ex.getMessage());
+            return null;
+        }
+    }
+
     // 기본 주소 등록 or 수정
     @Override
     public Boolean updateMemberAddress(Long memberId, AddressRequest reqAddress){

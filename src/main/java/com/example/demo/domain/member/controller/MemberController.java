@@ -100,6 +100,16 @@ public class MemberController extends TokenBasedController {
         return memberService.updateMemberAddress(memberId, reqAddress);
     }
 
+    // 신규 주소 등록
+    @PutMapping("/profile-address/register")
+    public Boolean registerMemberAddress(HttpServletRequest requestToken,
+                                        @RequestBody AddressRequest reqAddress) {
+        Long memberId = findMemberId(requestToken);
+        log.info("/member-profile/"+ memberId +", "+ reqAddress);
+
+        return memberService.registerMemberAddress(memberId, reqAddress);
+    }
+
     // 결제창 : 기본 주소 외의 다른 주소들 반환
     @PutMapping("/profile-address/list")
     public List<Address> getAddressList(HttpServletRequest requestToken) {
