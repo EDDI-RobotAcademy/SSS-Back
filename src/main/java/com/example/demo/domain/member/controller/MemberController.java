@@ -8,7 +8,7 @@ import com.example.demo.domain.member.service.MemberService;
 import com.example.demo.domain.member.service.request.AddressRequest;
 import com.example.demo.domain.member.service.request.MemberPasswordCheckRequest;
 import com.example.demo.domain.member.service.request.MemberProfileRequest;
-import com.example.demo.domain.utility.member.TokenBasedController;
+import com.example.demo.domain.utility.common.TokenBasedController;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
