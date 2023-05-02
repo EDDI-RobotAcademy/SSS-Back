@@ -1,25 +1,17 @@
 package com.example.demo.domain.board.entity;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import lombok.Data;
-
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import javax.persistence.*;
 import java.time.LocalDateTime;
 
-import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
 @Getter
-@Setter
 @Entity
+@NoArgsConstructor
 public class Reply {
 
     @Id
@@ -44,11 +36,19 @@ public class Reply {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd", timezone = "Asia/Seoul")
     private LocalDateTime updDate = LocalDateTime.now();
 
+    public Reply(String replyContent, String replyWriter, Board board, LocalDateTime regDate, LocalDateTime updDate) {
+        this.replyContent = replyContent;
+        this.replyWriter = replyWriter;
+        this.board = board;
+        this.regDate = regDate;
+        this.updDate = updDate;
+    }
+
     public void update(String replyContent) {
         this.replyContent = replyContent;
     }
 
-
-
-
+    public void setReplyContent(String replyContent) {
+        this.replyContent = replyContent;
+    }
 }
