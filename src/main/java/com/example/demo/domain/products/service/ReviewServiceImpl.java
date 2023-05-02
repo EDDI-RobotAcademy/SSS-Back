@@ -14,6 +14,7 @@ import com.example.demo.domain.products.repository.ReviewRepository;
 import com.example.demo.domain.products.service.request.ReviewRequest;
 import com.example.demo.domain.products.service.response.ReviewListResponse;
 import com.example.demo.domain.utility.file.FileUploadUtils;
+import com.example.demo.domain.utility.common.CommonUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -26,7 +27,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 @Slf4j
@@ -74,33 +74,32 @@ public class ReviewServiceImpl implements ReviewService {
         }
     }
 
-    @Override
-    public void registerText(ReviewRequest request) {
-        Optional<Product> maybeProduct = productsRepository.findById(request.getProductId());
-        Optional<Member> maybeMember = memberRepository.findById(request.getMemberId());
-        Optional<OrderInfo> maybeOrderInfo = orderInfoRepository.findById(request.getOrderInfoId());
+    private Review getNewReview(ReviewRequest request){
 
-        if(!maybeProduct.isPresent() || !maybeMember.isPresent()) {
-            throw new RuntimeException("등록된 상품이나 회원이 아닙니다.");
-        }
+        Member member = CommonUtils.getMemberById(memberRepository,request.getMemberId());
+        Product product = CommonUtils.getProductById(productsRepository,request.getProductId());
 
-        Product product = maybeProduct.get();
-        Member member = maybeMember.get();
-        OrderInfo orderInfo = maybeOrderInfo.get();
+        OrderInfo myOrderInfo = orderInfoRepository.findById(request.getOrderInfoId())
+                .orElseThrow(() -> new RuntimeException("등록된 주문 정보가 없습니다..: " + request.getOrderInfoId()));
 
         Review review =  Review.builder()
                 .product(product)
                 .member(member)
                 .rating(request.getRating())
                 .content(request.getContent())
-                .orderInfo(orderInfo)
+                .orderInfo(myOrderInfo)
                 .build();
+        return review;
+    }
 
-        // 리뷰 작성 시 구매확정으로..? 아니면 구매 확정을 해야 리뷰를 작성할 수 있게...?
+    @Override
+    public void registerText(ReviewRequest request) {
+
+        Review newReview = getNewReview(request);
+        reviewRepository.save(newReview);
+            // 리뷰 작성 시 구매확정으로..? 아니면 구매 확정을 해야 리뷰를 작성할 수 있게...?
 //        orderInfo.setOrderState(OrderState.PAYMENT_CONFIRM);
 //        orderInfoRepository.save(orderInfo);
-
-        reviewRepository.save(review);
     }
 
     @Override
@@ -108,25 +107,7 @@ public class ReviewServiceImpl implements ReviewService {
 
         List<ReviewImg> imgList = new ArrayList<>();
 
-        Optional<Product> maybeProduct = productsRepository.findById(request.getProductId());
-        Optional<Member> maybeMember = memberRepository.findById(request.getMemberId());
-        Optional<OrderInfo> maybeOrderInfo = orderInfoRepository.findById(request.getOrderInfoId());
-
-        if(!maybeProduct.isPresent()) { // || !maybeMember.isPresent()
-            throw new RuntimeException("등록된 상품이나 회원이 아닙니다.");
-        }
-
-        Product product = maybeProduct.get();
-        Member member = maybeMember.get();
-        OrderInfo orderInfo = maybeOrderInfo.get();
-
-        Review review = Review.builder()
-                .product(product)
-                .member(member)
-                .rating(request.getRating())
-                .content(request.getContent())
-                .orderInfo(orderInfo)
-                .build();
+        Review review = getNewReview(request);
 
         for (MultipartFile multipartFile : files) {
             String originImg = multipartFile.getOriginalFilename();
@@ -159,8 +140,8 @@ public class ReviewServiceImpl implements ReviewService {
     @Override
     @Transactional
     public List<ReviewListResponse> productReviewList(Long productId) {
-        Optional<Product> maybeProduct = productsRepository.findById(productId);
-        Product product = maybeProduct.get();
+        Product product = productsRepository.findById(productId)
+                .orElseThrow(() -> new RuntimeException("등록된 상품이 아닙니다. : " + productId));
         List<Review> reviewList = reviewRepository.findByProduct_ProductId(product.getProductId());
 
         return getReviewList(reviewList);
@@ -169,8 +150,7 @@ public class ReviewServiceImpl implements ReviewService {
     @Override
     @Transactional
     public List<ReviewListResponse> memberReviewList(Long memberId) {
-        Optional<Member> maybeMember = memberRepository.findById(memberId);
-        Member member = maybeMember.get();
+        Member member = CommonUtils.getMemberById(memberRepository,memberId);
         List<Review> reviewList = reviewRepository.findByMember_MemberId(member.getMemberId());
 
         return getReviewList(reviewList);
@@ -189,19 +169,19 @@ public class ReviewServiceImpl implements ReviewService {
         return reviewImgList;
     }
 
-
-    @Override
-    public void modifyText(Long reviewId, ReviewRequest request) {
-        Optional<Review> maybeReview = reviewRepository.findById(reviewId);
-        if(maybeReview.isEmpty()) {
-            System.out.println("해당 reviewId 정보 없음:  " + reviewId);
-        }
-
-        Review review = maybeReview.get();
+    private Review getModifyReview(Long reviewId, ReviewRequest request){
+        Review review = reviewRepository.findById(reviewId)
+                .orElseThrow(() -> new RuntimeException("해당 reviewId 정보 없음:  " + reviewId));
 
         review.setRating(request.getRating());
         review.setContent(request.getContent());
+        return review;
+    }
 
+    @Override
+    public void modifyText(Long reviewId, ReviewRequest request) {
+
+        Review review = getModifyReview(reviewId, request);
         reviewRepository.save(review);
     }
 
@@ -217,14 +197,8 @@ public class ReviewServiceImpl implements ReviewService {
             deleteReviewImages(removeImgs, imgPath);
             reviewImgRepository.deleteReviewImgById(reviewId);
         }
-        Optional<Review> maybeReview = reviewRepository.findById(reviewId);
-        if(maybeReview.isEmpty()) {
-            System.out.println("해당 reviewId 정보 없음:  " + reviewId);
-        }
 
-        Review review = maybeReview.get();
-        review.setRating(request.getRating());
-        review.setContent(request.getContent());
+        Review review = getModifyReview(reviewId, request);
 
         try {
             List<ReviewImg> imgList = new ArrayList<>();
