@@ -4,7 +4,7 @@ import com.example.demo.domain.products.controller.form.ReviewImgResponse;
 import com.example.demo.domain.products.service.ReviewService;
 import com.example.demo.domain.products.service.request.ReviewRequest;
 import com.example.demo.domain.products.service.response.ReviewListResponse;
-import com.example.demo.domain.utility.TokenBasedController;
+import com.example.demo.domain.utility.member.TokenBasedController;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
@@ -46,7 +46,7 @@ public class ReviewController extends TokenBasedController {
     @GetMapping("/list-myReview")
     public List<ReviewListResponse> memberReviewList(HttpServletRequest requestToken) {
         log.info("memberReviewList()");
-        Long memberId = findMemberId(requestToken);
+        Long memberId = findMemberIdByToken(requestToken);
         return reviewService.memberReviewList(memberId);
     }
 
