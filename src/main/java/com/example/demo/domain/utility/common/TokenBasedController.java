@@ -1,4 +1,4 @@
-package com.example.demo.domain.utility.member;
+package com.example.demo.domain.utility.common;
 
 import com.example.demo.domain.security.service.RedisService;
 import org.springframework.beans.factory.annotation.Autowired;
