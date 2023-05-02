@@ -23,7 +23,7 @@ public class AddressRequest {
     //새로운 기본 주소 생성
     public Address toAddress (Member member){
         return new Address( zipcode, city, street,
-                addressDetail, member, 'Y'
+                addressDetail, member, 'N'
         );
 
     }
