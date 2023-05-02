@@ -1,10 +1,9 @@
 package com.example.demo.domain.order.service;
 
-import com.example.demo.domain.cart.service.CartServiceImpl;
 import com.example.demo.domain.member.entity.Address;
 import com.example.demo.domain.member.entity.Member;
 import com.example.demo.domain.member.repository.AddressRepository;
-import com.example.demo.domain.member.service.MemberServiceImpl;
+import com.example.demo.domain.member.service.MemberService;
 import com.example.demo.domain.order.controller.form.OrderInfoRegisterForm;
 import com.example.demo.domain.order.controller.response.OrderInfoListResponse;
 import com.example.demo.domain.order.controller.response.OrderItemListResponse;
@@ -14,6 +13,7 @@ import com.example.demo.domain.order.entity.orderItems.ProductOrderItem;
 import com.example.demo.domain.order.entity.orderItems.SelfSaladOrderItem;
 import com.example.demo.domain.order.entity.orderItems.SideProductOrderItem;
 import com.example.demo.domain.order.repository.*;
+import com.example.demo.domain.order.service.request.DeliveryAddressRequest;
 import com.example.demo.domain.order.service.request.DeliveryRegisterRequest;
 import com.example.demo.domain.order.service.request.OrderItemRegisterRequest;
 import com.example.demo.domain.order.service.request.PaymentRequest;
@@ -50,9 +50,7 @@ public class OrderInfoServiceImpl implements OrderInfoService {
     final private AddressRepository addressRepository;
     final private DeliveryRepository deliveryRepository;
 
-    final private MemberServiceImpl memberService;
-    final private CartServiceImpl cartService;
-
+    final private MemberService memberService;
 
 
     private Map<Long, Product> checkProducts(List<OrderItemRegisterRequest> productItems){
@@ -146,6 +144,15 @@ public class OrderInfoServiceImpl implements OrderInfoService {
 
         Payment myPayment = reqPayment.toPayment(myOrderInfo);
         paymentRepository.save(myPayment);
+    }
+
+    @Override
+    public Long registerNewAddress(Long memberId, DeliveryAddressRequest addressRequest){
+        Member member = memberService.getMemberById(memberId);
+        Address newAddress = addressRequest.toAddress(member);
+
+        addressRepository.save(newAddress);
+        return newAddress.getId();
     }
 
     private Address getDeliveryAddress(Member member, DeliveryRegisterRequest reqDelivery){
