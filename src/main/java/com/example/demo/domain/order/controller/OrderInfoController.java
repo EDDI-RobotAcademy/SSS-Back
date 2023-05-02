@@ -5,7 +5,7 @@ import com.example.demo.domain.order.controller.response.OrderInfoListResponse;
 import com.example.demo.domain.order.service.OrderInfoService;
 import com.example.demo.domain.order.service.request.DeliveryAddressRequest;
 import com.example.demo.domain.order.service.request.OrderStateModifyRequest;
-import com.example.demo.domain.utility.member.TokenBasedController;
+import com.example.demo.domain.utility.common.TokenBasedController;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
