@@ -13,8 +13,8 @@ import com.example.demo.domain.products.repository.ReviewImgRepository;
 import com.example.demo.domain.products.repository.ReviewRepository;
 import com.example.demo.domain.products.service.request.ReviewRequest;
 import com.example.demo.domain.products.service.response.ReviewListResponse;
+import com.example.demo.domain.utility.member.MemberUtils;
 import com.example.demo.domain.utility.file.FileUploadUtils;
-import com.example.demo.domain.utility.common.CommonUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -34,11 +34,15 @@ import java.util.UUID;
 @Service
 public class ReviewServiceImpl implements ReviewService {
 
-    final private ProductsRepository productsRepository;
     final private MemberRepository memberRepository;
     final private ReviewRepository reviewRepository;
     final private ReviewImgRepository reviewImgRepository;
     final private OrderInfoRepository orderInfoRepository;
+    final private ProductsRepository productsRepository;
+    public Product getProductById( Long productId) {
+        return productsRepository.findById(productId)
+                .orElseThrow(() -> new RuntimeException("등록된 Product 상품이 아닙니다. : " + productId));
+    }
 
     private List<ReviewListResponse> getReviewList(List<Review> reviewList) {
         List<ReviewListResponse> responseList = new ArrayList<>();
@@ -77,11 +81,11 @@ public class ReviewServiceImpl implements ReviewService {
 
     private Review getNewReview(ReviewRequest request){
     
-        Member member = CommonUtils.getMemberById(memberRepository,request.getMemberId());
-        Product product = CommonUtils.getProductById(productsRepository,request.getProductId());
+        Member member = MemberUtils.getMemberById(memberRepository,request.getMemberId());
+        Product product = getProductById(request.getProductId());
 
-        OrderInfo myOrderInfo = orderInfoRepository.findById(request.getOrderInfoId())
-                .orElseThrow(() -> new RuntimeException("등록된 주문 정보가 없습니다..: " + request.getOrderInfoId()));
+        OrderInfo myOrderInfo = orderInfoRepository.findById(request.getOrderId())
+                .orElseThrow(() -> new RuntimeException("등록된 주문 정보가 없습니다..: " + request.getOrderId()));
 
         Review review =  Review.builder()
                 .product(product)
@@ -133,7 +137,7 @@ public class ReviewServiceImpl implements ReviewService {
     @Override
     @Transactional
     public List<ReviewListResponse> productReviewList(Long productId) {
-        Product product = CommonUtils.getProductById(productsRepository,request.getProductId());
+        Product product = getProductById( productId);
         List<Review> reviewList = reviewRepository.findByProduct_ProductId(product.getProductId());
 
         return getReviewList(reviewList);
@@ -142,7 +146,7 @@ public class ReviewServiceImpl implements ReviewService {
     @Override
     @Transactional
     public List<ReviewListResponse> memberReviewList(Long memberId) {
-        Member member = CommonUtils.getMemberById(memberRepository,memberId);
+        Member member = MemberUtils.getMemberById(memberRepository,memberId);
         List<Review> reviewList = reviewRepository.findByMember_MemberId(member.getMemberId());
 
         return getReviewList(reviewList);

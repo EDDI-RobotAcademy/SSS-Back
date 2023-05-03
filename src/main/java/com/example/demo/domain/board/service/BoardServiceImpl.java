@@ -7,7 +7,7 @@ import com.example.demo.domain.board.repository.BoardRepository;
 import com.example.demo.domain.board.repository.ReplyRepository;
 import com.example.demo.domain.member.entity.Member;
 import com.example.demo.domain.member.repository.MemberRepository;
-import com.example.demo.domain.utility.common.CommonUtils;
+import com.example.demo.domain.utility.member.MemberUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,7 +35,7 @@ public class BoardServiceImpl implements BoardService {
 
     @Override
     public Board register(Long memberId, BoardRequest boardRequest) {
-        Member member = CommonUtils.getMemberById(memberRepository,memberId);
+        Member member = MemberUtils.getMemberById(memberRepository,memberId);
         Board newBoard = boardRequest.toBoard(member);
 
         boardRepository.save(newBoard);
@@ -91,7 +91,7 @@ public class BoardServiceImpl implements BoardService {
     @Override
     public List<Board> memberBoardList(Long memberId) {
         Member member =
-                CommonUtils.getMemberById(memberRepository,memberId);
+                MemberUtils.getMemberById(memberRepository,memberId);
         log.info("게시글 작성자: " + member.getMemberId());
 
         return boardRepository.findByMember_MemberId(member.getMemberId());

@@ -1,5 +1,7 @@
 package com.example.demo.domain.selfSalad.Controller.response;
 
+import com.example.demo.domain.selfSalad.entity.Ingredient;
+import com.example.demo.domain.selfSalad.entity.IngredientAmount;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
@@ -20,13 +22,12 @@ public class IngredientAmountReadResponse {
     private  Integer max;
     private String amountType;
 
-    public IngredientAmountReadResponse(String ingredientName, Integer price, Integer calorie,
-                                        Integer unit, Integer max, String amountType) {
-        this.ingredientName = ingredientName;
-        this.price = price;
-        this.calorie = calorie;
-        this.unit = unit;
-        this.max = max;
-        this.amountType = amountType;
+    public IngredientAmountReadResponse(Ingredient ingredient, IngredientAmount amount) {
+        this.ingredientName = ingredient.getName();
+        this.price = ingredient.getPrice();
+        this.calorie = amount.getCalorie();
+        this.unit = amount.getUnit();
+        this.max = amount.getMax();
+        this.amountType = amount.getAmount().getAmountType().toString();
     }
 }

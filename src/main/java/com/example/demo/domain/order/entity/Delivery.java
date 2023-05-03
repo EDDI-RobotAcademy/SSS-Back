@@ -2,9 +2,11 @@ package com.example.demo.domain.order.entity;
 
 import com.example.demo.domain.member.entity.Address;
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 
 import javax.persistence.*;
 @Entity
+@Getter
 @AllArgsConstructor
 public class Delivery {
 

@@ -1,5 +1,6 @@
 package com.example.demo.domain.sideProducts.dto.request;
 
+import com.example.demo.domain.sideProducts.entity.SideProduct;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
@@ -15,4 +16,10 @@ public class SideProductRequest {
 
     // 제목
     final private String title;
+
+    public SideProduct toSideProduct(){
+        return new SideProduct(
+                content, price, title
+        );
+    }
 }

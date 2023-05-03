@@ -28,9 +28,20 @@ public class SideProduct {
     @OneToOne(mappedBy = "sideProduct", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private SideProductImg sideProductImg;
 
+    public SideProduct(String content, Long price, String title) {
+        this.content = content;
+        this.price = price;
+        this.title = title;
+    }
+
     public void registerImg(SideProductImg sideProductImg) {
         this.sideProductImg = sideProductImg;
     }
 
 
+    public void modifySideProduct(String title, String content, Long price) {
+        this.title = title;
+        this.content = content;
+        this.price = price;
+    }
 }

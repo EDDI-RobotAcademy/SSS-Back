@@ -3,7 +3,7 @@ package com.example.demo.domain.products.controller;
 import com.example.demo.domain.products.controller.form.FavoriteResponse;
 import com.example.demo.domain.products.service.FavoriteService;
 import com.example.demo.domain.products.service.response.FavoriteListResponse;
-import com.example.demo.domain.utility.common.TokenBasedController;
+import com.example.demo.domain.utility.member.TokenBasedController;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;

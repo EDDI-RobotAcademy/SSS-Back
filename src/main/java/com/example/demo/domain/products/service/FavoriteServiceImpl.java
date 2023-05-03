@@ -10,7 +10,7 @@ import com.example.demo.domain.products.repository.FavoriteRepository;
 import com.example.demo.domain.products.repository.ProductsImgRepository;
 import com.example.demo.domain.products.repository.ProductsRepository;
 import com.example.demo.domain.products.service.response.FavoriteListResponse;
-import com.example.demo.domain.utility.common.CommonUtils;
+import com.example.demo.domain.utility.member.MemberUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -29,9 +29,14 @@ public class FavoriteServiceImpl implements FavoriteService {
     final private MemberRepository memberRepository;
     final private ProductsImgRepository productsImgRepository;
 
+    public Product getProductById( Long productId) {
+        return productsRepository.findById(productId)
+                .orElseThrow(() -> new RuntimeException("등록된 Product 상품이 아닙니다. : " + productId));
+    }
+
     public FavoriteResponse changeLike(Long memberId, Long productId) {
-        Member member = CommonUtils.getMemberById(memberRepository,memberId);
-        Product product = CommonUtils.getProductById(productsRepository,productId);
+        Member member = MemberUtils.getMemberById(memberRepository,memberId);
+        Product product = getProductById(productId);
 
         Optional<Favorite> maybeFavorite = favoriteRepository.findByProductAndMember(productId, memberId);
 
@@ -73,8 +78,8 @@ public class FavoriteServiceImpl implements FavoriteService {
 
     @Override
     public Boolean likeStatus(Long memberId, Long productId) {
-        CommonUtils.getMemberById(memberRepository,memberId);
-        CommonUtils.getProductById(productsRepository,productId);
+        MemberUtils.getMemberById(memberRepository,memberId);
+        getProductById(productId);
 
         Optional<Favorite> maybeFavorite = favoriteRepository.findByProductAndMember(productId, memberId);
         if(maybeFavorite.isPresent()) {

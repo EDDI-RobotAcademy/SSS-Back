@@ -28,7 +28,7 @@ import com.example.demo.domain.selfSalad.repository.SelfSaladRepository;
 import com.example.demo.domain.sideProducts.entity.SideProduct;
 import com.example.demo.domain.sideProducts.repository.SideProductsRepository;
 import com.example.demo.domain.utility.itemCategory.ItemCategoryType;
-import com.example.demo.domain.utility.common.CommonUtils;
+import com.example.demo.domain.utility.member.MemberUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -84,7 +84,7 @@ public class CartServiceImpl implements CartService{
     @Override
     public Integer classifyItemCategory(Long memberId, CartRegisterRequest reqItem){
 
-        Member member = CommonUtils.getMemberById(memberRepository,memberId);
+        Member member = MemberUtils.getMemberById(memberRepository,memberId);
         Cart myCart = createOrFindCart(member);
 
             switch (reqItem.getItemCategoryType()){
@@ -130,7 +130,7 @@ public class CartServiceImpl implements CartService{
     @Override
     public Boolean isItemInCart(Long itemId, Long memberId, ItemCategoryType itemCategoryType){
 
-        CommonUtils.getMemberById(memberRepository,memberId);
+        MemberUtils.getMemberById(memberRepository,memberId);
         Cart myCart = getCartByMemberId(memberId);
 
         switch (itemCategoryType) {
@@ -253,7 +253,7 @@ public class CartServiceImpl implements CartService{
 
     @Override
     public Integer checkSelfSaladCartLimit(Long memberId){
-        CommonUtils.getMemberById(memberRepository,memberId);
+        MemberUtils.getMemberById(memberRepository,memberId);
         Cart myCart = getCartByMemberId(memberId);
 
         Optional<Integer> selfSaladItemCount =
@@ -286,7 +286,7 @@ public class CartServiceImpl implements CartService{
     @Override
     public void selfSaladCartRegister(Long memberId, SelfSaladCartRegisterForm reqForm) {
 
-        Member member = CommonUtils.getMemberById(memberRepository,memberId);
+        Member member = MemberUtils.getMemberById(memberRepository,memberId);
 
         Set<Long> ingredientIds = new HashSet<>();
         for (SelfSaladRequest ingredient : reqForm.getSelfSaladRequestList()) {

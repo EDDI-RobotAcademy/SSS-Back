@@ -9,7 +9,6 @@ import com.example.demo.domain.products.repository.ProductsRepository;
 import com.example.demo.domain.products.service.request.ProductsInfoRequest;
 import com.example.demo.domain.products.service.response.ProductListResponse;
 import com.example.demo.domain.products.service.response.ProductReadResponse;
-import com.example.demo.domain.utility.common.CommonUtils;
 import com.example.demo.domain.utility.file.FileUploadUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -31,7 +30,10 @@ public class ProductsServiceImpl implements ProductsService {
     final private ProductsRepository productsRepository;
     final private ProductsImgRepository productsImgRepository;
     final private FavoriteRepository favoriteRepository;
-
+    public Product getProductById( Long productId) {
+        return productsRepository.findById(productId)
+                .orElseThrow(() -> new RuntimeException("등록된 Product 상품이 아닙니다. : " + productId));
+    }
 
     public List<ProductListResponse> getList(String sortBy) {
         List<Product> products = productsRepository.findAll(Sort.by(Sort.Direction.DESC, sortBy));
@@ -84,7 +86,7 @@ public class ProductsServiceImpl implements ProductsService {
 
     @Override
     public ProductReadResponse read(Long productId) {
-        Product product = CommonUtils.getProductById(productsRepository,productId);
+        Product product = getProductById(productId);
 
         List<ProductImgResponse> productImgList = productsImgRepository.findImagePathByProductId(product.getProductId());
         ProductReadResponse productRead = new ProductReadResponse(
@@ -123,7 +125,7 @@ public class ProductsServiceImpl implements ProductsService {
         }
         productsImgRepository.deleteProductImgByProductId(productId);
 
-        Product product = CommonUtils.getProductById(productsRepository,productId);
+        Product product = getProductById(productId);
 
         product.modifyProduct(request.getTitle(), request.getContent(),
                               request.getPrice(), request.getProductDetail());
@@ -157,7 +159,7 @@ public class ProductsServiceImpl implements ProductsService {
 
     @Override
     public Product modifyWithoutImg(Long productId, ProductsInfoRequest request) {
-        Product product = CommonUtils.getProductById(productsRepository,productId);
+        Product product = getProductById(productId);
 
         product.modifyProduct(request.getTitle(), request.getContent(),
                               request.getPrice(), request.getProductDetail());
@@ -193,7 +195,7 @@ public class ProductsServiceImpl implements ProductsService {
 
     @Override
     public void viewCntUp(Long productId) {
-        Product product = CommonUtils.getProductById(productsRepository,productId);
+        Product product = getProductById(productId);
         product.updateViewCnt();
         productsRepository.save(product);
     }

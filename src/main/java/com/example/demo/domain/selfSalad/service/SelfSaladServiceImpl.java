@@ -5,7 +5,6 @@ import com.example.demo.domain.selfSalad.Controller.response.IngredientInfoReadR
 import com.example.demo.domain.selfSalad.Controller.response.IngredientListResponse;
 import com.example.demo.domain.selfSalad.entity.*;
 import com.example.demo.domain.selfSalad.repository.*;
-
 import com.example.demo.domain.selfSalad.service.request.IngredientAmountModifyRequest;
 import com.example.demo.domain.selfSalad.service.request.IngredientInfoModifyRequest;
 import com.example.demo.domain.selfSalad.service.request.IngredientRegisterRequest;
@@ -15,10 +14,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Slf4j
 @Service
@@ -33,29 +32,33 @@ public class SelfSaladServiceImpl implements SelfSaladService {
     final private IngredientCategoryRepository ingredientCategoryRepository;
     final private IngredientImgRepository ingredientImgRepository;
 
-    /**
-     * 재료 등록 절차 1 : Ingredient > IngredientRepository
-     * @param request
-     * @return
-     */
+    public Ingredient getIngredientById( Long ingredientId) {
+        return ingredientRepository.findById(ingredientId)
+                .orElseThrow(() -> new RuntimeException("등록된 Ingredient 가 아닙니다. : " + ingredientId));
+    }
+
+    public Category getCategoryByType(CategoryType categoryType) {
+        return categoryRepository.findByCategoryType( categoryType)
+                .orElseThrow(() -> new RuntimeException("재료 카테고리를 찾을 수 없습니다. : " + categoryType));
+    }
+
+    public Amount getAmountByType(AmountType amountType){
+        return amountRepository.findByAmountType(amountType)
+                        .orElseThrow(() -> new RuntimeException("등록된 AmountType 이 아닙니다. : " + amountType));
+    }
+
+
     private Ingredient registerIngredient (IngredientRegisterRequest request) {
         final Ingredient ingredient = request.toIngredient();
         ingredientRepository.save(ingredient);
 
+        log.info("재료가 등록되었습니다. : "+ingredient.getId());
         return ingredient;
     }
 
-    /**
-     * 재료 등록 절차 2 : Amount > AmountRepository
-     * @param ingredient
-     * @param request
-     */
-    private void registerIngredientAmount (
-            Ingredient ingredient, IngredientRegisterRequest request) {
-        log.info("잘 받아왔니??"+request.getAmountType().toString());
+    private void registerIngredientAmount (Ingredient ingredient, IngredientRegisterRequest request) {
 
-        final Amount amount =
-                amountRepository.findByAmountType(request.getAmountType()).get();
+        Amount amount = getAmountByType(request.getAmountType());
 
         final IngredientAmount ingredientAmount =
                 new IngredientAmount(ingredient, amount,
@@ -64,31 +67,21 @@ public class SelfSaladServiceImpl implements SelfSaladService {
                         request.getMax());
 
         ingredientAmountRepository.save(ingredientAmount);
+        log.info("재료 카테고리가 등록되었습니다. : "+ingredientAmount.getId());
     }
 
-    /**
-     * 재료 등록 절차 3 : Ingredient, Request > Category
-     * @param ingredient
-     * @param request
-     */
-    public void registerIngredientCategory(
-            Ingredient ingredient, IngredientRegisterRequest request) {
-        log.info("카테고리 잘 받아왔니??"+request.getCategoryType().toString());
 
-        final Category category =
-                categoryRepository.findByCategoryType(request.getCategoryType()).get();
+    public void registerIngredientCategory(Ingredient ingredient, IngredientRegisterRequest request) {
+        Category category = getCategoryByType(request.getCategoryType());
 
         final IngredientCategory ingredientCategory =
                 new IngredientCategory(ingredient, category);
 
         ingredientCategoryRepository.save(ingredientCategory);
+        log.info("재료 카테고리가 등록되었습니다. : "+category.getCategoryId());
     }
 
-    /**
-     * 재료 등록 절차 4 (최종)
-     * @param ingredientRegisterRequest
-     * @return
-     */
+
     @Override
     public boolean register(IngredientRegisterRequest ingredientRegisterRequest) {
         // 1. 재료 entity 및 image 생성
@@ -103,29 +96,20 @@ public class SelfSaladServiceImpl implements SelfSaladService {
         return true;
     }
 
-        // 전달 받은 카테고리가 있는지 확인
+    // 전달 받은 카테고리가 있는지 확인
     @Override
     @Transactional
     public List<IngredientListResponse> list(String requestType){
-        Category category =  categoryRepository.findByCategoryType( CategoryType.valueOf(requestType)).get();
-        log.info(category.getCategoryId()+"이것이 바로 카테고리 아이디");
+        Category category =  getCategoryByType( CategoryType.valueOf(requestType));
 
         List<Ingredient> ingredientList = ingredientRepository.findByCategoryId(category.getCategoryId());
         List<IngredientListResponse> listResponse =  new ArrayList<>();
 
         for(Ingredient ingredient : ingredientList){
-            for (IngredientAmount responseAmount : ingredient.getIngredientAmounts()) {
-                listResponse.add( new IngredientListResponse(
-
-                        ingredient.getId(),
-                        ingredient.getName(),
-                        ingredient.getPrice(),
-                        ingredient.getIngredientImg().getEditedImg(),
-                        responseAmount.getAmount().getAmountType().toString(),
-                        responseAmount.getMax(),
-                        responseAmount.getUnit(),
-                        responseAmount.getCalorie()
-                ));
+            for (IngredientAmount amount : ingredient.getIngredientAmounts()) {
+                listResponse.add(
+                        new IngredientListResponse(ingredient, amount)
+                );
             }
         }
         return  listResponse;
@@ -134,12 +118,7 @@ public class SelfSaladServiceImpl implements SelfSaladService {
     @Override
     @Transactional
     public IngredientInfoReadResponse findIngredientInfo(Long ingredientId) {
-        final Optional<Ingredient> maybeIngredient = ingredientRepository.findById(1L);
-
-        if(maybeIngredient.isEmpty()){
-            log.info("일치하는 재료가 없습니다.");
-        }
-        Ingredient ingredient = maybeIngredient.get();
+        Ingredient ingredient = getIngredientById(ingredientId);
 
         final IngredientCategory ingredientCategory =
                 ingredientCategoryRepository.findByIngredientId(ingredientId);
@@ -165,8 +144,7 @@ public class SelfSaladServiceImpl implements SelfSaladService {
 
     private void modifyIngredientCategory( Ingredient ingredient, Long ingredientId, CategoryType categoryType) {
 
-        final Category category =
-                categoryRepository.findByCategoryType(categoryType).get();
+        final Category category = getCategoryByType(categoryType);
 
         final IngredientCategory ingredientCategory =
                 ingredientCategoryRepository.findByIngredientId( ingredientId);
@@ -176,7 +154,7 @@ public class SelfSaladServiceImpl implements SelfSaladService {
         ingredientCategoryRepository.save(ingredientCategory);
     }
 
-    private void modifyIngredientImg( Ingredient ingredient, Long ingredientId, String modifyImg ) throws FileNotFoundException {
+    private void modifyIngredientImg( Ingredient ingredient, Long ingredientId, String modifyImg ){
 
         final IngredientImg ingredientImg =
                 ingredientImgRepository.findByIngredientId(ingredientId);
@@ -191,15 +169,9 @@ public class SelfSaladServiceImpl implements SelfSaladService {
 
     @Override
     public void modifyIngredientInfo(Long ingredientId,
-                                     IngredientInfoModifyRequest modifyRequest) throws FileNotFoundException {
+                                     IngredientInfoModifyRequest modifyRequest){
 
-        Optional<Ingredient> maybeIngredient =
-                ingredientRepository.findById(ingredientId);
-
-        if(maybeIngredient.isEmpty()){
-            log.info("선택한 재료가 없습니다.");
-        }
-        Ingredient ingredient = maybeIngredient.get();
+        Ingredient ingredient = getIngredientById(ingredientId);
 
         // 재료 이름 수정
         ingredient.setName(modifyRequest.getName());
@@ -219,46 +191,26 @@ public class SelfSaladServiceImpl implements SelfSaladService {
         log.info("카테고리 수정 성공");
 
         ingredientRepository.save(ingredient);
-
     }
     @Override
     @Transactional
     public IngredientAmountReadResponse findIngredientAmount(Long ingredientId) {
 
-        Optional<Ingredient> maybeIngredient =
-                ingredientRepository.findById(ingredientId);
-        if(maybeIngredient.isEmpty()){
-            log.info("선택한 재료가 없습니다.");
-        }
-        Ingredient ingredient = maybeIngredient.get();
+        Ingredient ingredient = getIngredientById(ingredientId);
 
         final IngredientAmount ingredientAmount =
                 ingredientAmountRepository.findByIngredientId(ingredientId);
 
-        IngredientAmountReadResponse amountResponse =
-                new IngredientAmountReadResponse(ingredient.getName(),
-                                                 ingredient.getPrice(),
-                                                 ingredientAmount.getCalorie(),
-                                                 ingredientAmount.getUnit(),
-                                                 ingredientAmount.getMax(),
-                                                 ingredientAmount.getAmount().getAmountType().toString()
-        );
-        return amountResponse;
+        return  new IngredientAmountReadResponse(ingredient, ingredientAmount);
     }
 
     public void modifyIngredientAmount(Long ingredientId, IngredientAmountModifyRequest modifyRequest){
 
-        Optional<Ingredient> maybeIngredient =
-                ingredientRepository.findById(ingredientId);
-        if(maybeIngredient.isEmpty()){
-            log.info("선택한 재료가 없습니다.");
-        }
-        Ingredient ingredient = maybeIngredient.get();
+        Ingredient ingredient = getIngredientById(ingredientId);
 
         ingredient.setPrice(modifyRequest.getPrice());
 
-        final Amount amount =
-                amountRepository.findByAmountType(modifyRequest.getAmountType()).get();
+        Amount amount = getAmountByType(modifyRequest.getAmountType());
 
         final IngredientAmount ingredientAmount =
                 ingredientAmountRepository.findByIngredientId(ingredientId);
