@@ -78,7 +78,7 @@ public class ReviewServiceImpl implements ReviewService {
     public void registerText(ReviewRequest request) {
         Optional<Product> maybeProduct = productsRepository.findById(request.getProductId());
         Optional<Member> maybeMember = memberRepository.findById(request.getMemberId());
-        Optional<OrderInfo> maybeOrderInfo = orderInfoRepository.findById(request.getOrderInfoId());
+        Optional<OrderInfo> maybeOrderInfo = orderInfoRepository.findById(request.getOrderId());
 
         if(!maybeProduct.isPresent() || !maybeMember.isPresent()) {
             throw new RuntimeException("등록된 상품이나 회원이 아닙니다.");
@@ -96,21 +96,17 @@ public class ReviewServiceImpl implements ReviewService {
                 .orderInfo(orderInfo)
                 .build();
 
-        // 리뷰 작성 시 구매확정으로..? 아니면 구매 확정을 해야 리뷰를 작성할 수 있게...?
-//        orderInfo.setOrderState(OrderState.PAYMENT_CONFIRM);
-//        orderInfoRepository.save(orderInfo);
-
         reviewRepository.save(review);
     }
 
     @Override
-    public void register(List<MultipartFile> files, ReviewRequest request) throws IOException {
+    public void register(List<MultipartFile> reviewImgList, ReviewRequest request) throws IOException {
 
         List<ReviewImg> imgList = new ArrayList<>();
 
         Optional<Product> maybeProduct = productsRepository.findById(request.getProductId());
         Optional<Member> maybeMember = memberRepository.findById(request.getMemberId());
-        Optional<OrderInfo> maybeOrderInfo = orderInfoRepository.findById(request.getOrderInfoId());
+        Optional<OrderInfo> maybeOrderInfo = orderInfoRepository.findById(request.getOrderId());
 
         if(!maybeProduct.isPresent()) { // || !maybeMember.isPresent()
             throw new RuntimeException("등록된 상품이나 회원이 아닙니다.");
@@ -128,10 +124,12 @@ public class ReviewServiceImpl implements ReviewService {
                 .orderInfo(orderInfo)
                 .build();
 
-        for (MultipartFile multipartFile : files) {
+        for (MultipartFile multipartFile : reviewImgList) {
             String originImg = multipartFile.getOriginalFilename();
             String editedImg = FileUploadUtils.generateUniqueFileName(originImg);
             String imgPath = "../SSS-Front/src/assets/review/" + editedImg;
+
+            FileUploadUtils.writeFile(multipartFile, imgPath);
 
             ReviewImg reviewImg = ReviewImg.builder()
                     .originImg(originImg)
@@ -144,12 +142,7 @@ public class ReviewServiceImpl implements ReviewService {
 
             log.info(multipartFile.getOriginalFilename());
 
-            FileUploadUtils.writeFile(multipartFile, imgPath);
         }
-
-        // 리뷰 작성 시 구매확정으로..? 아니면 구매 확정을 해야 리뷰를 작성할 수 있게...?
-//        orderInfo.setOrderState(OrderState.PAYMENT_CONFIRM);
-//        orderInfoRepository.save(orderInfo);
 
         reviewRepository.save(review);
         reviewImgRepository.saveAll(imgList);
