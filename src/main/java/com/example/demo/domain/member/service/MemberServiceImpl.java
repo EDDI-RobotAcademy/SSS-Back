@@ -15,7 +15,7 @@ import com.example.demo.domain.security.entity.Authentication;
 import com.example.demo.domain.security.entity.BasicAuthentication;
 import com.example.demo.domain.security.repository.AuthenticationRepository;
 import com.example.demo.domain.security.service.RedisService;
-import com.example.demo.domain.utility.common.CommonUtils;
+import com.example.demo.domain.utility.member.MemberUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -182,7 +182,7 @@ public class MemberServiceImpl implements MemberService {
     @Override
     public MemberProfile getMemberProfile(Long memberId){
 
-        Member member = CommonUtils.getMemberById(memberRepository,memberId);
+        Member member = MemberUtils.getMemberById(memberRepository,memberId);
         Optional<MemberProfile> maybeMemberProfile =
                 memberProfileRepository.findByMemberProfileId(member.getMemberId());
 
@@ -191,7 +191,7 @@ public class MemberServiceImpl implements MemberService {
     // MemberProfile 등록 및 수정 요청
     @Override
     public Boolean updateMemberInfo(Long memberId, MemberProfileRequest reqMemberProfile){
-        Member member = CommonUtils.getMemberById(memberRepository,memberId);
+        Member member = MemberUtils.getMemberById(memberRepository,memberId);
         Optional<MemberProfile> maybeMemberProfile = memberProfileRepository.findByMemberProfileId(memberId);
 
         String reqPhoneNumber = reqMemberProfile.getPhoneNumber();
@@ -226,7 +226,7 @@ public class MemberServiceImpl implements MemberService {
     @Override
     public Address getDefaultAddress(Long memberId){
 
-        Member member = CommonUtils.getMemberById(memberRepository,memberId);
+        Member member = MemberUtils.getMemberById(memberRepository,memberId);
 
         Optional<Address> maybeDefaultAddress =
                 addressRepository.findByMember_MemberIdAndDefaultCheck(member.getMemberId(), 'Y');
@@ -236,7 +236,7 @@ public class MemberServiceImpl implements MemberService {
     // 신규 주소 등록
     @Override
     public Boolean registerMemberAddress(Long memberId, AddressRequest reqAddress){
-        Member member = CommonUtils.getMemberById(memberRepository,memberId);
+        Member member = MemberUtils.getMemberById(memberRepository,memberId);
         Optional<Address> maybeDefaultAddress =
                 addressRepository.findByMember_MemberIdAndDefaultCheck(member.getMemberId(), 'N');
         Address registerAddress;
@@ -253,7 +253,7 @@ public class MemberServiceImpl implements MemberService {
     @Override
     public Boolean updateMemberAddress(Long memberId, AddressRequest reqAddress){
 
-        Member member = CommonUtils.getMemberById(memberRepository,memberId);
+        Member member = MemberUtils.getMemberById(memberRepository,memberId);
         Optional<Address> maybeDefaultAddress =
                 addressRepository.findByMember_MemberIdAndDefaultCheck(member.getMemberId(), 'Y');
         Address defaultAddress;
@@ -311,7 +311,7 @@ public class MemberServiceImpl implements MemberService {
     @Transactional
     public Boolean passwordValidation(Long memberId, MemberPasswordCheckRequest memberRequest) {
         Member member =
-                CommonUtils.getMemberById(memberRepository,memberId);
+                MemberUtils.getMemberById(memberRepository,memberId);
 
         if(member.isRightPassword(memberRequest.getPassword())) {
             return true;
