@@ -12,4 +12,6 @@ public class OrderItemListResponse {
     final private Integer quantity;
 
     final private String title;
+
+    final private Long perId;
 }

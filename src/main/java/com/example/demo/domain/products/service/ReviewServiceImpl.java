@@ -74,8 +74,9 @@ public class ReviewServiceImpl implements ReviewService {
         }
     }
 
-    private Review getNewReview(ReviewRequest request){
 
+    private Review getNewReview(ReviewRequest request){
+    
         Member member = CommonUtils.getMemberById(memberRepository,request.getMemberId());
         Product product = CommonUtils.getProductById(productsRepository,request.getProductId());
 
@@ -92,27 +93,27 @@ public class ReviewServiceImpl implements ReviewService {
         return review;
     }
 
+
     @Override
     public void registerText(ReviewRequest request) {
 
         Review newReview = getNewReview(request);
         reviewRepository.save(newReview);
-            // 리뷰 작성 시 구매확정으로..? 아니면 구매 확정을 해야 리뷰를 작성할 수 있게...?
-//        orderInfo.setOrderState(OrderState.PAYMENT_CONFIRM);
-//        orderInfoRepository.save(orderInfo);
     }
 
     @Override
-    public void register(List<MultipartFile> files, ReviewRequest request) throws IOException {
+    public void register(List<MultipartFile> reviewImgList, ReviewRequest request) throws IOException {
 
         List<ReviewImg> imgList = new ArrayList<>();
 
         Review review = getNewReview(request);
 
-        for (MultipartFile multipartFile : files) {
+        for (MultipartFile multipartFile : reviewImgList) {
             String originImg = multipartFile.getOriginalFilename();
             String editedImg = FileUploadUtils.generateUniqueFileName(originImg);
             String imgPath = "../SSS-Front/src/assets/review/" + editedImg;
+
+            FileUploadUtils.writeFile(multipartFile, imgPath);
 
             ReviewImg reviewImg = ReviewImg.builder()
                     .originImg(originImg)
@@ -122,16 +123,8 @@ public class ReviewServiceImpl implements ReviewService {
                     .build();
 
             imgList.add(reviewImg);
-
             log.info(multipartFile.getOriginalFilename());
-
-            FileUploadUtils.writeFile(multipartFile, imgPath);
         }
-
-        // 리뷰 작성 시 구매확정으로..? 아니면 구매 확정을 해야 리뷰를 작성할 수 있게...?
-//        orderInfo.setOrderState(OrderState.PAYMENT_CONFIRM);
-//        orderInfoRepository.save(orderInfo);
-
         reviewRepository.save(review);
         reviewImgRepository.saveAll(imgList);
     }
@@ -140,8 +133,7 @@ public class ReviewServiceImpl implements ReviewService {
     @Override
     @Transactional
     public List<ReviewListResponse> productReviewList(Long productId) {
-        Product product = productsRepository.findById(productId)
-                .orElseThrow(() -> new RuntimeException("등록된 상품이 아닙니다. : " + productId));
+        Product product = CommonUtils.getProductById(productsRepository,request.getProductId());
         List<Review> reviewList = reviewRepository.findByProduct_ProductId(product.getProductId());
 
         return getReviewList(reviewList);
@@ -154,7 +146,6 @@ public class ReviewServiceImpl implements ReviewService {
         List<Review> reviewList = reviewRepository.findByMember_MemberId(member.getMemberId());
 
         return getReviewList(reviewList);
-
     }
 
 
