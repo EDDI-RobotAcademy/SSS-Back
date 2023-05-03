@@ -21,14 +21,17 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import static com.example.demo.domain.utility.common.CommonUtils.getSideProductById;
-
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class SideProductsServiceImpl implements SideProductsService {
     final private SideProductsRepository sideProductsRepository;
     final private SideProductsImgRepository sideProductsImgRepository;
+
+    public SideProduct getSideProductById(Long sideProductId) {
+        return sideProductsRepository.findById(sideProductId)
+                .orElseThrow(() -> new RuntimeException("등록된 SideProduct 상품이 아닙니다. : " + sideProductId));
+    }
 
     @Override
     @Transactional
@@ -66,13 +69,12 @@ public class SideProductsServiceImpl implements SideProductsService {
     // 리스트
     @Override
     @Transactional
-    public List<SideProduct> list() {return sideProductsRepository.findAll(Sort.by(Sort.Direction.DESC, "sideProductId"));};
+    public List<SideProduct> list() {return sideProductsRepository.findAll(Sort.by(Sort.Direction.DESC, "sideProductId"));}
 
     // 상세페이지(읽기)
     @Override
     public SideProductResponse read(Long sideProductId) {
-        SideProduct sideProduct =
-                getSideProductById(sideProductsRepository, sideProductId);
+        SideProduct sideProduct = getSideProductById(sideProductId);
 
         return new SideProductResponse(
                 sideProduct.getSideProductId(),
@@ -87,8 +89,7 @@ public class SideProductsServiceImpl implements SideProductsService {
     @Override
     public void remove(Long sideProductId) {
 
-        SideProduct sideProduct =
-                getSideProductById(sideProductsRepository, sideProductId);
+        SideProduct sideProduct = getSideProductById( sideProductId);
 
         sideProductsRepository.deleteById(sideProduct.getSideProductId());
 
@@ -111,8 +112,7 @@ public class SideProductsServiceImpl implements SideProductsService {
     @Override
     public SideProductResponse modify(Long sideProductId, SideProductRequest sideProductRequest, MultipartFile sideProductImgList) {
 
-        SideProduct sideProduct =
-                getSideProductById(sideProductsRepository, sideProductId);
+        SideProduct sideProduct = getSideProductById( sideProductId);
 
         sideProductsImgRepository.deleteSpecificProduct(sideProduct.getSideProductId());
 

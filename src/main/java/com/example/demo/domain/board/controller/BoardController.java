@@ -3,7 +3,7 @@ package com.example.demo.domain.board.controller;
 import com.example.demo.domain.board.dto.request.BoardRequest;
 import com.example.demo.domain.board.entity.Board;
 import com.example.demo.domain.board.service.BoardService;
-import com.example.demo.domain.utility.common.TokenBasedController;
+import com.example.demo.domain.utility.member.TokenBasedController;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
