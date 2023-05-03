@@ -1,7 +1,6 @@
 package com.example.demo.domain.products.service;
 
 import com.example.demo.domain.products.controller.form.ProductImgResponse;
-import com.example.demo.domain.products.entity.Favorite;
 import com.example.demo.domain.products.entity.Product;
 import com.example.demo.domain.products.entity.ProductImg;
 import com.example.demo.domain.products.repository.FavoriteRepository;
@@ -10,6 +9,7 @@ import com.example.demo.domain.products.repository.ProductsRepository;
 import com.example.demo.domain.products.service.request.ProductsInfoRequest;
 import com.example.demo.domain.products.service.response.ProductListResponse;
 import com.example.demo.domain.products.service.response.ProductReadResponse;
+import com.example.demo.domain.utility.common.CommonUtils;
 import com.example.demo.domain.utility.file.FileUploadUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,13 +19,9 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.transaction.Transactional;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
 
 @RequiredArgsConstructor
 @Slf4j
@@ -88,12 +84,7 @@ public class ProductsServiceImpl implements ProductsService {
 
     @Override
     public ProductReadResponse read(Long productId) {
-        Optional<Product> maybeProduct = productsRepository.findById(productId);
-        Product product = maybeProduct.get();
-        if (maybeProduct.isEmpty()) {
-            log.info("없음!");
-            return null;
-        }
+        Product product = CommonUtils.getProductById(productsRepository,productId);
 
         List<ProductImgResponse> productImgList = productsImgRepository.findImagePathByProductId(product.getProductId());
         ProductReadResponse productRead = new ProductReadResponse(
@@ -132,17 +123,10 @@ public class ProductsServiceImpl implements ProductsService {
         }
         productsImgRepository.deleteProductImgByProductId(productId);
 
-        Optional<Product> maybeProduct = productsRepository.findById(productId);
-        if(maybeProduct.isEmpty()) {
-            System.out.println("해당 productId 정보 없음: " + productId);
-            return null;
-        }
+        Product product = CommonUtils.getProductById(productsRepository,productId);
 
-        Product product = maybeProduct.get();
-        product.setTitle(request.getTitle());
-        product.setContent(request.getContent());
-        product.setPrice(request.getPrice());
-        product.setProductDetail(request.getProductDetail());
+        product.modifyProduct(request.getTitle(), request.getContent(),
+                              request.getPrice(), request.getProductDetail());
 
         try {
             for (MultipartFile multipartFile: productImgList) {
@@ -161,8 +145,6 @@ public class ProductsServiceImpl implements ProductsService {
                 productImg.setImgPath(imgPath);
                 imgList.add(productImg);
             }
-        } catch (FileNotFoundException e) {
-            throw new RuntimeException(e);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -175,13 +157,10 @@ public class ProductsServiceImpl implements ProductsService {
 
     @Override
     public Product modifyWithoutImg(Long productId, ProductsInfoRequest request) {
-        Optional<Product> maybeProduct = productsRepository.findById(productId);
+        Product product = CommonUtils.getProductById(productsRepository,productId);
 
-        Product product = maybeProduct.get();
-        product.setTitle(request.getTitle());
-        product.setContent(request.getContent());
-        product.setPrice(request.getPrice());
-        product.setProductDetail(request.getProductDetail());
+        product.modifyProduct(request.getTitle(), request.getContent(),
+                              request.getPrice(), request.getProductDetail());
 
         productsRepository.save(product);
         return product;
@@ -214,8 +193,7 @@ public class ProductsServiceImpl implements ProductsService {
 
     @Override
     public void viewCntUp(Long productId) {
-        Optional<Product> maybeProduct = productsRepository.findById(productId);
-        Product product = maybeProduct.get();
+        Product product = CommonUtils.getProductById(productsRepository,productId);
         product.updateViewCnt();
         productsRepository.save(product);
     }

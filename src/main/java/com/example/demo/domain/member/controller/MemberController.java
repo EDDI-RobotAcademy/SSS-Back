@@ -8,7 +8,7 @@ import com.example.demo.domain.member.service.MemberService;
 import com.example.demo.domain.member.service.request.AddressRequest;
 import com.example.demo.domain.member.service.request.MemberPasswordCheckRequest;
 import com.example.demo.domain.member.service.request.MemberProfileRequest;
-import com.example.demo.domain.utility.TokenBasedController;
+import com.example.demo.domain.utility.common.TokenBasedController;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
@@ -60,7 +60,7 @@ public class MemberController extends TokenBasedController {
 
     @DeleteMapping("/delete-member")
     public void deleteMember(HttpServletRequest requestToken) {
-        Long memberId = findMemberId(requestToken);
+        Long memberId = findMemberIdByToken(requestToken);
         memberService.deleteMember(memberId);
     }
 
@@ -68,7 +68,7 @@ public class MemberController extends TokenBasedController {
     // 회원 프로필 정보 불러오기
     @GetMapping("/profile-info")
     public MemberProfile getMemberProfile(HttpServletRequest requestToken) {
-        Long memberId = findMemberId(requestToken);
+        Long memberId = findMemberIdByToken(requestToken);
         return memberService.getMemberProfile(memberId);
     }
 
@@ -76,7 +76,7 @@ public class MemberController extends TokenBasedController {
     @PutMapping("/profile-info/update")
     public Boolean updateMemberInfo(HttpServletRequest requestToken,
                                     @RequestBody MemberProfileRequest memberProfileRequest) {
-        Long memberId = findMemberId(requestToken);
+        Long memberId = findMemberIdByToken(requestToken);
         log.info("/member-profile/"+ memberId +", "+ memberProfileRequest);
 
         return memberService.updateMemberInfo(memberId, memberProfileRequest);
@@ -86,7 +86,7 @@ public class MemberController extends TokenBasedController {
     @GetMapping("/profile-address")
     public Address getDefaultAddress(HttpServletRequest requestToken) {
         log.info("getDefaultAddress()");
-        Long memberId = findMemberId(requestToken);
+        Long memberId = findMemberIdByToken(requestToken);
         return memberService.getDefaultAddress(memberId);
     }
 
@@ -94,7 +94,7 @@ public class MemberController extends TokenBasedController {
     @PutMapping("/profile-address/update")
     public Boolean updateDefaultAddress(HttpServletRequest requestToken,
                                     @RequestBody AddressRequest reqAddress) {
-        Long memberId = findMemberId(requestToken);
+        Long memberId = findMemberIdByToken(requestToken);
         log.info("/member-profile/"+ memberId +", "+ reqAddress);
 
         return memberService.updateMemberAddress(memberId, reqAddress);
@@ -104,7 +104,7 @@ public class MemberController extends TokenBasedController {
     @PutMapping("/profile-address/register")
     public Boolean registerMemberAddress(HttpServletRequest requestToken,
                                         @RequestBody AddressRequest reqAddress) {
-        Long memberId = findMemberId(requestToken);
+        Long memberId = findMemberIdByToken(requestToken);
         log.info("/member-profile/"+ memberId +", "+ reqAddress);
 
         return memberService.registerMemberAddress(memberId, reqAddress);
@@ -113,7 +113,7 @@ public class MemberController extends TokenBasedController {
     // 결제창 : 기본 주소 외의 다른 주소들 반환
     @PutMapping("/profile-address/list")
     public List<Address> getAddressList(HttpServletRequest requestToken) {
-        Long memberId = findMemberId(requestToken);
+        Long memberId = findMemberIdByToken(requestToken);
         log.info("/profile-address/list/"+ memberId);
 
         return memberService.getOtherAddress(memberId);
@@ -123,7 +123,7 @@ public class MemberController extends TokenBasedController {
     @PostMapping("/check-password")
     public Boolean passwordValidation(@RequestBody MemberPasswordCheckRequest memberRequest,
                                       HttpServletRequest requestToken) {
-        Long memberId = findMemberId(requestToken);
+        Long memberId = findMemberIdByToken(requestToken);
         log.info("passwordValidation(): "+ memberRequest);
 
         return memberService.passwordValidation(memberId, memberRequest);
