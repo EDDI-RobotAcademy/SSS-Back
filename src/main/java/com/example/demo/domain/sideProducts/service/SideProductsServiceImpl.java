@@ -15,12 +15,13 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.transaction.Transactional;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+
+import static com.example.demo.domain.utility.common.CommonUtils.getSideProductById;
 
 @Slf4j
 @Service
@@ -29,42 +30,11 @@ public class SideProductsServiceImpl implements SideProductsService {
     final private SideProductsRepository sideProductsRepository;
     final private SideProductsImgRepository sideProductsImgRepository;
 
-    //등록
-//    @Override
-//    public SideProductResponse register(SideProductRequest sideProductRequest) {
-//        SideProduct sideProduct = new SideProduct();
-//
-//        sideProduct.setTitle(sideProductRequest.getTitle());
-//        sideProduct.setContent(sideProductRequest.getContent());
-//        sideProduct.setPrice(sideProductRequest.getPrice());
-//
-//        sideProductsRepository.save(sideProduct);
-//
-//        SideProductResponse sideProductResponse = new SideProductResponse(
-//                sideProduct.getSideProductId(),
-//                sideProductRequest.getContent(),
-//                sideProductRequest.getPrice(),
-//                sideProductRequest.getTitle()
-//        );
-//
-//        return sideProductResponse;
-//    }
-
-
-//    @Override
-//    public void register(List<MultipartFile> sideProductImgList, SideProductRequest sideProductRequest) {
-//    }
-
     @Override
     @Transactional
     public void register(MultipartFile sideProductImgList, SideProductRequest sideProductRequest) {
-        SideProduct sideProduct = new SideProduct();
 
-        sideProduct.setTitle(sideProductRequest.getTitle());
-        sideProduct.setContent(sideProductRequest.getContent());
-        sideProduct.setPrice(sideProductRequest.getPrice());
-
-
+        SideProduct sideProduct = sideProductRequest.toSideProduct();
 
         final String fixedStringPath = "../SSS-Front/src/assets/product/";
         try {
@@ -81,15 +51,12 @@ public class SideProductsServiceImpl implements SideProductsService {
             writer.close();
 
             SideProductImg sideProductImg = new SideProductImg(
-//                    sideProductImgList.getOriginalFilename(),
                     fileRandomName,
                     sideProduct
             );
             sideProductImg.registerToSideProduct();
             sideProductsImgRepository.save(sideProductImg);
 
-        } catch (FileNotFoundException e) {
-            throw new RuntimeException(e);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -104,29 +71,26 @@ public class SideProductsServiceImpl implements SideProductsService {
     // 상세페이지(읽기)
     @Override
     public SideProductResponse read(Long sideProductId) {
-        Optional<SideProduct> maybeSideProduct = sideProductsRepository.findById(sideProductId);
+        SideProduct sideProduct =
+                getSideProductById(sideProductsRepository, sideProductId);
 
-        if(maybeSideProduct.isEmpty()){
-            log.info("없는데?");
-            return null;
-        }
-        SideProduct sideProduct = maybeSideProduct.get();
-
-        SideProductResponse sideProductResponse = new SideProductResponse(
+        return new SideProductResponse(
                 sideProduct.getSideProductId(),
                 sideProduct.getContent(),
                 sideProduct.getPrice(),
                 sideProduct.getTitle(),
                 sideProduct.getSideProductImg()
         );
-        return sideProductResponse;
     }
 
     // 삭제
     @Override
     public void remove(Long sideProductId) {
 
-        sideProductsRepository.deleteById(sideProductId);
+        SideProduct sideProduct =
+                getSideProductById(sideProductsRepository, sideProductId);
+
+        sideProductsRepository.deleteById(sideProduct.getSideProductId());
 
         Optional<SideProduct> imageResource = sideProductsImgRepository.findImagePathBySideProductId(sideProductId);
 
@@ -139,27 +103,23 @@ public class SideProductsServiceImpl implements SideProductsService {
             } else {
                 System.out.println("파일 삭제 실패!");
             }
-
             sideProductsImgRepository.deleteSpecificProduct(sideProductId);
-
         }
     }
 
     // 수정
     @Override
     public SideProductResponse modify(Long sideProductId, SideProductRequest sideProductRequest, MultipartFile sideProductImgList) {
-        Optional<SideProduct> maybeSideProduct = sideProductsRepository.findById(sideProductId);
 
-        sideProductsImgRepository.deleteSpecificProduct(sideProductId);
+        SideProduct sideProduct =
+                getSideProductById(sideProductsRepository, sideProductId);
 
-        if(maybeSideProduct.isEmpty()){
-            return null;
-        }
+        sideProductsImgRepository.deleteSpecificProduct(sideProduct.getSideProductId());
 
-        SideProduct sideProduct = maybeSideProduct.get();
-        sideProduct.setTitle(sideProductRequest.getTitle());
-        sideProduct.setContent(sideProductRequest.getContent());
-        sideProduct.setPrice(sideProductRequest.getPrice());
+        sideProduct.modifySideProduct(sideProductRequest.getTitle(),
+                                      sideProductRequest.getContent(),
+                                      sideProductRequest.getPrice()
+        );
 
         final String fixedStringPath = "../SSS-Front/src/assets/product/";
         try {
@@ -176,28 +136,24 @@ public class SideProductsServiceImpl implements SideProductsService {
             writer.close();
 
             SideProductImg sideProductImg = new SideProductImg(
-//                    sideProductImgList.getOriginalFilename(),
                     fileRandomName,
                     sideProduct
             );
             sideProductImg.registerToSideProduct();
             sideProductsImgRepository.save(sideProductImg);
 
-        } catch (FileNotFoundException e) {
-            throw new RuntimeException(e);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
         sideProductsRepository.save(sideProduct);
 
-        SideProductResponse sideProductResponse = new SideProductResponse(
+        return new SideProductResponse(
                 sideProduct.getSideProductId(),
                 sideProduct.getContent(),
                 sideProduct.getPrice(),
                 sideProduct.getTitle(),
                 sideProduct.getSideProductImg()
         );
-        return sideProductResponse;
     }
 
 
