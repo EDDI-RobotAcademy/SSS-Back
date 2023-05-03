@@ -8,7 +8,6 @@ import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
-@AllArgsConstructor
 public class OrderStateModifyRequest {
 
     private final Long orderId;
