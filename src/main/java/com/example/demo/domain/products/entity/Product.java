@@ -52,4 +52,11 @@ public class Product {
     public void updateViewCnt() {
         this.viewCnt += 1;
     }
+
+    public void modifyProduct(String title, String content, Long price, ProductDetail productDetail) {
+        this.title = title;
+        this.content = content;
+        this.price = price;
+        this.productDetail = productDetail;
+    }
 }

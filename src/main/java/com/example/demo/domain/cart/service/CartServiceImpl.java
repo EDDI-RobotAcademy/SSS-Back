@@ -14,7 +14,7 @@ import com.example.demo.domain.cart.repository.CartRepository;
 import com.example.demo.domain.cart.service.request.SelfSaladModifyRequest;
 import com.example.demo.domain.cart.service.request.SelfSaladRequest;
 import com.example.demo.domain.member.entity.Member;
-import com.example.demo.domain.member.service.MemberServiceImpl;
+import com.example.demo.domain.member.repository.MemberRepository;
 import com.example.demo.domain.products.entity.Product;
 import com.example.demo.domain.products.repository.ProductsRepository;
 import com.example.demo.domain.selfSalad.entity.Amount;
@@ -28,6 +28,7 @@ import com.example.demo.domain.selfSalad.repository.SelfSaladRepository;
 import com.example.demo.domain.sideProducts.entity.SideProduct;
 import com.example.demo.domain.sideProducts.repository.SideProductsRepository;
 import com.example.demo.domain.utility.itemCategory.ItemCategoryType;
+import com.example.demo.domain.utility.member.MemberUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -54,31 +55,15 @@ public class CartServiceImpl implements CartService{
     final private SelfSaladIngredientRepository selfSaladIngredientRepository;
     final private SelfSaladRepository selfSaladRepository;
 
-    final private MemberServiceImpl memberService;
+    final private MemberRepository memberRepository;
 
-    private Product checkProduct(Long productId ){
-        Optional<Product> maybeProduct =
-                productsRepository.findById(productId);
-        if(maybeProduct.isPresent()){
-            log.info("Product "+maybeProduct.get().getProductId()+" 번의 상품이 존재합니다.");
-
-            return maybeProduct.get();
-        }
-
-        log.info("해당 Product 상품이 없습니다.");
-        return null;
+    private Cart getCartByMemberId(Long memberId){
+        return cartRepository.findByMember_memberId(memberId)
+                .orElseThrow(() -> new RuntimeException("존재하지 않는 장바구니입니다. "));
     }
-    private SideProduct checkSideProduct(Long sideProductId ){
-        Optional<SideProduct> maybeSideProduct =
-                sideProductsRepository.findById(sideProductId);
-        if(maybeSideProduct.isPresent()){
-            log.info("SideProduct "+maybeSideProduct.get().getSideProductId()+" 번의 상품이 존재합니다.");
-
-            return maybeSideProduct.get();
-        }
-
-        log.info("해당 SideProduct 상품이 없습니다.");
-        return null;
+    private CartItem getCartItemById(Long itemId){
+        return cartItemRepository.findById(itemId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 장바구니 상품은 없습니다. : "+itemId));
     }
 
     private Cart createOrFindCart(Member member){
@@ -98,9 +83,8 @@ public class CartServiceImpl implements CartService{
     }
     @Override
     public Integer classifyItemCategory(Long memberId, CartRegisterRequest reqItem){
-    try{
-        Member member = requireNonNull(memberService.checkMember(memberId));
 
+        Member member = MemberUtils.getMemberById(memberRepository,memberId);
         Cart myCart = createOrFindCart(member);
 
             switch (reqItem.getItemCategoryType()){
@@ -112,14 +96,12 @@ public class CartServiceImpl implements CartService{
                     throw new IllegalArgumentException("존재하지 않는 장바구니 카테고리 입니다. : "
                                                         + reqItem.getItemCategoryType());
             }
-        } catch (RuntimeException ex) {
-            log.info(ex.getMessage());
-        }
-    return 1;
+        return 1;
     }
     private void addProductItem(Cart myCart, CartRegisterRequest reqItem){
 
-        Product reqProduct = requireNonNull(checkProduct(reqItem.getItemId()));
+        Product reqProduct = productsRepository.findById(reqItem.getItemId())
+                .orElseThrow(() -> new RuntimeException("등록된 상품이 아닙니다. : " + reqItem.getItemId()));
 
         CartItem newCartItem = new ProductItem(
                 reqItem.getQuantity(),
@@ -132,7 +114,8 @@ public class CartServiceImpl implements CartService{
 
     private void addSideProductItem(Cart myCart, CartRegisterRequest reqItem){
 
-        SideProduct reqSideProduct = requireNonNull(checkSideProduct(reqItem.getItemId()));
+        SideProduct reqSideProduct = sideProductsRepository.findById(reqItem.getItemId())
+                .orElseThrow(() -> new RuntimeException("해당 SideProduct 상품이 없습니다. : " + reqItem.getItemId()));
 
         CartItem newCartItem = new SideProductItem(
                 reqItem.getQuantity(),
@@ -146,24 +129,22 @@ public class CartServiceImpl implements CartService{
 
     @Override
     public Boolean isItemInCart(Long itemId, Long memberId, ItemCategoryType itemCategoryType){
-        memberService.checkMember(memberId);
 
-        Optional<Cart> myCart = cartRepository.findByMember_memberId(memberId);
-        if(myCart.isPresent()) {
-            switch (itemCategoryType) {
-                case PRODUCT:
-                    Optional<CartItem> productItem =
-                            cartItemRepository.findByProduct_IdAndCart_Id(itemId, myCart.get().getId());
-                    return productItem.isPresent();
-                case SIDE:
-                    Optional<CartItem> sideProductItem =
-                            cartItemRepository.findBySideProduct_IdAndCart_Id(itemId, myCart.get().getId());
-                    return sideProductItem.isPresent();
-                default:
-                    throw new IllegalArgumentException("존재하지 않는 장바구니 카테고리 입니다. : " + itemCategoryType);
-            }
+        MemberUtils.getMemberById(memberRepository,memberId);
+        Cart myCart = getCartByMemberId(memberId);
+
+        switch (itemCategoryType) {
+            case PRODUCT:
+                Optional<CartItem> productItem =
+                        cartItemRepository.findByProduct_IdAndCart_Id(itemId, myCart.getId());
+                return productItem.isPresent();
+            case SIDE:
+                Optional<CartItem> sideProductItem =
+                        cartItemRepository.findBySideProduct_IdAndCart_Id(itemId, myCart.getId());
+                return sideProductItem.isPresent();
+            default:
+                throw new IllegalArgumentException("존재하지 않는 장바구니 카테고리 입니다. : " + itemCategoryType);
         }
-        return false;
     }
 
     @Override
@@ -200,43 +181,38 @@ public class CartServiceImpl implements CartService{
 
     @Override
     public void modifyCartItemQuantity(CartItemQuantityModifyRequest reqItem){
-        Optional<CartItem> cartItem =
-                cartItemRepository.findById(reqItem.getItemId());
 
-        cartItem.ifPresent(item -> {
-            item.modifyQuantity(reqItem.getQuantity());
+        CartItem cartItem = getCartItemById(reqItem.getItemId());
 
-            log.info(cartItem.get().getId()+" 번의 cart Item 의 수량이 변경되었습니다.");
-            cartItemRepository.save(item);
-        });
+        cartItem.modifyQuantity(reqItem.getQuantity());
+        log.info(cartItem.getId()+" 번의 cart Item 의 수량이 변경되었습니다.");
+
+        cartItemRepository.save(cartItem);
+
     }
 
     @Override
     public void deleteCartItem(CartItemIdAndCategory deleteItem){
+
+        CartItem cartItem = getCartItemById(deleteItem.getItemId());
+
         ItemCategoryType itemType = deleteItem.getItemCategoryType();
-        Long itemId = deleteItem.getItemId();
-
-        Optional<CartItem> maybeItem = cartItemRepository.findById(itemId);
-        maybeItem.ifPresent(item -> {
             switch(itemType){
-
             case PRODUCT:
-                ProductItem productItem = (ProductItem) item;
+                ProductItem productItem = (ProductItem) cartItem;
                 cartItemRepository.delete(productItem); break;
             case SIDE:
-                SideProductItem sideProductItem = (SideProductItem) item;
+                SideProductItem sideProductItem = (SideProductItem) cartItem;
                 cartItemRepository.delete(sideProductItem); break;
             case SELF:
-                SelfSaladItem selfSaladItem = (SelfSaladItem) item;
+                SelfSaladItem selfSaladItem = (SelfSaladItem) cartItem;
                 Long selfSaladId = selfSaladItem.getSelfSalad().getId();
                 cartItemRepository.delete(selfSaladItem);
                 selfSaladRepository.deleteById(selfSaladId); break;
             default:
                 throw new IllegalArgumentException("존재하지 않는 장바구니 카테고리 입니다. : " + itemType);
             }
-
-        });
-        log.info(itemId + " 번 cart Item 이 삭제되었습니다.");
+        log.info(deleteItem.getItemId() + " 번 cart Item 이 삭제되었습니다.");
     }
 
     @Override
@@ -277,72 +253,57 @@ public class CartServiceImpl implements CartService{
 
     @Override
     public Integer checkSelfSaladCartLimit(Long memberId){
-        try {
-            Member member = requireNonNull(memberService.checkMember(memberId));
+        MemberUtils.getMemberById(memberRepository,memberId);
+        Cart myCart = getCartByMemberId(memberId);
 
-            Optional<Cart> myCart =
-                    cartRepository.findByMember_memberId(member.getMemberId());
+        Optional<Integer> selfSaladItemCount =
+                cartItemRepository.countSelfSaladItemsByCartId(myCart.getId());
 
-            if (myCart.isPresent()) {
-                Optional<Integer> selfSaladItemCount =
-                        cartItemRepository.countSelfSaladItemsByCartId(myCart.get().getId());
-
-                if (selfSaladItemCount.isPresent() &&
-                    selfSaladItemCount.get() == CartItemLimit.SELF_SALAD.getMaxCount()) {
-                    log.info("SelfSalad 카트가 꽉 찼습니다.");
-                    return 1;
-                }
-                return 0;
-            }
-            return 0;
-        } catch (RuntimeException ex) {
-            log.info(ex.getMessage());
-            return null;
+        if (selfSaladItemCount.isPresent() &&
+            selfSaladItemCount.get() == CartItemLimit.SELF_SALAD.getMaxCount()) {
+            log.info("SelfSalad 카트가 꽉 찼습니다.");
+            return 1;
         }
+        return 0;
     }
 
-    private Map<Long, Ingredient> checkIngredients( Set<Long> ingredientIds ){
+    private Map<Long, Ingredient> getIngredientsMap( Set<Long> ingredientIds ){
 
-        Optional <List<Ingredient>> maybeIngredients =
-                ingredientRepository.findByIdIn(ingredientIds);
+        List<Ingredient> ingredients =
+                ingredientRepository.findByIdIn(ingredientIds)
+                        .orElseThrow(() -> new RuntimeException("존재하지 않는 ingredients 입니다. : "+ ingredientIds));
 
-        if(maybeIngredients.isPresent()){
-            log.info("Ingredients "+ingredientIds+" 번의 재료들이 존재합니다.");
+        log.info("Ingredients "+ingredientIds+" 번의 재료들이 존재합니다.");
 
-            Map<Long, Ingredient> ingredientMap = new HashMap<>();
+        Map<Long, Ingredient> ingredientMap = new HashMap<>();
 
-            for (Ingredient ingredient : maybeIngredients.get()) {
-                ingredientMap.put(ingredient.getId(), ingredient);
-            }
-            return ingredientMap;
+        for (Ingredient ingredient : ingredients) {
+            ingredientMap.put(ingredient.getId(), ingredient);
         }
-        return null;
+        return ingredientMap;
+
     }
     @Override
     public void selfSaladCartRegister(Long memberId, SelfSaladCartRegisterForm reqForm) {
 
-        try {
-            Member member = requireNonNull(memberService.checkMember(memberId));
+        Member member = MemberUtils.getMemberById(memberRepository,memberId);
 
-            Set<Long> ingredientIds = new HashSet<>();
-            for (SelfSaladRequest ingredient : reqForm.getSelfSaladRequestList()) {
+        Set<Long> ingredientIds = new HashSet<>();
+        for (SelfSaladRequest ingredient : reqForm.getSelfSaladRequestList()) {
 
-                ingredientIds.add(ingredient.getIngredientId());
-            }
-            Map<Long, Ingredient> ingredientMap = requireNonNull(checkIngredients(ingredientIds));
-
-            Cart myCart = createOrFindCart(member);
-
-            SelfSalad mySalad = createSelfSalad(reqForm);
-
-            addSelfSaladIngredient(mySalad,reqForm.getSelfSaladRequestList(), ingredientMap );
-
-            addSelfSaladItem(myCart, mySalad, reqForm);
-            log.info(member.getNickname() + " 님의 장바구니에 셀프 샐러드 상품을 추가하였습니다.");
-
-        } catch (RuntimeException ex) {
-            log.info(ex.getMessage());
+            ingredientIds.add(ingredient.getIngredientId());
         }
+        Map<Long, Ingredient> ingredientMap = requireNonNull(getIngredientsMap(ingredientIds));
+
+        Cart myCart = createOrFindCart(member);
+
+        SelfSalad mySalad = createSelfSalad(reqForm);
+
+        addSelfSaladIngredient(mySalad,reqForm.getSelfSaladRequestList(), ingredientMap );
+
+        addSelfSaladItem(myCart, mySalad, reqForm);
+        log.info(member.getNickname() + " 님의 장바구니에 셀프 샐러드 상품을 추가하였습니다.");
+
     }
 
     private SelfSalad createSelfSalad(SelfSaladCartRegisterForm reqForm){
@@ -381,8 +342,7 @@ public class CartServiceImpl implements CartService{
     }
 
     private  List<SelfSaladIngredient> findSelectedIngredient(Long itemId){
-        CartItem cartItem = cartItemRepository.findById(itemId)
-                .orElseThrow(() -> new IllegalArgumentException("해당 장바구니 상품은 없습니다. : "+itemId));
+        CartItem cartItem = getCartItemById(itemId);
 
         SelfSaladItem selfSaladItem = (SelfSaladItem) cartItem;
         Long selfSaladId = selfSaladItem.getSelfSalad().getId();
@@ -432,25 +392,20 @@ public class CartServiceImpl implements CartService{
     }
     @Override
     @Transactional
-    public void modifySelfSaladItem(Long itemId, SelfSaladModifyForm modifyForm) {
+    public void modifySelfSaladItem(Long itemId, SelfSaladModifyForm form) {
         // selfSalad item 확인
-        Optional<CartItem> maybeItem = cartItemRepository.findById(itemId);
-        if(maybeItem.isPresent()){
-            // Self Salad 찾기
-            if (maybeItem.get() instanceof SelfSaladItem) {
-                SelfSaladItem selfSaladItem = (SelfSaladItem)maybeItem.get();
-            SelfSalad mySalad = selfSaladItem.getSelfSalad();
-            modifySelfSalad(mySalad,
-                            modifyForm.getTotalPrice(),
-                            modifyForm.getTotalCalorie());
-            modifySelfSaladIngredient(mySalad, modifyForm.getSelfSaladModifyRequestList());
-        }}
-    }
+        CartItem cartItem = getCartItemById(itemId);
 
-    private void modifySelfSalad(SelfSalad mySalad, Long price, Long calorie){
-        // 수정
-        mySalad.setTotal(price, calorie);
-        selfSaladRepository.save(mySalad);
+        // Self Salad 찾기
+        if (cartItem instanceof SelfSaladItem) {
+            SelfSaladItem selfSaladItem = (SelfSaladItem)cartItem;
+            SelfSalad mySalad = selfSaladItem.getSelfSalad();
+
+            mySalad.setTotal(form.getTotalPrice(), form.getTotalCalorie());
+            selfSaladRepository.save(mySalad);
+
+            modifySelfSaladIngredient(mySalad, form.getSelfSaladModifyRequestList());
+        }
     }
 
     private void modifySelfSaladIngredient(SelfSalad mySalad, List<SelfSaladModifyRequest> reqItems){

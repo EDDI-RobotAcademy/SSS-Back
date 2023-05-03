@@ -7,7 +7,7 @@ import com.example.demo.domain.board.repository.BoardRepository;
 import com.example.demo.domain.board.repository.ReplyRepository;
 import com.example.demo.domain.member.entity.Member;
 import com.example.demo.domain.member.repository.MemberRepository;
-import com.example.demo.domain.security.service.RedisService;
+import com.example.demo.domain.utility.member.MemberUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,33 +27,19 @@ public class BoardServiceImpl implements BoardService {
     final private BoardRepository boardRepository;
 
     @Autowired
-    MemberRepository memberRepository;
-
-    @Autowired
     final private ReplyRepository replyRepository;
 
-    @Autowired
-    RedisService redisService;
+    final private MemberRepository memberRepository;
+
+
 
     @Override
     public Board register(Long memberId, BoardRequest boardRequest) {
-        Optional<Member> maybeMember = memberRepository.findByMemberId(memberId);
+        Member member = MemberUtils.getMemberById(memberRepository,memberId);
+        Board newBoard = boardRequest.toBoard(member);
 
-        if (maybeMember.isEmpty()) {
-            System.out.println("Member 정보를 찾지 못했습니다: ");
-            return null;
-        } else {
-            Board board = new Board();
-            board.setTitle(boardRequest.getTitle());
-            board.setWriter(boardRequest.getWriter());
-            board.setContent(boardRequest.getContent());
-            board.setPrivateCheck(boardRequest.getPrivateCheck());
-            board.setMember(maybeMember.get());
-
-            boardRepository.save(board);
-            return board;
-        }
-
+        boardRepository.save(newBoard);
+        return newBoard;
     }
 
     @Override
@@ -77,29 +63,19 @@ public class BoardServiceImpl implements BoardService {
     @Override
     public void remove(Long boardId) {
         List<Reply> replyList = replyRepository.findAll(boardId);
-
-        for(Reply reply : replyList) {
-            replyRepository.delete(reply);
-        }
+        replyRepository.deleteAll(replyList);
         boardRepository.deleteById(boardId);
     }
 
     @Override
     public Board modify(Long boardId, BoardRequest boardRequest) {
-        Optional<Board> maybeBoard = boardRepository.findById(boardId);
+        Board myBoard = boardRepository.findById(boardId)
+                        .orElseThrow(() -> new RuntimeException("Board 정보를 찾지 못했습니다. " + boardId));
 
-        if (maybeBoard.isEmpty()) {
-            System.out.println("Board 정보를 찾지 못했습니다: " + boardId);
-            return null;
-        }
-
-        Board board = maybeBoard.get();
-        board.setTitle(boardRequest.getTitle());
-        board.setContent(boardRequest.getContent());
-
-        boardRepository.save(board);
-
-        return board;
+        myBoard.modifyBoard(boardRequest.getTitle(),
+                            boardRequest.getContent());
+        boardRepository.save(myBoard);
+        return myBoard;
     }
     @Override
     public Long getCount() {
@@ -114,10 +90,10 @@ public class BoardServiceImpl implements BoardService {
 
     @Override
     public List<Board> memberBoardList(Long memberId) {
-        Optional<Member> maybeMember = memberRepository.findById(memberId);
-        Member member = maybeMember.get();
+        Member member =
+                MemberUtils.getMemberById(memberRepository,memberId);
         log.info("게시글 작성자: " + member.getMemberId());
-        List<Board> boardList = boardRepository.findByMember_MemberId(member.getMemberId());
-        return boardList;
+
+        return boardRepository.findByMember_MemberId(member.getMemberId());
     }
 }

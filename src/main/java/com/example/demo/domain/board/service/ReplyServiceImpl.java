@@ -5,13 +5,11 @@ import com.example.demo.domain.board.entity.Board;
 import com.example.demo.domain.board.entity.Reply;
 import com.example.demo.domain.board.repository.BoardRepository;
 import com.example.demo.domain.board.repository.ReplyRepository;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+
 import java.util.List;
-import java.util.Optional;
 
 @Slf4j
 @Service
@@ -25,14 +23,12 @@ public class ReplyServiceImpl implements ReplyService {
 
     @Override
     public void replyRegister(ReplyRequest replyRequest) {
-        Optional<Board> maybeBoard = boardRepository.findById(replyRequest.getBoardId());
+        Board myBoard = boardRepository.findById(replyRequest.getBoardId())
+                .orElseThrow(() -> new RuntimeException("Board 정보를 찾지 못했습니다. " + replyRequest.getBoardId()));
 
-        Reply reply = new Reply();
-        reply.setBoard(maybeBoard.get());
-        reply.setReplyWriter(replyRequest.getReplyWriter());
-        reply.setReplyContent(replyRequest.getReplyContent());
+        Reply newReply = replyRequest.toReply(myBoard);
 
-        replyRepository.save(reply);
+        replyRepository.save(newReply);
     }
 
     @Override
@@ -47,20 +43,14 @@ public class ReplyServiceImpl implements ReplyService {
 
     @Override
     public Reply replyModify(Long replyId, ReplyRequest replyRequest) {
-        Optional<Reply> maybeReply = replyRepository.findById(replyId);
 
-        if (maybeReply.isEmpty()) {
-            System.out.println("reply 정보를 찾지 못했습니다: " + replyId);
-            return null;
-        }
+        Reply myReply = replyRepository.findById(replyId)
+                .orElseThrow(() -> new RuntimeException("reply 정보를 찾지 못했습니다: " + replyId));
 
-        Reply reply = maybeReply.get();
-//        reply.setReplyId(replyRequest.getReplyId());
-        reply.setReplyContent(replyRequest.getReplyContent());
+        myReply.setReplyContent(replyRequest.getReplyContent());
 
-        replyRepository.save(reply);
-
-        return reply;
+        replyRepository.save(myReply);
+        return myReply;
     }
 
     @Override

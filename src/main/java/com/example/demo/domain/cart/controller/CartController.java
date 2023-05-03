@@ -8,7 +8,7 @@ import com.example.demo.domain.cart.controller.request.CartRegisterRequest;
 import com.example.demo.domain.cart.controller.response.CartItemListResponse;
 import com.example.demo.domain.cart.controller.response.SelectedIngredientsResponse;
 import com.example.demo.domain.cart.service.CartService;
-import com.example.demo.domain.utility.TokenBasedController;
+import com.example.demo.domain.utility.member.TokenBasedController;
 import com.example.demo.domain.utility.itemCategory.ItemCategoryType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -28,7 +28,7 @@ public class CartController extends TokenBasedController {
     @PostMapping(value = "/register")
     public Integer CartRegister (@RequestBody CartRegisterRequest cartItem,
                                  HttpServletRequest requestToken) {
-        Long memberId = findMemberId(requestToken);
+        Long memberId = findMemberIdByToken(requestToken);
         log.info("cartRegister()");
         log.info("memberId"+memberId);
         log.info("cartItem"+cartItem.getItemCategoryType());
@@ -38,7 +38,7 @@ public class CartController extends TokenBasedController {
     @GetMapping("/itemInCart")
     public Boolean itemInCart (@RequestBody CartItemIdAndCategory idAndCategory,
                                HttpServletRequest requestToken) {
-        Long memberId = findMemberId(requestToken);
+        Long memberId = findMemberIdByToken(requestToken);
         Long itemId = idAndCategory.getItemId();
         ItemCategoryType itemCategoryType = idAndCategory.getItemCategoryType();
         log.info("isItemInCart()");
@@ -47,21 +47,21 @@ public class CartController extends TokenBasedController {
 
     @PostMapping(value = "/selfsalad/limit")
     public Integer selfSaladCartCount (HttpServletRequest requestToken) {
-        Long memberId = findMemberId(requestToken);
+        Long memberId = findMemberIdByToken(requestToken);
         log.info("checkSelfSaladCartCount()");
         return cartService.checkSelfSaladCartLimit(memberId);
     }
     @PostMapping(value = "/selfsalad/register")
     public void SelfSaladCartRegister (@RequestBody SelfSaladCartRegisterForm selfSaladItem,
                                        HttpServletRequest requestToken) {
-        Long memberId = findMemberId(requestToken);
+        Long memberId = findMemberIdByToken(requestToken);
         log.info("cartRegister()");
         cartService.selfSaladCartRegister(memberId, selfSaladItem);
     }
 
     @GetMapping("/list")
     public List<CartItemListResponse> cartItemList(HttpServletRequest requestToken) {
-        Long memberId = findMemberId(requestToken);
+        Long memberId = findMemberIdByToken(requestToken);
         log.info("cartItemList()");
         return cartService.cartItemList(memberId);
     }

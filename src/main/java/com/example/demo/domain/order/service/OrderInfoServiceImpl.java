@@ -1,10 +1,9 @@
 package com.example.demo.domain.order.service;
 
-import com.example.demo.domain.cart.service.CartServiceImpl;
 import com.example.demo.domain.member.entity.Address;
 import com.example.demo.domain.member.entity.Member;
 import com.example.demo.domain.member.repository.AddressRepository;
-import com.example.demo.domain.member.service.MemberServiceImpl;
+import com.example.demo.domain.member.repository.MemberRepository;
 import com.example.demo.domain.order.controller.form.OrderInfoRegisterForm;
 import com.example.demo.domain.order.controller.response.OrderInfoListResponse;
 import com.example.demo.domain.order.controller.response.OrderItemListResponse;
@@ -14,6 +13,7 @@ import com.example.demo.domain.order.entity.orderItems.ProductOrderItem;
 import com.example.demo.domain.order.entity.orderItems.SelfSaladOrderItem;
 import com.example.demo.domain.order.entity.orderItems.SideProductOrderItem;
 import com.example.demo.domain.order.repository.*;
+import com.example.demo.domain.order.service.request.DeliveryAddressRequest;
 import com.example.demo.domain.order.service.request.DeliveryRegisterRequest;
 import com.example.demo.domain.order.service.request.OrderItemRegisterRequest;
 import com.example.demo.domain.order.service.request.PaymentRequest;
@@ -23,14 +23,13 @@ import com.example.demo.domain.selfSalad.entity.SelfSalad;
 import com.example.demo.domain.selfSalad.repository.SelfSaladRepository;
 import com.example.demo.domain.sideProducts.entity.SideProduct;
 import com.example.demo.domain.sideProducts.repository.SideProductsRepository;
+import com.example.demo.domain.utility.member.MemberUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
-
-import static java.util.Objects.requireNonNull;
 
 @Slf4j
 @Service
@@ -50,78 +49,58 @@ public class OrderInfoServiceImpl implements OrderInfoService {
     final private AddressRepository addressRepository;
     final private DeliveryRepository deliveryRepository;
 
-    final private MemberServiceImpl memberService;
-    final private CartServiceImpl cartService;
+    final private MemberRepository memberRepository;
 
 
+    private Set<Long> getItemIds(List<OrderItemRegisterRequest> orderItems){
+        Set<Long> itemIds = new HashSet<>();
+        for(OrderItemRegisterRequest orderItem : orderItems ){
 
-    private Map<Long, Product> checkProducts(List<OrderItemRegisterRequest> productItems){
-
-        Set<Long> productIds = new HashSet<>();
-        for(OrderItemRegisterRequest orderItem : productItems ){
-
-            productIds.add(orderItem.getItemId());
+            itemIds.add(orderItem.getItemId());
         }
-        Optional <List<Product>> maybeProducts =
-                productsRepository.findByProductIdIn(productIds);
-
-        if(maybeProducts.isPresent()){
-            log.info("Products "+productIds+" 번의 상품들이 존재합니다.");
-
-            Map<Long, Product> productMap = new HashMap<>();
-
-            for (Product product : maybeProducts.get()) {
-                productMap.put(product.getProductId(), product);
-            }
-            return productMap;
-        }
-        return null;
+        return itemIds;
     }
 
-    private Map<Long, SideProduct> checkSideProducts(List<OrderItemRegisterRequest> sideProductItems){
+    private Map<Long, Product> getProductsMap(Set<Long> productIds){
 
-        Set<Long> sideProductIds = new HashSet<>();
-        for(OrderItemRegisterRequest orderItem : sideProductItems ){
+        List<Product> products = productsRepository.findByProductIdIn(productIds)
+                .orElseThrow(() -> new RuntimeException("등록된 Product 상품이 아닙니다. : " + productIds));
 
-            sideProductIds.add(orderItem.getItemId());
+        log.info("Products "+productIds+" 번의 상품들이 존재합니다.");
+        Map<Long, Product> productMap = new HashMap<>();
+
+        for (Product product : products) {
+            productMap.put(product.getProductId(), product);
         }
-        Optional <List<SideProduct>> maybeSideProducts =
-                sideProductsRepository.findBySideProductIdIn(sideProductIds);
-
-        if(maybeSideProducts.isPresent()){
-            log.info("SideProducts "+sideProductIds+" 번의 상품들이 존재합니다.");
-
-            Map<Long, SideProduct> sideProductMap = new HashMap<>();
-
-            for (SideProduct sideProduct : maybeSideProducts.get()) {
-                sideProductMap.put(sideProduct.getSideProductId(), sideProduct);
-            }
-            return sideProductMap;
-        }
-        return null;
+        return productMap;
     }
 
-    private Map<Long, SelfSalad> checkSelfSalad(List<OrderItemRegisterRequest> selfSaladItems){
+    private Map<Long, SideProduct> getSideProductsMap(Set<Long> sideProductIds){
 
-        Set<Long> selfSaladIds = new HashSet<>();
-        for(OrderItemRegisterRequest orderItem : selfSaladItems ){
+        List<SideProduct> sideProducts = sideProductsRepository.findBySideProductIdIn(sideProductIds)
+                .orElseThrow(() -> new RuntimeException("등록된 SideProduct 상품이 아닙니다. : " + sideProductIds));
 
-            selfSaladIds.add(orderItem.getItemId());
+        log.info("SideProducts "+sideProductIds+" 번의 상품들이 존재합니다.");
+        Map<Long, SideProduct> sideProductMap = new HashMap<>();
+
+        for (SideProduct sideProduct :sideProducts) {
+            sideProductMap.put(sideProduct.getSideProductId(), sideProduct);
         }
-        Optional <List<SelfSalad>> maybeSelfSalad =
-                selfSaladRepository.findByIdIn(selfSaladIds);
+        return sideProductMap;
+    }
 
-        if(maybeSelfSalad.isPresent()){
-            log.info("SelfSalads "+selfSaladIds+" 번의 상품들이 존재합니다.");
+    private Map<Long, SelfSalad> getSelfSaladMap(Set<Long> selfSaladIds){
 
-            Map<Long, SelfSalad> selfSaladMap = new HashMap<>();
+        List<SelfSalad> selfSalads = selfSaladRepository.findByIdIn(selfSaladIds)
+                .orElseThrow(() -> new RuntimeException("등록된 SelfSalad 상품이 아닙니다. : " + selfSaladIds));
 
-            for (SelfSalad selfSalad : maybeSelfSalad.get()) {
-                selfSaladMap.put(selfSalad.getId(), selfSalad);
-            }
-            return selfSaladMap;
+        log.info("SelfSalads "+selfSaladIds+" 번의 상품들이 존재합니다.");
+        Map<Long, SelfSalad> selfSaladMap = new HashMap<>();
+
+        for (SelfSalad selfSalad : selfSalads) {
+            selfSaladMap.put(selfSalad.getId(), selfSalad);
         }
-        return null;
+        return selfSaladMap;
     }
 
     private OrderInfo registerOrderInfo(Member member, Long totalOrderPrice){
@@ -148,16 +127,22 @@ public class OrderInfoServiceImpl implements OrderInfoService {
         paymentRepository.save(myPayment);
     }
 
-    private Address getDeliveryAddress(Member member, DeliveryRegisterRequest reqDelivery){
+    @Override
+    public Long registerNewAddress(Long memberId, DeliveryAddressRequest addressRequest){
+        Member member = MemberUtils.getMemberById(memberRepository,memberId);
+        Address newAddress = addressRequest.toAddress(member);
 
+        addressRepository.save(newAddress);
+        return newAddress.getId();
+    }
+
+    private Address getDeliveryAddress(DeliveryRegisterRequest reqDelivery){
         if(reqDelivery.getAddressId() != null){
-            Optional<Address> maybeAddress =
-                    addressRepository.findById(reqDelivery.getAddressId());
 
-            return maybeAddress.orElse(null);
+            return addressRepository.findById(reqDelivery.getAddressId())
+                    .orElseThrow(() -> new RuntimeException("등록된 주소가 아닙니다. : " + reqDelivery.getAddressId()));
         }
-        log.info("주문 전에 배송지를 등록해주세요.");
-        return null;
+        throw new RuntimeException("배송지 주소가 지정되지 않았습니다.");
     }
 
     private void registerDelivery(DeliveryRegisterRequest reqDelivery, OrderInfo myOrderInfo,
@@ -165,35 +150,31 @@ public class OrderInfoServiceImpl implements OrderInfoService {
         Delivery myDelivery =
                 reqDelivery.toDelivery(myAddress, myOrderInfo);
         deliveryRepository.save(myDelivery);
+        log.info("Delivery 등록이 완료되었습니다. :"+myDelivery.getDeliveryId());
     }
 
     @Override
     public void orderRegister(Long memberId, OrderInfoRegisterForm orderForm){
         // { 상품 카테고리, 상품 id, 상품 수량, 상품 가격 } 주문 list
-        try{
-            Member member = requireNonNull(memberService.checkMember(memberId));
+        Member member = MemberUtils.getMemberById(memberRepository,memberId);
 
-            // myOrderInfo 생성
-            OrderInfo myOrderInfo = registerOrderInfo(member, orderForm.getTotalOrderPrice());
+        // myOrderInfo 생성
+        OrderInfo myOrderInfo = registerOrderInfo(member, orderForm.getTotalOrderPrice());
 
-            // orderInfoState 저장
-            registerOrderState(myOrderInfo);
+        // orderInfoState 저장
+        registerOrderState(myOrderInfo);
 
-            // payment 저장
-            registerPayment(orderForm.getPaymentRequest(), myOrderInfo);
+        // payment 저장
+        registerPayment(orderForm.getPaymentRequest(), myOrderInfo);
 
-            // orderItem 분류 및 저장
-            addOrderItemByCategory(orderForm.getOrderItemRegisterRequestList(), myOrderInfo);
+        // orderItem 분류 및 저장
+        addOrderItemByCategory(orderForm.getOrderItemRegisterRequestList(), myOrderInfo);
 
-            // 등록했던 배송지 address 반환
-            Address myAddress = getDeliveryAddress(member, orderForm.getDeliveryRegisterRequest());
+        // 등록했던 배송지 address 반환
+        Address myAddress = getDeliveryAddress(orderForm.getDeliveryRegisterRequest());
 
-            // delivery 저장
-            registerDelivery(orderForm.getDeliveryRegisterRequest(), myOrderInfo, myAddress);
-
-        } catch (RuntimeException ex) {
-            log.info(ex.getMessage());
-        }
+        // delivery 저장
+        registerDelivery(orderForm.getDeliveryRegisterRequest(), myOrderInfo, myAddress);
     }
 
     private void addOrderItemByCategory(List<OrderItemRegisterRequest> orderItems, OrderInfo myOrderInfo){
@@ -225,8 +206,8 @@ public class OrderInfoServiceImpl implements OrderInfoService {
     }
 
     private void addProductOrderItems(List<OrderItemRegisterRequest> productItems, OrderInfo myOrderInfo) {
-
-        Map<Long, Product> productMap = requireNonNull(checkProducts(productItems));
+        Set<Long> productIds = getItemIds(productItems);
+        Map<Long, Product> productMap = getProductsMap(productIds);
 
         List<ProductOrderItem> productOrderItemList = new ArrayList<>();
 
@@ -244,8 +225,8 @@ public class OrderInfoServiceImpl implements OrderInfoService {
     }
 
     private void addSideProductsOrderItems(List<OrderItemRegisterRequest> sideProductItems, OrderInfo myOrderInfo) {
-
-        Map<Long, SideProduct> sideProductMap = requireNonNull(checkSideProducts(sideProductItems));
+        Set<Long> sideProductIds = getItemIds(sideProductItems);
+        Map<Long, SideProduct> sideProductMap = getSideProductsMap(sideProductIds);
 
         List<SideProductOrderItem> sideProductOrderItems = new ArrayList<>();
 
@@ -263,8 +244,8 @@ public class OrderInfoServiceImpl implements OrderInfoService {
     }
 
     private void addSelfSaladOrderItems(List<OrderItemRegisterRequest> selfSaladItems, OrderInfo myOrderInfo) {
-
-        Map<Long, SelfSalad> selfSaladMap = requireNonNull(checkSelfSalad(selfSaladItems));
+        Set<Long> selfSaladIds = getItemIds(selfSaladItems);
+        Map<Long, SelfSalad> selfSaladMap = getSelfSaladMap(selfSaladIds);
 
         List<SelfSaladOrderItem> selfSaladOrderItems = new ArrayList<>();
 
@@ -302,16 +283,16 @@ public class OrderInfoServiceImpl implements OrderInfoService {
     @Transactional
     @Override
     public List<OrderInfoListResponse> orderInfoListResponse(Long memberId){
+
         List<OrderInfo> orderInfoList = orderInfoRepository.findByMember_memberId(memberId);
         List<OrderInfoListResponse> responseList = new ArrayList<>();
         for(OrderInfo orderInfo : orderInfoList){
             responseList.add(
                     new OrderInfoListResponse(
-                            orderInfo.getId(),
-                            orderInfo.getPayment().getMerchant_uid(),
-                            orderInfo.getPayment().getPaid_amount(),
-                            orderInfo.getPayment().getPaid_at(),
+                            orderInfo,
+                            orderInfo.getPayment(),
                             orderInfo.getDelivery(),
+                            orderInfo.getDelivery().getAddress(),
                             getOrderStateType(orderInfo.getOrderInfoState()),
                             getOrderItems(orderInfo.getOrderItems())
                     )
@@ -335,22 +316,35 @@ public class OrderInfoServiceImpl implements OrderInfoService {
                     new OrderItemListResponse(
                             orderItem.getId(),
                             orderItem.getQuantity(),
-                            getOrderItemTitle(orderItem)
+                            getItemTitle(orderItem),
+                            getItemId(orderItem)
                     )
             );
         }
         return itemListResponses;
     }
 
-    private String getOrderItemTitle(OrderItem orderItem){
+    private String getItemTitle(OrderItem orderItem){
         String itemTitle = null;
-        if(orderItem instanceof ProductOrderItem){
+        if(orderItem.getOrderItemType().equals("PRODUCT")){
             itemTitle = ((ProductOrderItem) orderItem).getProduct().getTitle();
-        }else if(orderItem instanceof SideProductOrderItem){
+        }else if(orderItem.getOrderItemType().equals("SIDE")){
             itemTitle = ((SideProductOrderItem) orderItem).getSideProduct().getTitle();
-        }else if(orderItem instanceof SelfSaladOrderItem){
+        }else if(orderItem.getOrderItemType().equals("SELF")){
             itemTitle = ((SelfSaladOrderItem) orderItem).getSelfSalad().getTitle();
         }
         return itemTitle;
+    }
+
+    private Long getItemId(OrderItem orderItem){
+        Long itemId = null;
+        if(orderItem.getOrderItemType().equals("PRODUCT")){
+            itemId = ((ProductOrderItem) orderItem).getProduct().getProductId();
+        }else if(orderItem.getOrderItemType().equals("SIDE")){
+            itemId = ((SideProductOrderItem) orderItem).getSideProduct().getSideProductId();
+        }else if(orderItem.getOrderItemType().equals("SELF")){
+            itemId = ((SelfSaladOrderItem) orderItem).getSelfSalad().getId();
+        }
+        return itemId;
     }
 }

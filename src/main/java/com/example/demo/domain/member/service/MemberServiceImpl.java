@@ -15,14 +15,13 @@ import com.example.demo.domain.security.entity.Authentication;
 import com.example.demo.domain.security.entity.BasicAuthentication;
 import com.example.demo.domain.security.repository.AuthenticationRepository;
 import com.example.demo.domain.security.service.RedisService;
+import com.example.demo.domain.utility.member.MemberUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.util.*;
-
-import static java.util.Objects.requireNonNull;
 
 @Slf4j
 @Service
@@ -46,15 +45,6 @@ public class MemberServiceImpl implements MemberService {
 
     final private RedisService redisService;
 
-    public Member checkMember(Long memberId){
-        Optional<Member> maybeMember =
-                memberRepository.findByMemberId(memberId);
-
-        if(maybeMember.isPresent()) {
-            return maybeMember.get();
-        }
-        throw new RuntimeException("회원을 찾을 수 없습니다: " + memberId);
-    }
 
     //이메일 중복 확인
     @Override
@@ -191,120 +181,93 @@ public class MemberServiceImpl implements MemberService {
     // myPage 에서 회원 프로필 불러오기 (없으면 null)
     @Override
     public MemberProfile getMemberProfile(Long memberId){
-        try {
-            Member member = requireNonNull(checkMember(memberId));
-            Optional<MemberProfile> maybeMemberProfile =
-                    memberProfileRepository.findByMemberProfileId(member.getMemberId());
 
-            return maybeMemberProfile.orElse(null);
+        Member member = MemberUtils.getMemberById(memberRepository,memberId);
+        Optional<MemberProfile> maybeMemberProfile =
+                memberProfileRepository.findByMemberProfileId(member.getMemberId());
 
-        } catch (RuntimeException ex) {
-            log.info(ex.getMessage());
-            return null;
-        }
+        return maybeMemberProfile.orElse(null);
     }
     // MemberProfile 등록 및 수정 요청
     @Override
     public Boolean updateMemberInfo(Long memberId, MemberProfileRequest reqMemberProfile){
-        try {
-            Member member = requireNonNull(checkMember(memberId));
-            Optional<MemberProfile> maybeMemberProfile = memberProfileRepository.findByMemberProfileId(memberId);
+        Member member = MemberUtils.getMemberById(memberRepository,memberId);
+        Optional<MemberProfile> maybeMemberProfile = memberProfileRepository.findByMemberProfileId(memberId);
 
-            String reqPhoneNumber = reqMemberProfile.getPhoneNumber();
-            String reqNickname= reqMemberProfile.getNickname();
-            String reqPassword = reqMemberProfile.getNewPassword();
+        String reqPhoneNumber = reqMemberProfile.getPhoneNumber();
+        String reqNickname= reqMemberProfile.getNickname();
+        String reqPassword = reqMemberProfile.getNewPassword();
 
-            MemberProfile myProfile = null;
-            if(maybeMemberProfile.isPresent()){
-                myProfile = maybeMemberProfile.get();
-            } else {
-                myProfile = new MemberProfile(member);
-            }
-
-
-            if(reqPhoneNumber != null && !reqPhoneNumber.isEmpty()) {
-                    myProfile.setPhoneNumber(reqPhoneNumber);
-                }
-                if(reqNickname != null && !reqNickname.isEmpty()) {
-                    myProfile.setNickname(reqNickname);
-
-                    member.setNickname(reqNickname);
-                    memberRepository.save(member);
-
-                }if(reqPassword != null && !reqPassword.isEmpty()){
-                    updatePassword(member, reqPassword);
-                }
-                memberProfileRepository.save(myProfile);
-                return true;
-
-
-        } catch (RuntimeException ex) {
-            log.info(ex.getMessage());
-            return null;
+        MemberProfile myProfile = null;
+        if(maybeMemberProfile.isPresent()){
+            myProfile = maybeMemberProfile.get();
+        } else {
+            myProfile = new MemberProfile(member);
         }
+
+
+        if(reqPhoneNumber != null && !reqPhoneNumber.isEmpty()) {
+                myProfile.setPhoneNumber(reqPhoneNumber);
+            }
+            if(reqNickname != null && !reqNickname.isEmpty()) {
+                myProfile.setNickname(reqNickname);
+
+                member.setNickname(reqNickname);
+                memberRepository.save(member);
+
+            }if(reqPassword != null && !reqPassword.isEmpty()){
+                updatePassword(member, reqPassword);
+            }
+            memberProfileRepository.save(myProfile);
+            return true;
     }
 
     // myPage 주소 변경 페이지 or 결제 페이지에서 기본주소 불러오기
     @Override
     public Address getDefaultAddress(Long memberId){
-        try {
-            Member member = requireNonNull(checkMember(memberId));
 
-            Optional<Address> maybeDefaultAddress =
-                    addressRepository.findByMember_MemberIdAndDefaultCheck(member.getMemberId(), 'Y');
-            return maybeDefaultAddress.orElse(null);
+        Member member = MemberUtils.getMemberById(memberRepository,memberId);
 
-        } catch (RuntimeException ex) {
-            log.info(ex.getMessage());
-            return null;
-        }
+        Optional<Address> maybeDefaultAddress =
+                addressRepository.findByMember_MemberIdAndDefaultCheck(member.getMemberId(), 'Y');
+        return maybeDefaultAddress.orElse(null);
     }
 
     // 신규 주소 등록
     @Override
     public Boolean registerMemberAddress(Long memberId, AddressRequest reqAddress){
-        try {
-            Member member = requireNonNull(checkMember(memberId));
-            Optional<Address> maybeDefaultAddress =
-                    addressRepository.findByMember_MemberIdAndDefaultCheck(member.getMemberId(), 'N');
-            Address registerAddress;
+        Member member = MemberUtils.getMemberById(memberRepository,memberId);
+        Optional<Address> maybeDefaultAddress =
+                addressRepository.findByMember_MemberIdAndDefaultCheck(member.getMemberId(), 'N');
+        Address registerAddress;
 
-            registerAddress = reqAddress.toAddress(member);
+        registerAddress = reqAddress.toAddress(member);
 
-            log.info("기본 주소 등록 및 수정 완료 : "+ registerAddress.getZipcode());
-            addressRepository.save(registerAddress);
-            return true;
+        log.info("기본 주소 등록 및 수정 완료 : "+ registerAddress.getZipcode());
+        addressRepository.save(registerAddress);
+        return true;
 
-        } catch (RuntimeException ex) {
-            log.info(ex.getMessage());
-            return null;
-        }
     }
 
     // 기본 주소 등록 or 수정
     @Override
     public Boolean updateMemberAddress(Long memberId, AddressRequest reqAddress){
-        try {
-            Member member = requireNonNull(checkMember(memberId));
-            Optional<Address> maybeDefaultAddress =
-                    addressRepository.findByMember_MemberIdAndDefaultCheck(member.getMemberId(), 'Y');
-            Address defaultAddress;
-            // 이미 기본 주소 존재 = 수정작업
-            if(maybeDefaultAddress.isPresent()){
-                defaultAddress = maybeDefaultAddress.get();
-                modifyDefaultAddress(defaultAddress, reqAddress);
-                // 기본 주소 새로 등록
-            }else{
-                defaultAddress = reqAddress.toAddress(member);
-            }
-            log.info("기본 주소 등록 및 수정 완료 : "+ defaultAddress.getZipcode(), defaultAddress.getDefaultCheck());
-            addressRepository.save(defaultAddress);
-            return true;
 
-        } catch (RuntimeException ex) {
-            log.info(ex.getMessage());
-            return null;
+        Member member = MemberUtils.getMemberById(memberRepository,memberId);
+        Optional<Address> maybeDefaultAddress =
+                addressRepository.findByMember_MemberIdAndDefaultCheck(member.getMemberId(), 'Y');
+        Address defaultAddress;
+        // 이미 기본 주소 존재 = 수정작업
+        if(maybeDefaultAddress.isPresent()){
+            defaultAddress = maybeDefaultAddress.get();
+            modifyDefaultAddress(defaultAddress, reqAddress);
+            // 기본 주소 새로 등록
+        }else{
+            defaultAddress = reqAddress.toAddress(member);
         }
+        log.info("기본 주소 등록 및 수정 완료 : "+ defaultAddress.getZipcode(), defaultAddress.getDefaultCheck());
+        addressRepository.save(defaultAddress);
+        return true;
     }
 
     // 기본 주소 수정하기
@@ -347,18 +310,14 @@ public class MemberServiceImpl implements MemberService {
     @Override
     @Transactional
     public Boolean passwordValidation(Long memberId, MemberPasswordCheckRequest memberRequest) {
-        try {
-            Member member = requireNonNull(checkMember(memberId));
+        Member member =
+                MemberUtils.getMemberById(memberRepository,memberId);
 
-            if(member.isRightPassword(memberRequest.getPassword())) {
-                return true;
-            }
-            return false;
-
-        } catch (RuntimeException ex) {
-            log.info(ex.getMessage());
-            return null;
+        if(member.isRightPassword(memberRequest.getPassword())) {
+            return true;
         }
+        return false;
+
     }
 
 
@@ -369,7 +328,6 @@ public class MemberServiceImpl implements MemberService {
 
         // 기본주소만 있다면 빈 리스트 반환
         return otherAddressList.orElse(Collections.emptyList());
-
     }
 
 }
